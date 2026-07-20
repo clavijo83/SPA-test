@@ -1,0 +1,137 @@
+<form [formGroup]="lineItemForm">
+  @for (item of lineItems.controls; track item; let i = $index) {
+    <div class="row pb-3" formArrayName="lineItems">
+      <div [formGroupName]="i" class="col-12 d-flex justify-content-between pl-4 align-items-center" style="padding-right: 0 !important;">
+        <app-type-ahead-drop-down
+          (modelValueOnChange)="setControlValue($event,'classNumber',i);"
+          [data]="classDropdownValues"
+          [editable]="false"
+          [isRequired]="true"
+          [name]="'classNumber'+i"
+          [placeHolder]="'Class'"
+          [selectedValue]="this.lineItems.at(i).get('classNumber')?.value"
+          [tagLine]="'Class'">
+        </app-type-ahead-drop-down>
+
+        <div class="form-label-group m-0 px-1">
+          <input [ngClass]="{'smallInput': !this.global.isCollapsed(), 'medInput': this.global.isCollapsed()}" class="form-control form-control-sm" id="{{'suggestedClass'+i}}" readonly tabindex="-1"
+                 type="text">
+          <label for="{{'suggestedClass'+i}}">Suggested</label>
+        </div>
+
+        <div class="form-label-group m-0 px-1">
+          <input (input)="setControlValue($event,'unitNumber',i);" [ngClass]="{'smallInput': !this.global.isCollapsed(), 'medInput': this.global.isCollapsed()}"
+                 class="form-control form-control-sm"
+                 formControlName="unitNumber" id="{{'unitNumber'+i}}" min="1" placeholder="H/U*" required
+                 type="number">
+          <div class="invalid-tooltip">H/U is missing.</div>
+          <label for="{{'unitNumber'+i}}">H/U</label>
+        </div>
+
+        <div class="form-label-group m-0 px-1">
+          <input (input)="setControlValue($event,'unitWeight',i);" [ngClass]="{'smallInput': !this.global.isCollapsed(), 'medInput': this.global.isCollapsed()}"
+                 class="form-control form-control-sm"
+                 formControlName="unitWeight" id="{{'unitWeight'+i}}" min="1" placeholder="lbs/units*" required
+                 type="number">
+          <div class="invalid-tooltip">lbs/units is missing.</div>
+          <label for="{{'unitWeight'+i}}">lbs/units</label>
+        </div>
+
+        <div class="form-label-group m-0 px-1">
+          <input (input)="setControlValue($event,'unitWeightTotal',i);" [ngClass]="{'smallInput': !this.global.isCollapsed(), 'medInput': this.global.isCollapsed()}"
+                 class="form-control form-control-sm"
+                 formControlName="unitWeightTotal" id="{{'unitWeightTotal'+i}}" min="1" placeholder="Total lbs*" required
+                 type="number">
+          <div class="invalid-tooltip">Total lbs is missing.</div>
+          <label for="{{'unitWeightTotal'+i}}">Total lbs</label>
+        </div>
+
+        <div class="form-label-group m-0 px-1">
+          <input [ngClass]="{'smallInput': !this.global.isCollapsed(), 'medInput': this.global.isCollapsed()}" class="form-control form-control-sm" formControlName="length"
+                 id="{{'length'+i}}" min="1" placeholder="Length"
+                 type="number">
+          <label for="{{'length'+i}}">Length</label>
+        </div>
+
+        <div class="form-label-group m-0 px-1">
+          <input [ngClass]="{'smallInput': !this.global.isCollapsed(), 'medInput': this.global.isCollapsed()}" class="form-control form-control-sm" formControlName="width"
+                 id="{{'width'+i}}" min="1" placeholder="Width"
+                 type="number">
+          <label for="{{'width'+i}}">Width</label>
+        </div>
+
+        <div class="form-label-group m-0 px-1">
+          <input [ngClass]="{'smallInput': !this.global.isCollapsed(), 'medInput': this.global.isCollapsed()}" class="form-control form-control-sm" formControlName="height"
+                 id="{{'height'+i}}" min="1" placeholder="Height"
+                 type="number">
+          <label for="{{'height'+i}}">Height</label>
+        </div>
+
+        <div class="col-1 px-1">
+          <div class="form-check">
+            <!-- Stack checkbox field -->
+            <input [defaultValue]="false" class="form-check-input" formControlName="stackChk" id="{{'stackChk' + i }}"
+                   type="checkbox" value="">
+            <label class="form-check-label custom-font dark-grey" for="{{'stackChk' + i }}">Stackable</label>
+          </div>
+        </div>
+
+        <div class="col-1 px-1">
+          <div class="form-check">
+            <!-- skid checkbox field -->
+            <input class="form-check-input" formControlName="sameSkidChk" id="{{'sameSkidChk' + i }}"
+                   type="checkbox" value="">
+            <label class="form-check-label custom-font dark-grey" for="{{'sameSkidChk' + i }}">Same Skid</label>
+          </div>
+        </div>
+
+        <div class="px-1">
+          <button (click)="removeLineItems(i)" class="btn btn-sm btn-danger custom-height" type="button">
+            <i class="material-icons white" id="btnItemRemove">clear</i>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!--Totals Section-->
+  <div class="card-footer card-footer" style="background-color: transparent; border: 0;">
+    <div class="row">
+      <div class="col-1">
+        <label class="fw-bold">Totals</label>
+      </div>
+      <div class="col-2">
+      </div>
+      <div class="col">
+        <label class="fw-bold d-inline-flex mr-2">{{ this.totalHUSum }}</label>
+        <label class="d-inline-flex m-10">&nbsp;H/U</label>
+      </div>
+      <div class="col">
+        <label class="fw-bold d-inline-flex mr-2">{{ this.totalUnitWeight }}</label>
+        <label class="d-inline-flex">&nbsp;Lbs/Units</label>
+      </div>
+      <div class="col">
+        <label class="fw-bold d-inline-flex mr-2">{{ this.totalLbsSum }}</label>
+        <label class="d-inline-flex">&nbsp;Lbs</label>
+      </div>
+      <div class="col">
+        <label class="fw-bold d-inline-flex mr-2">{{ this.totalCubicFeet }}</label>
+        <label class="d-inline-flex">&nbsp;CBF</label>
+      </div>
+      <div class="col">
+        <label class="fw-bold d-inline-flex mr-2">{{ this.totalDensity }}</label>
+        <label class="d-inline-flex">&nbsp;PCF</label>
+      </div>
+      <div class="col">
+        <label class="fw-bold d-inline-flex mr-2">{{ this.mileage }}</label>
+        <label class="d-inline-flex m-10">&nbsp;Mileage</label>
+      </div>
+      <div class="col">
+        <label class="fw-bold d-inline-flex mr-2">{{ this.linearFeet }}</label>
+        <label>&nbsp;Linear Feet</label>
+      </div>
+      <div class="col-1">
+      </div>
+    </div>
+  </div>
+</form>

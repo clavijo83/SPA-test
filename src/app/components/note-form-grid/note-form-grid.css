@@ -1,0 +1,41 @@
+.notes-header {
+  max-height: 50px;
+  font-size: 16px;
+}
+
+.expand-icon {
+  font-size: 24px;
+  pointer-events: none
+}
+
+.add-note-btn {
+  max-width: 100px;
+  min-width: 50px;
+  max-height: 31px
+}
+
+.btn-height {
+  max-height: 31px
+}
+
+.flag-btn {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  color: dodgerblue;
+}
+
+.notify-client {
+  background-color: orange !important;
+  border-color: orange !important;
+}
+
+.elevate-shipment {
+  background-color: #6f42c1 !important;
+  border-color: #6f42c1 !important;
+}
+
+.expedite-shipment {
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+}

@@ -1,0 +1,159 @@
+<div [formGroup]="offerQuotesForm">
+  <div class="row">
+    <div class="col-sm-12">
+
+      <div class="row pb-3">
+        <div class="pb-2 mb-2" [ngClass]="{'col-12': this.carrierExist, 'col-11': !this.carrierExist}">
+
+          @if (!newQuote) {
+            <div class="form-label-group m-0">
+              <input [formControlName]="'carrierName'" aria-label="carrierName" class="form-control form-control-sm disabled"
+                     id="carrierName" placeholder="Carrier Name*" [disabled]="true"
+                     required type="text">
+              <div class="invalid-tooltip">Carrier Name is missing.</div>
+              <label for="carrierName">Carrier Name*</label>
+            </div>
+          } @else {
+            <div class="w-100 small">
+              @if (this.dropdownList.length > 0) {
+                <ng-multiselect-dropdown [id]="'carrierList'"
+                                         [disabled]="false"
+                                         [placeholder]="'Carrier Name*'"
+                                         [settings]="dropdownSettings"
+                                         formControlName="carrierSelected"
+                                         [data]="dropdownList"
+                                         (onSelect)="setControlValue($event,true)"
+                                         (onDeSelect)="setControlValue($event,false)">
+                </ng-multiselect-dropdown>
+              }
+              @if (rmisFailed) {
+                <p class="red ps-2 mt-1 mb-0">Unable to connect to RMIS to retrieve carrier data.</p>
+              }
+            </div>
+          }
+        </div>
+        @if (!this.carrierExist) {
+          <div class="col-1">
+            <button (click)="searchCarrier()" class="btn btn-sm btn-primary pb-0"  id="btnOfferQuotesSearchCarrier"
+                    ngbTooltip="Search Carrier in RMIS" placement="bottom">
+              <i class="material-icons text-white" id="iconOfferQuotesSearchCarrier">search</i>
+            </button>
+          </div>
+        }
+        <div class="col-sm-6 pb-2 mb-2">
+          <div class="form-label-group m-0">
+            <input [formControlName]="'mcNumber'" [maxlength]="9" aria-label="McNumber"
+                   class="form-control form-control-sm disabled" [disabled]="true"
+                   id="McNumber" placeholder="MC Number*"
+                   required>
+            <div class="invalid-tooltip">MC Number is missing.</div>
+            <label for="McNumber">MC Number*</label>
+          </div>
+        </div>
+        <div class="col-sm-6 pb-2 mb-2">
+          <div class="form-label-group m-0">
+            <input [formControlName]="'carrierScac'" aria-label="carrierScac"
+                   class="form-control form-control-sm disabled" [disabled]="true"
+                   id="carrierScac" placeholder="Scac Code" type="text">
+            <label for="carrierScac">Scac Code</label>
+          </div>
+        </div>
+        <div class="col-sm-12 pb-2 mb-2">
+          <div class="form-label-group m-0">
+            <input [formControlName]="'contactName'" aria-label="contactName" class="form-control form-control-sm disabled"
+                   id="contactName" placeholder="Contact Name*" [disabled]="true"
+                   required type="text">
+            <div class="invalid-tooltip">Contact Name is missing.</div>
+            <label for="contactName">Contact Name*</label>
+          </div>
+        </div>
+        <div class="col-sm-6 pb-2 mb-2">
+          <div class="form-label-group m-0">
+            <input [formControlName]="'contactPhone'" aria-label="contactPhone"
+                   class="form-control form-control-sm disabled" [disabled]="true"
+                   id="contactPhone"
+                   placeholder="Contact Phone"
+                   type="text">
+            <label for="contactPhone">Contact Phone</label>
+          </div>
+        </div>
+        <div class="col-sm-6 pb-2 mb-2">
+          <div class="form-label-group m-0">
+            <input [formControlName]="'contactEmail'" aria-label="contactEmail"
+                   class="form-control form-control-sm disabled" [disabled]="true"
+                   id="contactEmail"
+                   placeholder="Contact Email">
+            <div class="invalid-tooltip">Contact Email is missing.</div>
+            <label for="contactEmail">Contact Email</label>
+          </div>
+        </div>
+        <div class="col-sm-12 pb-2 mb-2">
+          <div class="form-group p-0 m-0">
+            <label class="fw-bold" for="offerAmount">Amount*</label>
+            <input [formControlName]="'offerAmount'"
+                   aria-label="offerAmount" class="form-control form-control-sm" id="offerAmount"
+                   placeholder="Amount*" (keydown)='onKeyPressEvent($event)' (focusout)="onFocusOutEvent($event)"
+                   required type="number">
+            <div class="invalid-tooltip">Amount is missing.</div>
+          </div>
+        </div>
+        <div class="col-sm-12 pb-2 mb-2">
+          <div class="form-group p-0 m-0">
+            <label class="fw-bold" for="offerMessage">Message:</label>
+            <textarea [formControlName]="'offerMessage'" class="form-control form-control-sm d-inline-flex"
+                      id="offerMessage" name="offerMessage" placeholder="Message*"
+                      required rows="3" type="textarea"></textarea>
+            <div class="invalid-tooltip">Message is missing.</div>
+          </div>
+        </div>
+      </div>
+
+      <!--buttons -->
+      <div class="row pb-2">
+        <div class="col-sm-2">
+          <button (click)="closeOfferQuoteModal()" class="btn btn-sm w-100 btn-danger" type="button">
+            Close
+          </button>
+        </div>
+        <div class="col">
+          <app-email-modal [btnClassType]="'Onboard'"
+                           [btnLabel]="'Send email and Save quote'"
+                           (eventEmailSent)="this.selectTruckerToolsQuote()"
+                           [fromEmailAddress]="'truckload@il2000.com'"
+                           [toEmailAddress]="this.offerQuotesForm.get('contactEmail')?.value"
+                           [hideBtn]="true"
+                           [reloadAfterSend]="false"
+                           [hideDocumentUpload]="true"
+                           [emailBody]="buildEmailDisplayBodyMessage()"
+                           [emailModalName]="'OfferQuote'"
+                           [emailModalLabel]="'New Message - Carrier Onboarding'"
+                           [emailSubject]="'[Action required] IL2000 Carrier onboarding'"
+                           [htmlEmailBody]="buildEmailHtmlBodyMessage()" [isHtml]="true">
+          </app-email-modal>
+        </div>
+        <div class="col-sm-3">
+          <button (click)="callCreateOffer()" [disabled]="disableCounterOffer()" class="btn btn-sm w-100 btn-primary"
+                  ngbTooltip="{{ disableCounterOffer() ? 'Enter a new amount for counter offer' : ''}}" type="button">
+            {{ newQuote ? 'Create quote' : 'Counter offer'}}
+          </button>
+        </div>
+        @if (!newQuote) {
+          <div class="col-sm-3">
+            <button (click)="callApproveOffer()" [disabled]="!this.loadOfferId" class="btn btn-sm w-100 btn-success" type="button">
+              Select Quote
+            </button>
+          </div>
+          <div class="col-sm-3">
+            <button (click)="callRejectOffer()" [disabled]="!this.loadOfferId" class="btn btn-sm w-100 btn-danger" type="button">
+              Reject Quote
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<ngx-spinner name="spinnerOfferQuotesForm"></ngx-spinner>
+
+

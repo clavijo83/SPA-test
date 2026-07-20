@@ -1,0 +1,155 @@
+.material-icons {
+  font-size: 20px;
+  color: #007bff;
+}
+
+.unit-type-width {
+  width: 100px;
+  max-width: 100px;
+  min-width: 100px;
+}
+
+.delete-btn-width {
+  width: 50px !important;
+  max-width: 50px !important;
+  min-width: 20px !important;
+}
+
+.vl {
+  border-left: 6px solid #007bff;
+  height: 80%;
+  border-radius: .25rem;
+}
+
+.custom-font {
+  font-size: .75rem;
+}
+
+.custom-col {
+  flex: 0 0 12%;
+  max-width: 12%;
+}
+
+.blue {
+  color: #007bff;
+}
+
+.green {
+  color: #26ff00;
+}
+
+.btn-outline-light {
+  color: #f8f9fa;
+  border-color: white;
+}
+
+.grey {
+  color: #797979;
+}
+
+.dark-grey {
+  color: darkgrey;
+}
+
+.info-modal {
+  width: 80% !important;
+}
+
+.bottom-five {
+  margin-bottom: 5px !important;
+}
+
+.margin-left {
+  margin-left: 8px
+}
+
+.real-blue {
+  color: blue;
+}
+
+.card-height {
+  height: 66px;
+}
+
+.row-height {
+  height: 35px;
+}
+
+.class-max-width {
+  max-width: 80px;
+}
+
+.dark-grey {
+  color: #797979;
+}
+
+.lo-z-index {
+  z-index: 9999
+}
+
+.lo {
+  float: right;
+  margin-top: 5px;
+}
+
+.lo-chk {
+  max-width: 15px;
+  height: 15px;
+}
+
+.clear-btn {
+  color: red;
+}
+
+.check-carrier {
+  color: forestgreen;
+}
+
+.card-footer {
+  color: #007bff;
+  background: white;
+  border: none;
+}
+
+.toast-alert {
+  position: fixed;
+  top: 0;
+  right: 0;
+}
+
+.custom-padding-top {
+  padding-top: .4rem !important;
+}
+
+@media (min-width: 992px) {
+  .modal-lg, .modal-xl {
+    max-width: 960px;
+  }
+}
+
+:host::ng-deep .manualQuotesForm ng-multiselect-dropdown .dropdown-btn {
+  display: flex !important;
+  padding: 6px !important;
+  justify-content: space-between !important;
+}
+
+.opacity-0 {
+  opacity: 0;
+}
+
+.white {
+  color: white;
+}
+
+.opacity {
+  opacity: 0.5;
+}
+
+.opacity:hover {
+  opacity: 1;
+}
+
+.custom-padding {
+  padding-left: 0 !important;
+  padding-right: 0.25rem !important;
+}

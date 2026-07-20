@@ -1,0 +1,158 @@
+@if (isInternalUser()) {
+  <div id="note-component">
+    <form [formGroup]="noteForm">
+      <div class="row pb-3">
+        <div class="col-sm-12">
+          <div class="accordion">
+            <div class="icon-pointer card">
+              <div (click)="headerClicked(shipmentId())" [attr.data-bs-target]="'#dropdown' + shipmentId()"
+                   aria-expanded="true" class="card-header" data-bs-toggle="collapse" id="cardHeader">
+                <div class="text-center fw-bold text-dark pt-1">
+                  <b>NOTES</b>
+                  <i class="material-icons float-end pointer-event-none" id="openIcon{{shipmentId()}}" [ngStyle]="{'display': (this.truckloadDetailsPage) ? 'none' : ''}">expand_more</i>
+                  <i class="material-icons float-end pointer-event-none" id="closeIcon{{shipmentId()}}" [ngStyle]="{'display': (!this.truckloadDetailsPage) ? 'none' : ''}" >expand_less</i>
+                </div>
+              </div>
+              <div [ngClass]="this.truckloadDetailsPage ? 'show' : ''" id="dropdown{{shipmentId()}}" class="collapse font-smaller">
+                <div class="pt-3">
+                  <div class="p-3 row">
+                    <div class="col-8">
+                      <textarea (focusin)="textAreaFocus('in')"
+                                (focusout)="textAreaFocus('out')"
+                                (input)="onChangeNote($event.target)"
+                                class="form-control form-control-sm"
+                                formControlName="notesText"
+                                id="notesText"
+                                placeholder="Enter New Note"
+                                rows="4"
+                                type="textarea">
+                      </textarea>
+                    </div>
+
+                    <div class="col-4">
+
+                      <div class="col-12 d-inline-flex">
+                        <!--Public Note Button Group-->
+                        <span class="m-2">
+                        <button (click)="this.noteType('isClientNote')"
+                                [ngClass]="{'btn-light': this.noteForm.get('isClientNote')?.value === false, 'btn-success notify-client': this.noteForm.get('isClientNote')?.value }"
+                                class="btn btn-sm btn-height"
+                                container="body"
+                                ngbTooltip="Make Note Public"
+                                placement="top"
+                                type="button">
+                          <i class="material-icons flag-btn">message</i>
+                        </button>
+                      </span>
+
+                        @if (shipmentType() == 'LTL') {
+                          <!--Elevate Shipment Button Group-->
+                          <span class="m-2">
+                          <button (click)="this.noteType('isElevated')"
+                                  [disabled]="priority() === 'ELEVATED' || priority() === 'EXPEDITED'"
+                                  [ngClass]="{'btn-light': this.noteForm.get('isElevated')?.value === false, 'btn-success elevate-shipment': this.noteForm.get('isElevated')?.value }"
+                                  class="btn btn-sm btn-height"
+                                  container="body"
+                                  ngbTooltip="Elevate Shipment"
+                                  placement="top"
+                                  id="elevate-button-id"
+                                  type="button">
+                            <i class="material-icons flag-btn">arrow_upward</i>
+                          </button>
+                        </span>
+
+                          <!--Expedite Shipment Button Group-->
+                          <span class="m-2">
+                          <button (click)="this.noteType('isExpedited')"
+                                  [disabled]="priority() === 'ELEVATED' || priority() === 'EXPEDITED'"
+                                  [ngClass]="{'btn-light': this.noteForm.get('isExpedited')?.value === false, 'btn-success expedite-shipment': this.noteForm.get('isExpedited')?.value }"
+                                  class="btn btn-sm btn-height"
+                                  container="body"
+                                  ngbTooltip="Expedite Shipment"
+                                  placement="top"
+                                  id="expedite-button-id"
+                                  type="button">
+                            <i class="material-icons flag-btn">directions_run</i>
+                          </button>
+                        </span>
+
+                          <!-- Needs Management Button Group-->
+                          <span class="m-2">
+                          <button (click)="this.noteType('isNeedsManagement')"
+                                  [ngClass]="{'btn-light': this.noteForm.get('isNeedsManagement')?.value === false, 'btn-success': this.noteForm.get('isNeedsManagement')?.value }"
+                                  class="btn btn-sm btn-height"
+                                  container="body"
+                                  ngbTooltip="Needs Management"
+                                  placement="top"
+                                  type="button">
+                            <i class="material-icons flag-btn">push_pin</i>
+                          </button>
+                        </span>
+                        }
+
+                        <!--ADD BUTTON-->
+                        <div class="m-2 w-50">
+                          <button (click)=addNewNote() [disabled]="this.disableNoteBtn"
+                                  class="btn btn-sm btn-primary w-100" id="btnAddNote" type="button">
+                            Add Note
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="col-12 d-inline-flex">
+                        <select (change)="isNoteDeleteDisabled = false" class="form-select form-select-sm custom-select mx-2"
+                                style="margin-top:15px;" id="deleteNote-{{shipmentId()}}">
+                          <option disabled="disabled" selected>Select Note to Delete</option>
+                          @for (note of this.notes; track note.notID) {
+                            @if (note.clientNote) {
+                              <option [value]="note.notID">
+                                {{note.notID}} : [ {{note.notText | slice:0:24 }}
+                                @if (note.notText && note.notText.length > 24) {
+                                  <ng-container>...</ng-container>
+                                }
+                                ]
+                              </option>
+                            }
+                          }
+                        </select>
+
+                        <button (click)=deleteNote()
+                                [disabled]="isNoteDeleteDisabled"
+                                [ngClass]="'btn-primary'"
+                                style="background-color:red;color:white;margin-top:15px"
+                                class="btn btn-sm add-note-btn mx-3"
+                                id="btnDltNote"
+                                type="button">
+                          Delete Note
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="p-3 row">
+                    <app-data-table
+                      [advancedSearch]="false"
+                      [columns]="this.noteTableColumns"
+                      [customFixedHeight]="false"
+                      [customSort]="this.sortOrder"
+                      [data]="this.notes"
+                      [footerFixed]="false"
+                      [gridName]="'notesGrid'"
+                      [hover]="false"
+                      [info]="true"
+                      [lengthChange]="false"
+                      [ordering]="true"
+                      [paging]="false"
+                      [searching]="false">
+                    </app-data-table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+}
+

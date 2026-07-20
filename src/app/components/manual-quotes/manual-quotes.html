@@ -1,0 +1,349 @@
+<div [formGroup]="manualQuotesForm">
+  <div class="row mt-2 mb-2">
+    <div class="col-12 d-inline-flex ml-2">
+      <span class="fw-bold">
+        Quotes
+      </span>
+      <div class="px-1" ngbTooltip="Refresh carrier list" placement="bottom">
+        <button (click)="refreshCarrierList()" [attr.disabled]="disabled() ? 'disabled' : null"
+                class="btn btn-sm btn-success pb-0 px-1" id="btnRefreshCarrier">
+          <i class="material-icons text-white">cached</i>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div *ngFor="let quote of quotes.controls; let i=index" class="pb-2" formArrayName="quotes">
+    <div [formGroupName]="i" id="rowQuote{{i}}">
+      <div class="row mx-0 vl">
+        <div class="col-12 px-1 d-inline-flex">
+          <div class="col-3 custom-padding" id="{{'carrierDiv' + i }}">
+            <div *ngIf="carrierSource === 'MCLEOD'" class="w-100 small manualQuotesForm" ngbTooltip="Select Carrier or Type MC Number / DOT Number" placement="bottom">
+              <ng-multiselect-dropdown *ngIf="dropdownList.length > 0"
+                                       [id]="'carrier' + i"
+                                       [disabled]="disabled()"
+                                       [placeholder]="'Carrier'"
+                                       [settings]="dropdownSettings"
+                                       formControlName="selected"
+                                       [data]="dropdownList"
+                                       (click)="addEvent(i)"
+                                       (keydown.enter)="searchCarrierFromMcLeod(quotes.at(i).get('mcNumber')?.value, i, 'MC')"
+                                       (onSelect)="setControlValue($event,true, i)"
+                                       (onDeSelect)="setControlValue($event,false, i)"
+                                       (onFilterChange)="carrierFilterChange($event,i)">
+              </ng-multiselect-dropdown>
+            </div>
+            <div *ngIf="carrierSource === 'RMIS'"  class="w-100 small manualQuotesForm" ngbTooltip="Select Carrier or Type MC Number / DOT Number" placement="bottom">
+              <ng-multiselect-dropdown *ngIf="dropdownList.length > 0"
+                                       [id]="'carrier' + i"
+                                       [disabled]="disabled()"
+                                       [placeholder]="'Carrier'"
+                                       [settings]="dropdownSettings"
+                                       formControlName="selected"
+                                       [data]="dropdownList"
+                                       (click)="addEvent(i)"
+                                       (keydown.enter)="searchCarrierByMcNumber(quotes.at(i).get('mcNumber')?.value, i)"
+                                       (onSelect)="setControlValue($event,true, i)"
+                                       (onDeSelect)="setControlValue($event,false, i)"
+                                       (onFilterChange)="carrierFilterChange($event,i)">
+              </ng-multiselect-dropdown>
+            </div>
+          </div>
+          <div class="custom-padding" id="{{'searchCarrierDiv' + i }}" ngbTooltip="Search Carrier by MC Number" placement="bottom">
+            <button *ngIf="carrierSource === 'RMIS'"
+                    (click)="searchCarrierByMcNumber(quotes.at(i).get('mcNumber')?.value, i)"
+                    [disabled]="!quotes.at(i).get('mcNumber')?.value || isCarrierOnboarded(quotes.at(i).get('carrierID')?.value)"
+                    class="btn btn-sm btn-primary pb-0 px-1"
+                    id="{{'btnSearchCarrier' + i }}">
+              <i class="material-icons p-0 text-white" id="{{'btnIconSearchCarrier' + i }}">search</i>
+            </button>
+            <button *ngIf="carrierSource === 'MCLEOD'"
+                    (click)="searchCarrierFromMcLeod(quotes.at(i).get('mcNumber')?.value, i, 'MC')"
+                    [disabled]="!quotes.at(i).get('mcNumber')?.value || isCarrierOnboarded(quotes.at(i).get('carrierID')?.value)"
+                    class="btn btn-sm btn-primary pb-0 px-1"
+                    id="{{'btnSearchCarrier' + i }}">
+              <i class="material-icons p-0 text-white" id="{{'btnIconSearchCarrier' + i }}">search</i>
+            </button>
+          </div>
+          <div class="custom-padding" placement="bottom" id="{{'checkCarrierDiv' + i }}"
+               ngbTooltip="{{ isCarrierOnboarded(quotes.at(i).get('carrierID')?.value) ? 'View Carrier. Carrier is Onboard' : 'Carrier Not Onboard' }}">
+            <button
+              (click)="checkCarrierStatus(quotes.at(i).get('carrierID')?.value)"
+              [attr.disabled]="disabled() || quotes.at(i).get('carrierID')?.value === '' || !isCarrierOnboarded(quotes.at(i).get('carrierID')?.value) ? 'disabled' : null"
+              class="btn btn-sm pb-0 px-1" [ngClass]="isCarrierOnboarded(quotes.at(i).get('carrierID')?.value) ? 'btn-success' : 'btn-secondary'"
+              id="{{'btnCheckCarrierStatus' + i }}">
+              <i class="material-icons p-0 text-white" id="{{'btnIconCheckCarrierStatus' + i }}">fact_check</i>
+            </button>
+          </div>
+          <div class="col-1 custom-padding">
+            <div class="btn-group w-100" role="group" [attr.disabled]="disabled() ? 'disabled' : null" ngbTooltip="Change carrier currency">
+              <button type="button" (click)="changeCurrency(i, 1)" class="btn btn-sm" [ngClass]="quotes.at(i).get('currencyID')?.value != 2 ? 'btn-primary' : 'btn-secondary opacity'">USD</button>
+              <button type="button" (click)="changeCurrency(i, 2)" class="btn btn-sm" [ngClass]="quotes.at(i).get('currencyID')?.value == 2 ? 'btn-primary' : 'btn-secondary opacity'">CAD</button>
+            </div>
+          </div>
+          <div class="custom-padding col" id="{{'carrierCostDiv' + i }}">
+            <div class="form-label-group m-0">
+              <input [attr.disabled]="disabled() ? 'disabled' : null" [value]="manualQuotesForm.get('carrierCost')?.value | number:'1.0-2'" aria-label="carrierCost"
+                     class="form-control form-control form-control-sm"
+                     formControlName="carrierCost"
+                     (keypress)="checkTwoDecimals($event)"
+                     (change)="changeEvent.emit(true)"
+                     (focusout)="hideReasonCode(i)"
+                     id="{{'carrierCost' + i }}"
+                     min="0" step="0.01"
+                     placeholder="Carrier Cost {{ setCarrierCurrency(i) }}" type="number">
+              <label for="{{'carrierCost' + i }}">Carrier Cost {{ setCarrierCurrency(i) }}</label>
+            </div>
+          </div>
+          <div class="col-1 custom-padding">
+            <div class="form-label-group m-0">
+              <input [attr.disabled]="disabled() ? 'disabled' : null" [value]="manualQuotesForm.get('clientCost')?.value | number:'1.0-2'" aria-label="markup"
+                     class="form-control d-inline-flex mr-1 form-control form-control-sm"
+                     (keyup)="showExchangeInfoDiv(i, false)"
+                     (keypress)="checkTwoDecimals($event)"
+                     id="{{'markup' + i }}"
+                     min="0" step="0.01"
+                     placeholder="Markup %" type="number">
+              <label for="{{'markup' + i }}">markup %</label>
+            </div>
+          </div>
+          <div class="custom-padding" ngbTooltip="Fetch exchange rate (if applies) and calculate client cost" placement="bottom">
+            <button (click)="fetchRateAndCalculate(i)" [attr.disabled]="enableCalculateBtn(i) ? 'disabled' : null"
+                    class="btn btn-sm btn-success pb-0 px-1" id="{{'btnCalculate' + i }}">
+              <i class="material-icons p-0 text-white" id="{{'btnIconCalculate' + i }}">calculate</i>
+            </button>
+          </div>
+          <div class="ml-1 col-1 custom-padding d-none" style="top: -10px" id="{{'exchangeInfoDiv' + i }}">
+            <label class="mb-0 small-font-size" style="color: #28a745">Exc. rate: {{ quotes.at(i).get('exchangeRate')?.value }}</label>
+            <label class="mb-0 small-font-size" style="color: #28a745">Result: {{ calculateCost(i, quotes.at(i).get('exchangeRate')?.value) }} {{ currencyType() }}</label>
+          </div>
+          <div class="custom-padding col" id="{{'clientCostDiv' + i }}">
+            <div class="form-label-group m-0">
+              <input [attr.disabled]="disabled() ? 'disabled' : null" [value]="manualQuotesForm.get('clientCost')?.value | number:'1.0-2'" aria-label="clientCost"
+                     class="form-control d-inline-flex mr-1 form-control form-control-sm"
+                     formControlName="clientCost"
+                     (keypress)="checkTwoDecimals($event)"
+                     (change)="changeEvent.emit(true)"
+                     (focusout)="hideReasonCode(i)"
+                     id="{{'clientCost' + i }}"
+                     min="0" step="0.01"
+                     placeholder="Client Cost {{ currencyType() }}" type="number">
+              <label for="{{'clientCost' + i }}">Client Cost {{ currencyType() }}</label>
+            </div>
+          </div>
+          <div class="custom-padding" *ngIf="manualQuotes().length > 0 || trackingDetails()" id="{{'btnAssignQuoteDiv' + i }}" placement="left"
+               ngbTooltip="{{ quotes.at(i).get('truckNotUsed')?.value ? 'Quote marked as Truck not used' : (quotes.at(i).get('assigned')?.value == true ? 'Quote selected' : 'Select Quote to Book Shipment') }}">
+            <button (click)="assignQuote(i, !quotes.at(i).get('assigned')?.value)" [ngClass]="quotes.at(i).get('truckNotUsed')?.value ? 'btn-secondary' : (quotes.at(i).get('assigned')?.value == true ? 'btn-primary' : 'btn-outline-primary')"
+                    [attr.disabled]="disabled() ? 'disabled' : (checkInsuranceAmount() || quotes.at(i).get('carrierID')?.value === '' || quotes.at(i).get('truckNotUsed')?.value || !isCarrierOnboarded(quotes.at(i).get('carrierID')?.value) ? (quotes.at(i).get('assigned')?.value == true ? null : 'disabled') : null)"
+                    class="btn btn-sm pb-0 px-1" id="{{'btnAssignQuote' + i }}">
+              <i class="material-icons p-0 white" id="{{'btnIconAssignQuote' + i }}">
+                {{ quotes.at(i).get('assigned')?.value == true ? 'task_alt' : 'done'}}
+              </i>
+            </button>
+          </div>
+          <div class="custom-padding" *ngIf="trackingDetails()" ngbTooltip="Generate Documents" placement="bottom">
+            <button (click)="openGenerateDocumentsModal(i)" [attr.disabled]="!quotes.at(i).get('quoteID')?.value ? 'disabled' : null"
+                    class="btn btn-sm btn-primary pb-0 px-1" id="{{'btnGenerateDocument' + i }}">
+              <i class="material-icons text-white" id="{{'btnIconGenerateDocument' + i }}">file_download</i>
+            </button>
+            <app-email-modal [BOLNumber]="truck()?.truckID?.toString() ?? ''"
+                             [truckBOLs]="shipmentIDs"
+                             [hideBtn]="true"
+                             [attachments]="emailSendAttachment"
+                             [ccSender]="true"
+                             [btnClassType]="'Document'"
+                             [hideDocumentUpload]="true"
+                             [btnLabel]="''"
+                             [disableBtn]="false"
+                             [documentType]="selectedManualDocument"
+                             [identifierType]="'TL'"
+                             [sendingManualDoc]="false"
+                             [emailModalLabel]="emailSendSubject"
+                             [emailModalName]="'ManualQuoteDocumentEmail'"
+                             [emailSubject]="emailSendSubject"
+                             [fromEmailAddress]="'truckload@il2000.com'"
+                             (eventEmailSent)="onMailSent()"
+                             [reloadAfterSend]="false"
+                             [htmlEmailBody]="''"
+                             [isHtml]="false"
+                             [toEmailAddress]="truck()?.carrierEmail?.toLowerCase() ?? ''"
+                             class="d-block justify-content-center">
+            </app-email-modal>
+          </div>
+          <div class="custom-padding" ngbTooltip="Delete quote" placement="bottom">
+            <button (click)="removeQuote(i)" [attr.disabled]="disabled() ? 'disabled' : null"
+                    class="btn btn-sm btn-danger pb-0 px-1" id="{{'btnRemoveQuote' + i }}">
+              <i class="material-icons p-0 text-white" id="{{'btnIconRemoveQuote' + i }}">clear</i>
+            </button>
+          </div>
+        </div>
+
+        <div class="col-12 px-1 pt-2 d-inline-flex">
+          <div class="col-2 custom-padding" id="{{'quoteNumberDiv' + i }}">
+            <div class="form-label-group m-0">
+              <input [attr.disabled]="disabled() ? 'disabled' : null" aria-label="quoteNumber"
+                     class="form-control form-control form-control-sm"
+                     formControlName="quoteNumber"
+                     (change)="changeEvent.emit(true)"
+                     id="{{'quoteNumber' + i }}" placeholder="Quote Number" type="text">
+              <label for="{{'quoteNumber' + i }}">Quote Number</label>
+            </div>
+          </div>
+          <div class="col-2 custom-padding">
+            <app-type-ahead-drop-down [disabled]="disabled()"
+                                      [selectedValue]="quotes.at(i).get('equipment')?.value"
+                                      [editable]="false"
+                                      [name]="'equipment' + i "
+                                      [tagLine]="'Equipment'"
+                                      [data]="equipment"
+                                      [placeHolder]="'Equipment'"
+                                      [isRequired]="isEquipmentRequired[i]"
+                                      (modelValueOnChange)="setFormControlValue($event, i, 'equipment')">
+            </app-type-ahead-drop-down>
+          </div>
+          <div class="col-1 custom-padding" style="max-width: 5%;min-width: 3%" id="{{'transitTimeDiv' + i }}">
+            <div class="form-label-group m-0" ngbTooltip="Transit time">
+              <input [attr.disabled]="disabled() ? 'disabled' : null" [value]="manualQuotesForm.get('transitTime')?.value | number:'1.0-0'" aria-label="transitTime"
+                     class="form-control form-control form-control-sm"
+                     formControlName="transitTime" [maxlength]="3" maxlength="3"
+                     (change)="changeEvent.emit(true)"
+                     id="{{'transitTime' + i }}"
+                     min="0" placeholder="TT" type="number">
+              <label for="{{'transitTime' + i }}">TT</label>
+            </div>
+          </div>
+          <div class="col custom-padding">
+            <div class="form-label-group m-0">
+              <input [attr.disabled]="disabled() ? 'disabled' : null" aria-label="notes"
+                     class="form-control form-control form-control-sm"
+                     formControlName="notes"
+                     (change)="changeEvent.emit(true)"
+                     id="{{'notes' + i }}" placeholder="Notes" type="text">
+              <label for="{{'notes' + i }}">Notes</label>
+            </div>
+          </div>
+          <div class="col-2 custom-padding" [hidden]="quotes.at(i).get('hideReasonCode')?.value"
+               ngbTooltip="Carrier cost greater than client cost, To select this quote you must select a Reason code">
+            <app-type-ahead-drop-down [disabled]="disabled()"
+                                      [selectedValue]="quotes.at(i).get('reasonCode')?.value"
+                                      [editable]="false"
+                                      [name]="'reasonCode' + i "
+                                      [tagLine]="'Reason Code'"
+                                      [data]="reasonCodes"
+                                      [placeHolder]="'Reason Code'"
+                                      [isRequired]="true"
+                                      (modelValueOnChange)="setFormControlValue($event, i, 'reasonCode')">
+            </app-type-ahead-drop-down>
+            <input type="hidden" formControlName="hideReasonCode" id="{{'hideReasonCode' + i }}">
+          </div>
+          <div class="col custom-padding" id="{{'lostReasonNotesDiv' + i }}" [hidden]="quotes.at(i).get('hideReasonCode')?.value">
+            <div class="form-label-group m-0">
+              <input [attr.disabled]="disabled() ? 'disabled' : null" aria-label="lostReasonNotes"
+                     class="form-control form-control form-control-sm"
+                     formControlName="lostReasonNotes"
+                     [maxlength]="500"
+                     (change)="changeEvent.emit(true)"
+                     id="{{'lostReasonNotes' + i }}" placeholder="Lost reason notes" type="text">
+              <label for="{{'lostReasonNotes' + i }}">Lost reason notes</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-footer ps-1 pe-1 pt-0 card-footer">
+    <div class="row form-inline">
+      <div class="col-sm-12 d-inline-flex">
+        <div class="justify-content-start ps-2">
+          <div *ngIf="showCheckInsuranceAmount()"  class="col px-1 pt-1">
+            <div class="form-check">
+              <input [attr.disabled]="disabled() ? 'disabled' : null"
+                     class="form-check-input" id="checkInsuranceAmount" type="checkbox"
+                     (change)="onCheckingInsuranceAmount()"/>
+              <label class="form-check-label text-dark fw-bold" for="checkInsuranceAmount">
+                I have checked that cargo insurance dollar amount is appropriate for this shipment
+              </label>
+              <div class="invalid-tooltip">Check insurance dollar amount is missing.</div>
+            </div>
+          </div>
+        </div>
+        <div class="col ps-2 d-inline-flex"></div>
+        <div class="justify-content-end">
+          <button (click)="addQuotes()" [attr.disabled]="disabled() ? 'disabled' : null"
+                  class="btn-sm w-100 btn btn-success btn-sm">
+            <i class="material-icons p-0 text-white" id="btnIconAdd" style="margin-top:2px; vertical-align: middle;">add_circle_outline</i>
+            <span style="vertical-align: middle;">&nbsp;Add quote&nbsp;&nbsp;</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div aria-hidden="true" aria-labelledby="carrierMonitoringModal" class="modal fade bd-product-modal-lg" id="carrierMonitoringModal"
+       role="dialog" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-lg justify-content-center" role="document">
+      <div class="modal-content" style="margin-top:10%">
+        <div class="modal-header border-0 pb-2">
+          <span class="fw-bold ps-1 modal-title"
+                style="font-size: large">Carrier profile - {{carrierName}}</span>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body pt-2">
+          <app-carrier-management *ngIf="carrierMonitoringData || mcNumber || carrierInfo"
+                                  [Data]="carrierMonitoringData" [carrierDotNumber]="dotNumber"
+                                  [isModal]="true" [newCarrier]="newCarrier" [carrierInfo]="carrierInfo"
+                                  (newCarrierEvent)="getNewCarrier($event, carrierIndex)" [carrierMCNumber]="mcNumber"
+                                  [onboardCarrier]="onboardCarrier" [modalNetwotkTT]="modalNetwotkTT"
+                                  [modalCarrierCertified]="carrierCertified" [modalCertificationVerified]="certificationVerified" >
+          </app-carrier-management>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:100px!important" aria-hidden="true" aria-labelledby="missingExceptionModal"
+       data-bs-backdrop="static" data-bs-keyboard="false"
+       class="modal fade bd-product-modal-lg" id="missingExceptionModal" role="dialog" tabindex="-1">
+    <div class="modal-dialog justify-content-center" role="document">
+      <div class="modal-content" style="width: 600px;">
+        <div class="modal-header">
+          <b class="modal-header-font">Carrier validations</b>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="col pb-2 red" *ngIf="flagCerticateInsurance">Missing certificate of insurance</div>
+          <div class="col pb-2 red" *ngIf="flagCarrierCerticated">Carrier not certificated</div>
+          <div class="col pb-2 red" *ngIf="flagSafetyRating">Safety rating not satisfactory</div>
+          <div class="col pb-2 red" *ngIf="flagMonthsInService">Less than 6 months in service</div>
+          <div class="row pb-2">
+            <div class="col">
+              <select [formControlName]="'overrideException'" name="overrideException" id="overrideException"
+                      class="form-select form-select-sm custom-select d-inline-flex" style="height: 33px">
+                <ng-container *ngFor="let exception of exceptionDropDown;">
+                  <option disabled hidden selected value="">Choose Exception</option>
+                  <option attr.name="{{exception.ExceptionName}}"
+                          value="{{exception.ExceptionID}}">{{exception.ExceptionName}}</option>
+                </ng-container>
+              </select>
+            </div>
+            <div class="col">
+              <div *ngIf="manualQuotesForm.get('overrideException')?.value == -1" class="form-label-group m-0">
+                <input [formControlName]="'overrideExceptionText'" aria-label="overrideExceptionText" style="font-size: 0.85rem;height: 33px;"
+                       class="form-control" id="overrideExceptionText" placeholder="Type another reason" type="text">
+                <label for="overrideExceptionText">Type another reason</label>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer" style="justify-content: space-between !important;">
+          <button class="btn btn-primary" (click)="closeCarrierValidationModal()">Close</button>
+          <button class="btn" [ngClass]="disableOverrideButton() ? 'btn-secondary' : 'btn-danger'"
+                  [disabled]="disableOverrideButton()" (click)="onClickOverrideException()">Override exception</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<ngx-spinner name="spinnerManualQuotesForm"></ngx-spinner>
+

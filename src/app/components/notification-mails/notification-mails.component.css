@@ -1,0 +1,13 @@
+.vl {
+  border-left: 6px solid #007bff;
+  height: 80%;
+  border-radius: .25rem;
+}
+
+.material-icons {
+  font-size: 20px;
+}
+
+.invalid-mail {
+  border-color: #dc3545 !important;
+}

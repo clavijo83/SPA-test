@@ -1,0 +1,65 @@
+<div [formGroup]="notificationMailFg" [id]="'appNotificationMail' + (this.shipmentType == 'LTL' ? 'LTL' : 'TL' + notMailId)">
+
+  <div class="row mt-2 mb-3">
+    <div class="col-12 d-inline-flex">
+         <span class="label fw-bold pe-2">
+            Notify status change:
+         </span>
+    </div>
+  </div>
+
+  @for (a of notificationMails.controls; track a; let i=$index;) {
+    <div class="pb-2" formArrayName="notificationMails">
+      <div [formGroupName]="i" id="rowItem{{i}}">
+        <div class="row ms-1 vl mb-1">
+          <div class="col-12 d-inline-flex ps-1">
+
+            <input type="hidden" id="{{'statusNotId' + i }}" formControlName="statusNotId">
+
+            <!-- mail -->
+            <div class="col ps-0 pe-1">
+              <div class="form-label-group m-0">
+                <input (input)="onChange($event,'statusNotEmail', i);"
+                       (focusout)="isValidEmail(i, $event)"
+                       [attr.disabled]="disabled ? 'disabled' : null"
+                       aria-label="Mail to"
+                       class="form-control form-control-sm d-inline-flex"
+                       formControlName="statusNotEmail"
+                       id="{{'statusNotEmail' + (this.shipmentType == 'LTL' ? 'LTL' : 'TL' + notMailId) + '-' + i }}"
+                       placeholder="Mail to"
+                       type="email">
+                <label for="{{'statusNotEmail' + (this.shipmentType == 'LTL' ? 'LTL' : 'TL' + notMailId) + '-' + i }}">Mail to</label>
+                <div class="invalid-tooltip">Invalid Mail</div>
+              </div>
+            </div>
+            <!-- End mail -->
+
+            <!-- Remove button -->
+            @if (!disabled) {
+              <div class="px-1" ngbTooltip="Remove mail" placement="bottom">
+                <button (click)="removeControl(i);onChange($event,'', i); "
+                        [attr.disabled]="disabled ? 'disabled' : null"
+                        class="btn btn-sm btn-danger pb-0 px-1" id="{{'btnRemoveMail' + (this.shipmentType == 'LTL' ? 'LTL' : 'TL' + notMailId) + '-' + i }}" >
+                  <i class="material-icons text-white" id="{{'btnRemoveMailIcon' + (this.shipmentType == 'LTL' ? 'LTL' : 'TL' + notMailId) + '-'  + i }}">clear</i>
+                </button>
+              </div>
+            }
+            <!-- End Remove button -->
+
+            <!-- Add button -->
+            @if (!disabled && i == 0) {
+              <div class="px-1" ngbTooltip="Add mail" placement="bottom">
+                <button (click)="addNotificationMails();"
+                        [attr.disabled]="disabled ? 'disabled' : null"
+                        class="btn btn-success btn-sm pb-0 px-1" id="btnAddMail" >
+                  <i class="material-icons text-white" id="btnAddMailIcon">add_circle_outline</i>
+                </button>
+              </div>
+            }
+            <!-- End Add button -->
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

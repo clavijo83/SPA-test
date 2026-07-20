@@ -1,0 +1,179 @@
+@if (selectedRate()) {
+  <div class="row pt-3 pb-2">
+    <div class="col-sm-12">
+      <div class="accordion">
+        <div class="icon-pointer card">
+
+          <div (click)="this.expandDetails = !this.expandDetails" aria-controls="collapseOne" aria-expanded="false"
+               class="card-header btn-light" data-bs-target="#rateDetails" style="background-color: #e2e6ea !important;"
+               data-bs-toggle="collapse">
+            <div class="text-center fw-bold text-uppercase text-dark">
+              Rate
+              @if (!this.expandDetails) {
+                <i class="material-icons float-end pointer-event-none">expand_more</i>
+              } @else {
+                <i class="material-icons float-end pointer-event-none">expand_less</i>
+              }
+            </div>
+          </div>
+
+          <div aria-labelledby="rateDetails" class="card-body collapse" data-parent="#accordion" id="rateDetails">
+
+            @if (selectedRate()?.carrierType === 'DAT') {
+              <div class="row pt-2 pb-2 row-cols-1 px-3">
+                <div class="col">
+                  <div class="row pb-2">
+                    <div class="col-12" style="background-color: #007bff;">
+                      <label style="color: white; margin: 5px;">Rate information</label>
+                    </div>
+                  </div>
+                  <div class="row pb-2">
+                    <div class="col-sm-2 fw-bold text-center">Provider</div>
+                    <div class="col-sm-2 fw-bold text-center">Rate Type</div>
+                    <div class="col-sm-2 fw-bold text-center">Equipment</div>
+                    <div class="col-sm-2 fw-bold text-center">Mileage</div>
+                    <div class="col-sm-2 fw-bold text-center">Fuel Surcharge</div>
+                    <div class="col-sm-2 fw-bold text-center">Rate</div>
+                  </div>
+                  <div class="row mx-2 pb-2" style="border-top: .1rem solid #bacac2"></div>
+                  <div class="row pb-3">
+                    <div class="col-sm-2 small-font-size text-center">{{ selectedRate()?.carrierType }} </div>
+                    <div class="col-sm-2 small-font-size text-center">{{ this.datRate?.request?.rateType ?? '-' }}</div>
+                    <div class="col-sm-2 small-font-size text-center">{{ this.datRate?.request?.equipment  ?? '-'}}</div>
+                    <div class="col-sm-2 small-font-size text-center">{{ this.datRate?.response?.rate?.mileage ?? '-' }}</div>
+                    <div class="col-sm-2 small-font-size text-center">{{ this.datRate?.response?.rate?.averageFuelSurchargePerTripUsd ?? '-' }}</div>
+                    <div class="col-sm-2 small-font-size text-center red">{{ this.datRate?.response?.rate?.perTrip?.rateUsd ?? '-' }}</div>
+                  </div>
+                </div>
+              </div>
+            }
+
+            @if (this.originalRate) {
+              <div class="row pt-2 pb-2 row-cols-1 px-3">
+                <div class="col">
+                  <div class="row pb-2">
+                    <div class="col-12" style="background-color: #007bff;">
+                      <label style="color: white; margin: 5px;">Rate information</label>
+                    </div>
+                  </div>
+                  <div class="row pb-2">
+                    <div class="col-sm-2 fw-bold text-center">Provider</div>
+                    <div class="col-sm-2 fw-bold text-center">SCAC</div>
+                    <div class="col-sm-2 fw-bold text-center">Transit time</div>
+                    <div class="col-sm-2 fw-bold text-center">Quote Number</div>
+                    <div class="col-sm-2 fw-bold text-center">Currency</div>
+                    <div class="col-sm-2 fw-bold text-center">Price</div>
+                  </div>
+                  <div class="row mx-2 pb-2" style="border-top: .1rem solid #bacac2"></div>
+                  <div class="row pb-3">
+                    <div class="col-sm-2 small-font-size text-center">{{ selectedRate()?.carrierType }} </div>
+                    <div class="col-sm-2 small-font-size text-center">{{ this.originalRate.carrierCode }}</div>
+                    <div class="col-sm-2 small-font-size text-center">{{ this.originalRate.transitTime }}</div>
+                    <div class="col-sm-2 small-font-size text-center">{{ this.originalRate.quoteNumber }}</div>
+                    <div class="col-sm-2 small-font-size text-center">{{ this.originalRate.currencyCode }}</div>
+                    <div class="col-sm-2 small-font-size text-center red">{{ this.originalRate.amount }}</div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <div class="accordion">
+                        <div class="icon-pointer card">
+                          <div (click)="this.expandCharges = !this.expandCharges" aria-controls="collapseOne" aria-expanded="false"
+                               class="card-header btn-light" data-bs-target="#rateCharges" style="background-color: #e2e6ea !important;"
+                               data-bs-toggle="collapse">
+                            <div class="text-center fw-bold text-uppercase text-dark">
+                              Show Details
+                              @if (!this.expandCharges) {
+                                <i class="material-icons float-end pointer-event-none">expand_more</i>
+                              } @else {
+                                <i class="material-icons float-end pointer-event-none">expand_less</i>
+                              }
+                            </div>
+                          </div>
+                          <div aria-labelledby="rateCharges" class="card-body collapse" data-parent="#accordion" id="rateCharges">
+                            <div class="row pt-2 pb-2 row-cols-1 px-3">
+                              <div class="col">
+
+                                <div class="row pb-2">
+                                  <div class="col-sm-3 fw-bold">Rate Date:
+                                    <span class="small-font-size font-normal">{{ getRateDate() }}</span>
+                                  </div>
+                                  <div class="col-sm-6 fw-bold">Service level:
+                                    <span class="small-font-size font-normal">{{ originalRate.serviceLevel }}</span>
+                                  </div>
+                                  <div class="col-sm-3 fw-bold">Service level Code:
+                                    <span class="small-font-size font-normal">{{ originalRate.serviceLevelCode }}</span>
+                                  </div>
+                                </div>
+
+                                <div class="row pb-3">
+                                  <div class="col-sm-3 fw-bold">Rate Expire Date:
+                                    <span class="small-font-size font-normal">{{ originalRate.rateExpireDate }}</span>
+                                  </div>
+                                  <div class="col-sm-6 fw-bold">Fuel applicable date:
+                                    <span class="small-font-size font-normal">{{ originalRate.fuelDate }}</span>
+                                  </div>
+                                  <div class="col-sm-3 fw-bold">Delivery Date:
+                                    <span class="small-font-size font-normal">{{ originalRate.deliveryDate }}</span>
+                                  </div>
+                                </div>
+
+                                <div class="row pb-2">
+                                  <div class="col-12" style="background-color: #007bff;">
+                                    <label style="color: white; margin: 5px;">Charges</label>
+                                  </div>
+                                </div>
+                                <div class="row pb-2">
+                                  <div class="col-sm-3 fw-bold text-center">Code</div>
+                                  <div class="col-sm-6 fw-bold text-center">Description</div>
+                                  <div class="col-sm-3 fw-bold text-center">Amount</div>
+                                </div>
+                                <div class="row mx-2 pb-2" style="border-top: .1rem solid #bacac2"></div>
+
+                                @for (charge of this.originalRate.charges; track originalRate) {
+                                  <div class="row pb-2">
+                                    <div class="col-sm-3 small-font-size text-center">{{ charge.code }}</div>
+                                    <div class="col-sm-6 small-font-size text-center">{{ charge.description }}</div>
+                                    <div class="col-sm-3 small-font-size text-center red">{{ charge.amount }}</div>
+                                  </div>
+                                }
+
+                                <div class="row py-3">
+                                  <div class="col-12 fw-bold">Notes:</div>
+                                  <div class="col-12 small-font-size font-normal">
+                                    {{ originalRate.notes }}
+                                  </div>
+                                </div>
+
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            }
+
+            @if (!foundProvider) {
+              <div class="row pt-2 pb-2 row-cols-1 px-3">
+                <div class="col">
+                  <div class="row pb-2">
+                    <div class="col-12" style="background-color: #007bff;">
+                      <label style="color: white; margin: 5px;">Rate information - {{ selectedRate()?.carrierType }}  </label>
+                    </div>
+                  </div>
+                  <div id="formControl" class="col">
+                  </div>
+                </div>
+              </div>
+            }
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

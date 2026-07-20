@@ -1,0 +1,86 @@
+.custom-width {
+  max-width: 90px;
+  min-width: 50px;
+}
+
+.space {
+  width: 10px;
+}
+
+.custom-height {
+  max-height: 31px;
+}
+
+.blue {
+  color: #007bff;
+}
+
+input[readonly] {
+  background-color: white;
+}
+
+.red {
+  color: red;
+}
+
+.material-icons {
+  font-size: 20px;
+}
+
+.dem-width {
+  width: 85px;
+  max-width: 85px;
+  min-width: 60px;
+}
+
+.class-width {
+  max-width: 85px;
+  min-width: 80px;
+}
+
+.hu-width {
+  width: 60px;
+  max-width: 60px;
+  min-width: 35px;
+}
+
+/*Removes arrows on number input */
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/*Removes arrows on number input */
+
+.min-width {
+  min-width: 400px;
+}
+
+.custom-font {
+  font-size: .75rem;
+}
+
+.dark-grey {
+  color: #797979;
+}
+
+.smallInput {
+  /*width: 75px;*/
+}
+
+.medInput {
+  width: 100px;
+}
+
+@media screen and (max-width: 1725px) {
+  .form-label-group > label {
+    padding-left: 0.5rem;
+  }
+}

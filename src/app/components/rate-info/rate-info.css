@@ -1,0 +1,19 @@
+/*.fw-bold {*/
+/*  font-weight: 500 !important;*/
+/*}*/
+
+.text-dark {
+  font-size: .75rem;
+  color: #797979;
+}
+
+.customBorder {
+  border: 1px solid #e9ecef;
+  border-radius: 5px;
+  padding: 3px;
+  margin-top: .75rem;
+}
+
+.font-normal {
+  font-weight: 400 !important;
+}
