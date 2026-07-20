@@ -1,0 +1,493 @@
+<!-- Top menu nav -->
+<nav class="navbar navbar-expand-xl navbar-light bg-light fixed-top nav-style">
+  <div class="container-fluid">
+
+    <a class="navbar-brand" href="/SPAs">
+      <img class="img d-inline-block align-top" src="assets/img/IL2K_eShipping_Logo.png" alt="Logo"/>
+    </a>
+
+    <button class="navbar-toggler mr-1" type="button" style="background-color: #294799 !important"
+            [ngClass]="{'d-none': !isCollapsed, 'd-block': isCollapsed}" (click)="collapseSidebar()" >
+      <span class="material-icons text-white">menu</span>
+    </button>
+
+    <ul class="navbar-nav me-auto"></ul>
+
+    <div class="input-group input-group-sm mx-2 w-50">
+
+      <input (keydown)="keyEvent($event)" [(ngModel)]="globalSearch" type="text" class="form-control" id="globalSearch"
+             placeholder="Search (BOL, PRO, ID) enter 4 or more characters, or enter a Truck ID"/>
+
+      <div class="input-group-text">
+        <input class="form-check-input mt-1 mx-1" id="searchLTL" name="searchType" [(ngModel)]="searchType"
+               (change)="globalShipmentSearch()" [value]="'LTL'" type="radio"/>
+        <label class="blue" for="searchLTL">LTL</label>
+      </div>
+
+      <div class="input-group-text">
+        <input class="form-check-input mt-1  mx-1" id="searchTL" name="searchType" [(ngModel)]="searchType"
+               (change)="globalShipmentSearch()" [value]="'TL'" type="radio"/>
+        <label class="blue" for="searchTL">TL</label>
+      </div>
+
+      <span class="input-group-text">
+        <i (click)="globalShipmentSearch()" class="material-icons blue mt-1" style="cursor: pointer;font-size: 18px">search</i>
+      </span>
+    </div>
+
+    <div class="mx-2">
+      <label class="dodger-blue">{{email}}</label>
+    </div>
+
+    <div class="dropdown">
+      <button class="btn btn-sm dropdown-toggle" data-bs-toggle="dropdown" type="button" aria-expanded="false">
+        <i class="material-icons align-text-bottom dodger-blue" id="signOutBtn">account_circle</i>
+      </button>
+      <ul class="dropdown-menu dropdown-position">
+        <li>
+          <a (click)="signOut()" [href]="" class="dropdown-item">Log Out</a>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</nav>
+
+<!-- Side menu nav -->
+<div [ngClass]="{'d-block': !isCollapsed, 'd-none': isCollapsed}" id="sidebar"
+     class="nav nav-pills col-sm-2 position-fixed nav-tab-style" (click)="removeBackDrop()">
+
+    <li class="nav-item" style="margin-top: 5px;">
+      <a (click)="goTo(null, $event, icarusEnvironment + '/home/userhome')"  [ngClass]="{'collapsed': isCollapsed}" class="nav-link">
+        Legacy
+      </a>
+    </li>
+    <div class="dropdown-divider"></div>
+
+  @if (isInternalUser) {
+
+    <li class="nav-item">
+      <a (click)="goTo('/SPAs/rates', $event)" [classList]="quickRatesTab" [ngClass]="{'collapsed': isCollapsed}"
+         aria-selected="false" data-bs-toggle="tab" id="v-pills-quick-rates-tab">
+        Quick Rates
+      </a>
+    </li>
+    <div class="dropdown-divider"></div>
+
+    <li class="nav-item">
+      <a (click)="goTo('/SPAs/new', $event)" [classList]="newShipmentsTab" [ngClass]="{'collapsed': isCollapsed}"
+         aria-selected="false" data-bs-toggle="tab" id="v-pills-new-shipments-tab" routerLink="/SPAs/new">
+        New Shipments
+      </a>
+    </li>
+    <div class="dropdown-divider"></div>
+
+    <!-- LTL Tracking -->
+    <div id="accordionTracking">
+      <span (click)="onTrackingTabClick()">
+        <a class="nav-link" data-bs-toggle="collapse" href="#collapseTracking" role="button" id="tracking-toggle-btn"
+           aria-expanded="false" [ngClass]="{'collapsed': isCollapsed}" aria-controls="collapseTracking">
+          LTL Tracking
+          <i class="float-end inline-icon material-icons" style="cursor: pointer;">keyboard_double_arrow_down</i>
+        </a>
+      </span>
+      <div class="collapse" id="collapseTracking">
+        <div class="nav flex-column mt-1" id="v-pills-tab">
+          <div (click)="onClickTrackingTab('priorityReturn')" [ngClass]="{'active': showPriorityReturn}" class="flex-sm-fill nav-link mt-1" id="trackingPriorityReturnTab">
+            Priority & Return
+            @if (showPriorityReturn) {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_less</i>
+            } @else {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_more</i>
+            }
+          </div>
+          <div id="priorityReturn" class="py-1" [ngClass]="{'d-none': !showPriorityReturn, 'd-block': showPriorityReturn}">
+            <a (click)="showPriorityReturn=true;setLTLTrackingStatus('Elevated')" aria-controls="v-pills-tracking-Elevated"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Elevated</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackPriorityRecCount()}}</span>
+            </a>
+            <a (click)="showPriorityReturn=true;setLTLTrackingStatus('Expedited')" aria-controls="v-pills-tracking-Expedited"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Guaranteed / Expedited</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackExpeditedRecCount()}}</span>
+            </a>
+            <a (click)="showPriorityReturn=true;setLTLTrackingStatus('Problem')" aria-controls="v-pills-tracking-Problem"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Problem</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackProblemCount()}}</span>
+            </a>
+            <a (click)="showPriorityReturn=true;setLTLTrackingStatus('Returns')" aria-controls="v-pills-tracking-Returns"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Returns</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.noTrackReturns()}}</span>
+            </a>
+          </div>
+          <div class="divider"></div>
+          <div (click)="onClickTrackingTab('quote')" [ngClass]="{'active': showQuote}" class="flex-sm-fill nav-link mt-1" id="trackingQuoteTab">
+            Quote
+            @if (showQuote) {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_less</i>
+            } @else {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_more</i>
+            }
+          </div>
+          <div id="quoteTracking" class="py-1" [ngClass]="{'d-none': !showQuote, 'd-block': showQuote}">
+            <a (click)="showQuote=true;setLTLTrackingStatus('RequestForQuote')" aria-controls="v-pills-tracking-RequestForQuote"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Requests for Quote</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackRequestQuoteCount()}}</span>
+            </a>
+            <a (click)="showQuote=true;setLTLTrackingStatus('SubmittedQuotes')" aria-controls="v-pills-tracking-SubmittedQuotes"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Submitted Quotes</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackSubmittedQuoteCount()}}</span>
+            </a>
+          </div>
+          <div class="divider"></div>
+          <div (click)="onClickTrackingTab('pickup')" [ngClass]="{'active': showPickup}" class="flex-sm-fill nav-link mt-1" id="trackingPickupTab">Pickup
+            @if (showPickup) {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_less</i>
+            } @else {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_more</i>
+            }
+          </div>
+          <div id="pickupTracking" class="py-1" [ngClass]="{'d-none': !showPickup, 'd-block active': showPickup}">
+            <a (click)="showPickup=true;setLTLTrackingStatus('Pending')" aria-controls="v-pills-tracking-Pending"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">PreBooked</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackPendingRecCount()}}</span>
+            </a>
+            <a (click)="showPickup=true;setLTLTrackingStatus('BookedNotLate')" aria-controls="v-pills-tracking-BookedNotLate"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Booked Not Late</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackNotLateCount()}}</span>
+            </a>
+            <a (click)="showPickup=true;setLTLTrackingStatus('LatePickup')" aria-controls="v-pills-tracking-LatePickup"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Late Pickups</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackLatePickupsCount()}}</span>
+            </a>
+          </div>
+          <div class="divider"></div>
+          <div (click)="onClickTrackingTab('intransit')" [ngClass]="{'active': showInTransit}" class="flex-sm-fill nav-link mt-1" id="trackingInTransitTab">In Transit
+            @if (showInTransit) {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_less</i>
+            } @else {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_more</i>
+            }
+          </div>
+          <div id="inTransitTracking" class="py-1" [ngClass]="{'d-none': !showInTransit, 'd-block': showInTransit}">
+            <a (click)="showInTransit=true;setLTLTrackingStatus('AppointmentRequired')" aria-controls="v-pills-tracking-AppointmentRequired"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Appointment Shipments</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackAppointmentRequiredRecCount()}}</span>
+            </a>
+            <a (click)="showInTransit=true;setLTLTrackingStatus('DeliveryToday')" aria-controls="v-pills-tracking-DeliveryToday"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Delivery Due Today</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackDeliveryTodayCount()}}</span>
+            </a>
+            <a (click)="showInTransit=true;setLTLTrackingStatus('DeliveryDateException')" aria-controls="v-pills-tracking-DeliveryDateException"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Delivery Date Passed</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackDeliveryDateExceptionRecordCount()}}</span>
+            </a>
+          </div>
+          <div class="divider"></div>
+          <div (click)="onClickTrackingTab('delivered')" [ngClass]="{'active': showDelivered}" class="flex-sm-fill nav-link mt-1" id="trackingDeliveredTab">Delivered
+            @if (showDelivered) {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_less</i>
+            } @else {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_more</i>
+            }
+          </div>
+          <div id="deliveredTracking" class="py-1" [ngClass]="{'d-none': !showDelivered, 'd-block': showDelivered}">
+            <a (click)="showDelivered=true;setLTLTrackingStatus('Delayed')" aria-controls="v-pills-tracking-Delayed"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow"><span class="medium-font-size">Delivered Late</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackDelayRecCount()}}</span>
+            </a>
+            <a (click)="showDelivered=true;setLTLTrackingStatus('DeliveryOSD')" aria-controls="v-pills-tracking-DeliveryOSD"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow"><span class="medium-font-size">Delivered OSD</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackDeliveryOsdCount()}}</span>
+            </a>
+          </div>
+          <div class="divider"></div>
+          <a (click)="setLTLTrackingStatus('Whiteboard')" aria-controls="v-pills-tracking-Whiteboard"
+             class="flex-sm-fill nav-link mt-1 tab-active-yellow mt-1">
+            <span class="medium-font-size">Whiteboard</span>
+            <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackWhiteboardCount()}}</span>
+          </a>
+          <div class="divider"></div>
+          <a (click)="setLTLTrackingStatus('UnabletoTrack')" aria-controls="v-pills-tracking-UnabletoTrack"
+             class="flex-sm-fill nav-link mt-1 tab-active-yellow mt-1">
+            <span class="medium-font-size">Manual Shipments</span>
+            <span class="badge rounded float-end alice-blue-bkg blue">{{global.noTrackRecordCount()}}</span>
+          </a>
+          <div class="divider"></div>
+          <a (click)="setLTLTrackingStatus('Ocean')" aria-controls="v-pills-tracking-Ocean"
+             class="flex-sm-fill nav-link mt-1 tab-active-yellow mt-1">
+            <span class="medium-font-size">Ocean Shipments</span>
+            <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackOceanCount()}}</span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="dropdown-divider"></div>
+
+    <!-- Truckload Tracking -->
+    <div id="accordionTruckloadTracking">
+      <span (click)="onTruckloadTrackingTabClick()" class="pb-1">
+        <a class="nav-link" data-bs-toggle="collapse" href="#collapseTruckloadTracking" role="button" id="truckload-tracking-toggle-btn"
+           aria-expanded="false" [ngClass]="{'collapsed': isCollapsed}" aria-controls="collapseTruckloadTracking">
+          Truckload Tracking
+          <i class="float-end inline-icon material-icons" style="cursor: pointer;">keyboard_double_arrow_down</i>
+        </a>
+      </span>
+      <div class="collapse" id="collapseTruckloadTracking">
+        <div class="nav flex-column mt-1" id="v-pills-truckload-tab">
+          <div class="d-inline-flex w-100">
+            <a (click)="setTLTrackingStatus('TruckloadAll')" aria-controls="v-pills-tracking-TruckloadAll"
+               aria-selected="false" class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">All</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackTruckloadAllRecCount()}}</span>
+            </a>
+          </div>
+          <div (click)="onClickTruckTrackingTab('quote')" [ngClass]="{'active': showTruckQuote}" class="flex-sm-fill nav-link mt-1" id="truckTrackingQuoteTab">
+            Quote
+            @if (showTruckQuote) {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_less</i>
+            } @else {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_more</i>
+            }
+          </div>
+          <div id="quoteTruckTracking" class="py-1" [ngClass]="{'d-none': !showTruckQuote, 'd-block': showTruckQuote}">
+            <a (click)="showTruckQuote=true;setTLTrackingStatus('RequestForQuote')" aria-controls="v-pills-tracking-RequestForQuote"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Request For Quote</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackRequestForQuoteRecCount()}}</span>
+            </a>
+            <a (click)="showTruckQuote=true;setTLTrackingStatus('LateQuoteResponses')" aria-controls="v-pills-tracking-LateQuoteResponses"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Late Quote Responses</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackLateQuoteResponsesRecCount()}}</span>
+            </a>
+            <a (click)="showTruckQuote=true;setTLTrackingStatus('SubmittedQuotes')" aria-controls="v-pills-tracking-SubmittedQuotes"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Submitted Quotes</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackSubmittedQuotesRecCount()}}</span>
+            </a>
+          </div>
+          <div class="divider"></div>
+          <div (click)="onClickTruckTrackingTab('planning')" [ngClass]="{'active': showTruckPlanning}" class="flex-sm-fill nav-link mt-1" id="truckTrackingPlanningTab">
+            Planning
+            @if (showTruckPlanning) {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_less</i>
+            } @else {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_more</i>
+            }
+          </div>
+          <div id="quoteTruckPlanning" class="py-1" [ngClass]="{'d-none': !showTruckPlanning, 'd-block': showTruckPlanning}">
+            <a (click)="showTruckPlanning=true;setTLTrackingStatus('TruckloadPending')" aria-controls="v-pills-tracking-TruckloadPending"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Pending Appointment</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackTruckloadPendingRecCount()}}</span>
+            </a>
+          </div>
+          <div class="divider"></div>
+          <div (click)="onClickTruckTrackingTab('pickup')" [ngClass]="{'active': showTruckPickup}" class="flex-sm-fill nav-link mt-1" id="truckTrackingBookTab">Book
+            @if (showTruckPickup) {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_less</i>
+            } @else {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_more</i>
+            }
+          </div>
+          <div id="bookTruckTracking" class="py-1" [ngClass]="{'d-none': !showTruckPickup, 'd-block': showTruckPickup}">
+            <a (click)="showTruckPickup=true;setTLTrackingStatus('PrebookedNoteLate')" aria-controls="v-pills-tracking-PrebookedNoteLate"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Prebooked</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackPrebookedNoteLateRecCount()}}</span>
+            </a>
+            <!--
+            <a (click)="showTruckPickup=true;setTLTrackingStatus('PrebookedRolled')" aria-controls="v-pills-tracking-PrebookedRolled"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+               <span class="medium-font-size">Prebooked Rolled</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackPrebookedRolledCount()}}</span>
+            </a>-->
+            <a (click)="showTruckPickup=true;setTLTrackingStatus('PrebookedAndLate')" aria-controls="v-pills-tracking-PrebookedAndLate"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Booked</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackPrebookedAndLateRecCount()}}</span>
+            </a>
+            <a (click)="showTruckInTransit=true;setTLTrackingStatus('TruckloadDispatched')" aria-controls="v-pills-tracking-TruckloadDispatched"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Dispatched</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackTruckloadDispatchedRecCount()}}</span>
+            </a>
+            <a (click)="showTruckPickup=true;setTLTrackingStatus('PickupDateAndTimePassed')" aria-controls="v-pills-tracking-PickupDateAndTimePassed"
+               aria-selected="false" class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Pickup at Risk</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackPickupDateAndTimePassedRecCount()}}</span>
+            </a>
+          </div>
+          <div class="divider"></div>
+          <div (click)="onClickTruckTrackingTab('problem')" [ngClass]="{'active': showTruckProblem}" class="flex-sm-fill nav-link mt-1" id="truckTrackingProblemTab">
+            At Risk
+            @if (showTruckProblem) {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_less</i>
+            } @else {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_more</i>
+            }
+          </div>
+          <div id="problemTruckTracking" class="py-1" [ngClass]="{'d-none': !showTruckProblem, 'd-block': showTruckProblem}">
+            <a (click)="showTruckProblem=true;setTLTrackingStatus('TruckloadProblem')" aria-controls="v-pills-tracking-TruckloadProblem"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">At Risk</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackTruckloadProblemRecCount()}}</span>
+            </a>
+            <a (click)="showTruckProblem=true;setTLTrackingStatus('TruckloadFailure')" aria-controls="v-pills-tracking-TruckloadFailure"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Tracking Fail</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackTruckloadFailureRecCount()}}</span>
+            </a>
+          </div>
+          <div class="divider"></div>
+          <div (click)="onClickTruckTrackingTab('intransit')" [ngClass]="{'active': showTruckInTransit}" class="flex-sm-fill nav-link mt-1" id="truckTrackingTransitTab">
+            In Transit
+            @if (showTruckInTransit) {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_less</i>
+            } @else {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_more</i>
+            }
+          </div>
+          <div id="transitTruckTracking" class="py-1" [ngClass]="{'d-none': !showTruckInTransit, 'd-block': showTruckInTransit}">
+            <a (click)="showTruckInTransit=true;setTLTrackingStatus('AtPickupStop')" aria-controls="v-pills-tracking-AtPickupStop"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Arrived Pickup Stop</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackTruckAtPickupCount()}}</span>
+            </a>
+            <a (click)="showTruckInTransit=true;setTLTrackingStatus('TruckloadInTransit')" aria-controls="v-pills-tracking-TruckloadInTransit"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">In Transit</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackTruckloadInTransitRecCount()}}</span>
+            </a>
+            <a (click)="showTruckInTransit=true;setTLTrackingStatus('AtDeliveryLocation')" aria-controls="v-pills-tracking-AtDeliveryLocation"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">At Delivery Location</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackTruckAtDeliveryCount()}}</span>
+            </a>
+            <a (click)="showTruckInTransit=true;setTLTrackingStatus('TruckloadDelivered')" aria-controls="v-pills-tracking-TruckloadDelivered"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Delivered</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackTruckDeliveredCount()}}</span>
+            </a>
+            <a (click)="showTruckInTransit=true;setTLTrackingStatus('MissingTransitUpdate')" aria-controls="v-pills-tracking-MissingTransitUpdate"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Delivery at Risk</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackMissingTransitUpdateRecCount()}}</span>
+            </a>
+          </div>
+          <div class="divider"></div>
+          <div (click)="onClickTruckTrackingTab('delivered')" [ngClass]="{'active': showTruckDelivered}" class="flex-sm-fill nav-link mt-1" id="truckTrackingDeliveryTab">
+            Delivered
+            @if (showTruckDelivered) {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_less</i>
+            } @else {
+              <i class="float-end inline-icon material-icons" style="cursor: pointer;">expand_more</i>
+            }
+          </div>
+          <div id="deliveryTruckTracking" class="py-1" [ngClass]="{'d-none': !showTruckDelivered, 'd-block': showTruckDelivered}">
+            <a (click)="showTruckDelivered=true;setTLTrackingStatus('LateDelivery')" aria-controls="v-pills-tracking-LateDelivery"
+               class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Late Delivery</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackLateDeliveryRecCount()}}</span>
+            </a>
+            <a (click)="showTruckDelivered=true;setTLTrackingStatus('DeliveredNeedsPOD')" aria-controls="v-pills-tracking-DeliveredNeedsPOD"
+               aria-selected="false" class="flex-sm-fill nav-link mt-1 tab-active-yellow">
+              <span class="medium-font-size">Delivered - Needs POD</span>
+              <span class="badge rounded float-end alice-blue-bkg blue">{{global.trackDeliveredNeedsPODRecCount()}}</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dropdown-divider"></div>
+
+    <div id="report">
+      <span (click)="onReportTabClick()">
+        <a class="nav-link" data-bs-toggle="collapse" href="#collapseReport" role="button" id="v-pills-dlv-report-tab"
+           aria-expanded="false" [ngClass]="{'collapsed': isCollapsed}" aria-controls="collapseReport">
+          Records
+          <i class="float-end inline-icon material-icons" style="cursor: pointer;">keyboard_double_arrow_down</i>
+        </a>
+      </span>
+      <div class="collapse" id="collapseReport">
+        <div class="nav flex-column mt-1">
+          <a (click)="setReportRoute('recordsPending')" aria-controls="v-pills-records-recordsPending" class="flex-sm-fill nav-link mt-1 tab-active-yellow mb-1">
+            Pending
+            <span class="badge rounded float-end alice-blue-bkg blue">{{global.recordsPendingCount()}}</span>
+          </a>
+          <a (click)="setReportRoute('recordsIncomplete')" aria-controls="v-pills-records-recordsIncomplete" class="flex-sm-fill nav-link mt-1 tab-active-yellow mb-1">
+            Incomplete
+            <span class="badge rounded float-end alice-blue-bkg blue">{{global.recordsIncompleteCount()}}</span>
+          </a>
+          <a (click)="setReportRoute('recordsComplete')" aria-controls="v-pills-records-recordsComplete" class="flex-sm-fill nav-link mt-1 tab-active-yellow mb-1">
+            Delivered
+            <span class="badge rounded float-end alice-blue-bkg blue">{{global.recordsCompleteCount()}}</span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="dropdown-divider"></div>
+
+    <li class="nav-item">
+      <a (click)="goTo('/SPAs/reports/search', $event)" [classList]="reportsTab" [ngClass]="{'collapsed': isCollapsed}"
+         aria-selected="false" data-bs-toggle="tab" id="v-pills-reports-tab">Reports
+      </a>
+    </li>
+    <div class="dropdown-divider"></div>
+
+    <li class="nav-item {{ currentUserType() == 32 || currentUserType() == 29 ? 'd-block' : 'd-none'}}" >
+      <a (click)="goTo('/SPAs/manage-users', $event)" [classList]="manageUsersTab" [ngClass]="{'collapsed': isCollapsed}"
+         aria-selected="false" data-bs-toggle="tab" id="v-pills-manage-users-tab">Manage Users
+      </a>
+    </li>
+    <div class="dropdown-divider {{ currentUserType() == 32 || currentUserType() == 29 ? 'd-block' : 'd-none'}}">
+    </div>
+
+    <div id="operations">
+      <span (click)="onOperationsTabClick()">
+        <a class="nav-link" data-bs-toggle="collapse" href="#collapseOperations" role="button" id="v-pills-operations-tab"
+           aria-expanded="false" [ngClass]="{'collapsed': isCollapsed}" aria-controls="collapseOperations">
+          Operations
+          <i class="float-end inline-icon material-icons" style="cursor: pointer;">keyboard_double_arrow_down</i>
+        </a>
+      </span>
+      <div class="collapse" id="collapseOperations">
+        <div class="nav flex-column mt-1">
+          <a (click)="goToLink('/SPAs/carriers');clearOperationsActiveState('v-pills-carriers-tab');" class="nav-link"
+             id="v-pills-carriers-tab">
+            Carrier Management
+          </a>
+        </div>
+        <div class="nav flex-column mt-1">
+          <a (click)="goToLink('/SPAs/notes/list');clearOperationsActiveState('v-pills-notes-tab')" class="nav-link"
+             id="v-pills-notes-tab">
+            Active Notes
+          </a>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<!--Do not remove-->
+<div class="padding-top"></div>
+
+<!-- Sidebar Toggler (Sidebar) -->
+<div (click)="collapseSidebar()" [ngClass]="{'float-collapse-button': !isCollapsed, 'd-none': isCollapsed}"
+     ngbTooltip="Collapse sidebar" placement="right-bottom"  id="btnCollapse">
+  <span class="material-icons rotate-180" id="iconCollapse" style="cursor: pointer;">double_arrow</span>
+</div>
+
+<ngx-spinner name="sidebarSpinner"></ngx-spinner>

@@ -1,0 +1,162 @@
+<div>
+
+  <!--REFERENCE FIELDS EDIT CONTROLS-->
+  @if (this.clientFields().length != 0) {
+    @for (field of clientFields(); track field; let i = $index) {
+      <div class="row">
+        <div class="col pb-1">
+
+          @if (!isInternalManagement && field.mandatory == 1 && field.characterType != null) {
+            <div [ngClass]="{'mt-2' : i!=0}" class="form-label-group m-0">
+              <input [(ngModel)]="field.value" [disabled]="disabled()" [type]="toDatePicker(field.description)"
+                     (change)="this.addReferenceEmit.emit(true)"
+                     [attr.max]="field.description == 'MABD' ? this.global.formattedMaxDate : null"
+                     [value]="field.value != null ? field.value : null" class="form-control form-control-sm" id="{{'description' + i + '-' + shipmentID()}}"
+                     name="{{'description' + i + '-' + shipmentID()}}" placeholder="{{field.description ==='MABD' ? '' : field.description}}{{field.mandatory == 1 ? ' *' : ''}}"
+                     required/>
+              <div class="invalid-tooltip">{{field.description}} is required.</div>
+              <label for="{{'description' + i + '-' + shipmentID()}}">{{field.description}}{{field.mandatory == 1 ? ' *' : ''}}</label>
+            </div>
+          }
+
+          @if (field.description != 'Exception Code') {
+            @if (field.mandatory == 0 || field.mandatory == null || isInternalManagement) {
+              <div [ngClass]="{'mt-2' : i!=0}" class="form-label-group m-0">
+                <input [(ngModel)]="field.value" [disabled]="disabled()" [type]="toDatePicker(field.description)"
+                       (change)="this.addReferenceEmit.emit(true)"
+                       [attr.max]="field.description == 'MABD' ? this.global.formattedMaxDate : null"
+                       [value]="field.value != null ? field.value : null" class="form-control form-control-sm"
+                       id="{{'description2' + i + '-' + shipmentID()}}" name="{{'description' + i + '-' + shipmentID()}}"
+                       placeholder="{{field.description ==='MABD' ? '' : field.description}}{{(field.mandatory == 1 && !isInternalManagement ) ? ' *' : ''}}"/>
+                <label
+                  for="{{'description2' + i + '-' + shipmentID()}}">{{field.description}}{{(field.mandatory == 1 && !isInternalManagement) ? ' *' : ''}}
+                </label>
+              </div>
+            }
+          } @else {
+            <!-- EDITING REFRENCE DROPDOWN SHIPMENT PAGE -->
+            <div class="mt-2">
+              <app-type-ahead-drop-down
+                (modelValueOnChange)="handleDropdownChange($event);"
+                [data]="this.dropDownListLCC()"
+                [disabled]="disabled()"
+                [editable]="false"
+                [isRequired]="false"
+                [name]="'exception'"
+                [placeHolder]="'LCC Exception Reason'"
+                [selectedValue]="field.value"
+                [tagLine]="'LCC Exception Reason'">
+              </app-type-ahead-drop-down>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  }
+
+  <!--EXISTING REFERENCES VALUES-->
+  @for (openRef of this.existingOpenReferenceFields(); track openRef; let i = $index;) {
+    <div class="row mt-2">
+      <div class="col-5 pr-0">
+        <app-type-ahead-drop-down
+          (modelValueOnChange)="updateExistingOpenReference($event,'description', i)"
+          [data]="this.referenceDropdownList()"
+          (focusout)="focusOutReferenceName($event, i)"
+          [disabled]="disabled()"
+          [editable]="false"
+          [isRequired]="!!this.existingOpenReferenceFields()[i].value"
+          [name]="'existingRefDropDown'+i"
+          [placeHolder]="isShipmentsPage ? 'Reference Type' : 'Ref. Type'"
+          [selectedValue]="getOpenRefByID(openRef.rftID).rftDescription"
+          [tagLine]="isShipmentsPage ? 'Reference Type' : 'Ref. Type'">
+        </app-type-ahead-drop-down>
+      </div>
+
+      <div class="col-7 pl-2 d-inline-flex">
+        <!-- Existing INPUT -->
+        @if (openRef.rftDescription != 'Exception Code') {
+          <div class="form-label-group m-0">
+            <input  [(ngModel)]="this.existingOpenReferenceFields()[i].value"
+                    [attr.disabled]="disabled() ? 'disabled' : null"
+                    class="form-control form-control-sm form-inline"
+                    id="openReferenceValue{{i}}">
+            <label for="openReferenceValue{{i}}">Ref #</label>
+          </div>
+        } @else {
+          <!-- EXISTING DROPDOWN -->
+          <div class="form-label-group m-0">
+            <app-type-ahead-drop-down
+              (modelValueOnChange)="handleDropdownChange($event);"
+              [data]="this.dropDownListLCC()"
+              [disabled]="disabled()"
+              [editable]="false"
+              [isRequired]="true"
+              [placeHolder]="isShipmentsPage ? 'LCC Exception Reason*' : 'LCC Exception*'"
+              [name]="'exception'"
+              [selectedValue]="this.existingOpenReferenceFields()[i].value"
+              [tagLine]="'LCC Exception Reason'">
+            </app-type-ahead-drop-down>
+          </div>
+        }
+
+        <button (click)="removeReferences(i)" class="btn btn-sm btn-danger ml-1 pb-0 px-1" type="button">
+          <i class="material-icons text-white">clear</i>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!--NEW REFERENCES VALUES-->
+  <div [ngClass]="{'mt-2' : this.existingOpenReferenceFields() || this.clientFields().length != 0 }" class="row">
+    <div class="col-5 pr-0">
+      <app-type-ahead-drop-down
+        (modelValueOnChange)="setReferenceName($event)"
+        [data]="this.referenceDropdownList()"
+        (focusout)="focusOutReferenceName($event)"
+        [disabled]="false"
+        [editable]="false"
+        [isRequired]="!!this.newRefValue"
+        [name]="'newRefDropDown' + shipmentID()"
+        [placeHolder]="isShipmentsPage ? 'Reference Type' : 'Ref. Type'"
+        [selectedValue]="this.newRefName"
+        [tagLine]="isShipmentsPage ? 'Reference Type' : 'Ref. Type'">
+      </app-type-ahead-drop-down>
+      @if (exceptionError) {
+        <div style="color: red;">Reference field already selected.</div>
+      }
+    </div>
+
+    <div class="col-7 pl-2">
+
+      <!-- NEW REFERENCE INPUT -->
+      @if (isRefSelected && !this.hasExceptionCode && !exceptionError) {
+        <div class="form-label-group m-0">
+          <input (change)="addReferences()" [(ngModel)]="this.newRefValue" [attr.disabled]="disabled() ? 'disabled' : null"
+                 [type]="toDatePicker(this.newRefName)" [attr.max]="this.newRefName == 'MABD' ? this.global.formattedMaxDate : null"
+                 class="form-control form-control-sm form-inline"
+                 id="{{'newRefvalue' + shipmentID()}}"
+                 type="tel" value="value">
+          <label for="{{'newRefvalue' + shipmentID()}}">Ref #</label>
+        </div>
+      }
+
+      <!-- NEW DROPDOWN -->
+      @if (isRefSelected && this.hasExceptionCode && !exceptionError) {
+        <div id="needs-validation-exception-lcc" class="form-label-group m-0">
+          <app-type-ahead-drop-down
+            (modelValueOnChange)="handleDropdownChange($event);"
+            [data]="this.dropDownListLCC()"
+            [disabled]="disabled()"
+            [editable]="false"
+            [isRequired]="true"
+            [name]="'exception' + shipmentID()"
+            [placeHolder]="isShipmentsPage ? 'LCC Exception Reason*' : 'LCC Exception*'"
+            [selectedValue]="this.selectedOption"
+            [tagLine]="'Exception'">
+          </app-type-ahead-drop-down>
+        </div>
+      }
+
+    </div>
+  </div>
+</div>

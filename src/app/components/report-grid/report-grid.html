@@ -1,0 +1,65 @@
+<ngx-spinner name="global-search"></ngx-spinner>
+<ngx-spinner name="reportGridSpinner"></ngx-spinner>
+<body class="disable-h-scroll disable-v-scroll">
+  <div class="row">
+    <div class="container-fluid">
+      <div class="row p-3">
+        <div [ngClass]="{'col-sm-10 offset-sm-2': !global.isCollapsed(), 'col': global.isCollapsed()}">
+
+          @if (showBackBtn) {
+            <div class="row">
+              <div>
+                <button (click)="backToSearch()" class="btn btn-sm btn-danger" type="button">
+                  <span class="material-icons p-1 font-small">arrow_back</span>
+                  Back to Search
+                </button>
+              </div>
+            </div>
+          }
+
+          <div class="font-smaller">
+            @if (this.reportData().length > 0) {
+              <app-data-table (advancedFormFilters)="advancedFormFilters($event)"
+                              (refreshTableEvent)="refreshGrids(true)"
+                              [advancedSearch]="true"
+                              [autoWidth]="false"
+                              [columns]="reportTableColumns()"
+                              [customFixedHeight]="true"
+                              [customSort]="sortOrder"
+                              [data]="this.reportData()"
+                              [footerFixed]="true"
+                              [gridName]="reportGridName() ?? ''"
+                              [hover]="true"
+                              [info]="true"
+                              [lengthChange]="false"
+                              [ordering]="true"
+                              [paging]="true"
+                              [searching]="true"
+                              [setAdvancedFilterData]="advancedFilterData()"
+                              [setCarrierFilterData]="global.carrierFilterData()"
+                              [setClientsFilterData]="global.clientFilterData()"
+                              [setStatusesFilterData]="global.statusFilterData()">
+              </app-data-table>
+            }
+            @else {
+              <app-data-table [columns]="reportTableColumns()"
+                              [customFixedHeight]="true"
+                              [customSort]="sortOrder"
+                              [data]="[]"
+                              [footerFixed]="true"
+                              [gridName]="reportGridName() ?? ''"
+                              [hover]="true"
+                              [info]="true"
+                              [lengthChange]="false"
+                              [ordering]="true"
+                              [paging]="true"
+                              [searching]="true">
+              </app-data-table>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+

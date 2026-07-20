@@ -1,0 +1,268 @@
+.dropdown-toggle {
+  color: #007bff;
+}
+
+.img {
+  height: 40px;
+}
+
+.icon-align {
+  vertical-align: text-bottom;
+}
+
+.yellow-badge {
+  color: white;
+  background: #FFC107;
+}
+
+.malibu-badge {
+  color: white;
+  background: #5BC0DE;
+}
+
+.nav-link {
+  border-radius: 0 !important;
+}
+
+.nav-link.collapsed {
+  display: block;
+  padding: var(--bs-nav-link-padding-y) var(--bs-nav-link-padding-x) !important;
+}
+
+.nav-style {
+  width: 100%;
+  z-index: 200000;
+  border-bottom: solid 1px #e8e5e5;
+}
+
+.dropdown-divider {
+  height: 0;
+  margin: .5rem 0;
+  overflow: hidden;
+  border-top: 1px solid #e9ecef
+}
+
+.nav-tab-style {
+  height: 110%;
+  margin-top: 50px !important;
+  font-size: 16px;
+  background-color: #294799 !important;
+  padding: 20px !important;
+  border-right: solid 0 transparent;
+}
+
+.amber-bkg {
+  background-color: #ffc107;
+}
+
+.alice-blue-bkg {
+  background-color: #f8f9fa;
+}
+
+.blue {
+  color: blue;
+}
+
+.amaranth-bkg {
+  background-color: #dc3545;
+}
+
+.padding-top {
+  padding-top: 68px;
+}
+
+.gray91-bkg {
+  background-color: #e8e8e8;
+}
+
+.dim-gray {
+  color: #6f6f6f;
+}
+
+.unable-track-tab {
+  color: #999999 !important;
+  border-radius: 0;
+  margin-top: 10px
+}
+
+.divider {
+  border-top: 1px solid rgba(0, 0, 0, .1);
+  margin-top: 10px
+}
+
+#reports {
+  cursor: pointer;
+}
+
+.icon-list-item {
+  height: 15px;
+  font-size: .7rem;
+}
+
+.icon-key-container {
+  width: 10rem;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.rounded-circle {
+  border-radius: 50% !important;
+}
+
+.border-0 {
+  border: 0 !important;
+}
+
+.sidebar-divider {
+  margin: 1rem 1rem;
+}
+
+.rotate-0 {
+  -moz-transform: rotate(0deg);
+  -o-transform: rotate(0deg);
+  -webkit-transform: rotate(0deg);
+  transform: rotate(0deg);
+}
+
+.rotate-180 {
+  -moz-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+
+.nav-tab-collapse {
+  height: 100%;
+  margin-top: 70px !important;
+  font-size: 12px;
+  background-color: white !important;
+  padding: 5px !important;
+  border-right: solid 1px #e8e5e5;
+}
+
+/* sidenav collapsed */
+.nav-tab-collapse {
+  background-color: #294799 !important;
+}
+
+span.badge.rounded {
+  margin-top: .2rem;
+}
+
+#iconCollapse {
+  color: #f1b100;
+}
+
+#sidebar {
+  height: 100%;
+  position: fixed;
+  z-index: 2000;
+  top: 0;
+  left: 0;
+  overflow-x: scroll;
+  overflow-y: scroll;
+  flex-flow: column;
+}
+
+.float-collapse-button {
+  display: block !important;
+  position: fixed;
+  top: 85px;
+  left: 15.15%;
+  z-index: 9999;
+}
+
+.float-collapsed-button {
+  display: none !important;
+  /*position: fixed;*/
+  /*top: 85px;*/
+  /*left: .25%;*/
+  /*z-index: 9999;*/
+}
+
+.inline-icon {
+  vertical-align: bottom;
+  color: #f1b100;
+}
+
+/* sidenav links*/
+#sidebar .nav-link, #sidebar .nav-link .collapsed {
+  color: white;
+}
+
+#sidebar .nav-link.active, #sidebar .nav-link:hover {
+  border-radius: 8px !important;
+  background-color: #242328 !important;
+}
+
+/* icon divider */
+.iconDivider {
+  margin-left: 3px;
+  margin-right: 3px;
+  display: inline-block;
+}
+
+.darkBackground {
+  border-radius: 8px !important;
+  background-color: #242328 !important;
+}
+
+#sidebar .nav-link.tab-active-yellow.active, #sidebar .nav-link.tab-active-yellow:hover {
+  background-color: #f1b100 !important;
+}
+
+.medium-font-size {
+  font-size: .85rem;
+}
+
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .badge {
+    font-size: .65rem !important;
+  }
+
+  .medium-font-size {
+    font-size: .75rem !important;
+  }
+}
+
+.custom-navbar {
+  flex-grow: 1;
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav.nav-custom {
+  display: block !important;
+}
+
+@media screen and (min-width: 1025px) and (max-width: 1200px) {
+  .badge {
+    font-size: .65rem !important;
+  }
+
+  .medium-font-size {
+    font-size: .75rem !important;
+  }
+  .float-collapse-button {
+    left: 14.75%;
+  }
+}
+
+@media screen and (min-width: 1201px) and (max-width: 1600px) {
+  .badge {
+    font-size: .65rem !important;
+  }
+
+  .medium-font-size {
+    font-size: .75rem !important;
+  }
+
+  .float-collapse-button {
+    left: 14.75%;
+  }
+}

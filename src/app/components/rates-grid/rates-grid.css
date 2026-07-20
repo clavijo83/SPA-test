@@ -1,0 +1,50 @@
+.costs-width, .tt-width, .notes-width {
+  max-width: 100px !important;
+  min-width: 100px !important;
+}
+
+.icon-btn {
+  width: 75px !important;
+}
+
+.red {
+  color: red;
+}
+
+.blue {
+  color: #007bff;
+}
+
+.gray {
+  color: #999999;
+}
+
+.vl {
+  border-left: 6px solid #007bff;
+  height: 80%;
+  border-radius: .25rem;
+}
+
+.rateBorder {
+  border-radius: 0.25rem;
+  border-top: 1px solid #e8e5e5;
+  border-bottom: 1px solid #e8e5e5;
+  height: 80%;
+}
+
+#btnCollapsehistory:hover, #btnExpandhistory:hover {
+  cursor: pointer;
+}
+
+.modal {
+  top: 3rem;
+}
+
+::ng-deep #ltlRatesDataTable > tbody > tr.row-disabled {
+  color: slategray;
+  background-color: lightgray;
+}
+
+::ng-deep #ltlRatesDataTable > tbody > tr.row-disabled > td {
+  color: slategray !important;
+}

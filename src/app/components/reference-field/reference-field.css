@@ -1,0 +1,52 @@
+.material-icons {
+  font-size: 20px;
+}
+
+.client-ctrl {
+  margin-bottom: 5px;
+  width: 300px !important;
+  min-width: 300px !important;
+}
+
+.btn-height {
+  max-height: 31px
+}
+
+input[type="date"]:before {
+  content: attr(placeholder) !important;
+  color: #969696;
+  margin-right: 0.5em;
+}
+
+input[type="date"]:focus:before,
+input[type="date"]:valid:before {
+  content: "";
+}
+
+.clear-btn-color {
+  color: red;
+}
+
+.reference-num-ctrl {
+  max-width: 300px !important;
+}
+
+.blue {
+  color: #007bff
+}
+
+.btn-margin {
+  margin-left: 2px;
+}
+
+.form-padding {
+  padding-right: 50px;
+}
+
+.ref-row-height {
+  height: 35px;
+}
+
+.material-icons {
+  font-size: 20px;
+}

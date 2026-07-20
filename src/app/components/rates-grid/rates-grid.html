@@ -1,0 +1,484 @@
+<ngx-spinner name="ratesGrid"></ngx-spinner>
+<ngx-spinner name="truckloadRatesGrid"></ngx-spinner>
+<form [formGroup]="ratesGridForm">
+  <div class="row pb-2">
+    @if ((this.fetchRatesBtn && shipmentType != 'Truckload Edit' && this.isShipmentPage) || (this.fetchRatesBtn && this.isTruckloadPage)) {
+      <div class="col-sm-4 pb-2">
+        <button (click)="onfetchRatesClicked(true)" [disabled]="disabled"
+                class="btn btn-success btn-sm w-100 fw-bold" type="button">
+          {{ shipmentType === 'LTL' ? 'Retrieve Optimized Rates' : 'Retrieve Rate Quotes' }}
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (this.shipmentType === 'LTL') {
+    @if (this.ratesData().length > 0) {
+      <app-data-table (emitEventShowRate)="eventShowRate($event)"
+                      (selectedRowData)="selectedValue($event)"
+                      (updateRatesEvent)="updateManualRates()"
+                      [columns]="rateColumns"
+                      [customSort]="this.sortOrder"
+                      [data]="ratesData()"
+                      [footerFixed]="false"
+                      [gridName]="'ltlRates'"
+                      [hidden]="this.hideGrid"
+                      [hover]="true"
+                      [info]="false"
+                      [isZeroRecords]="this.hasOther"
+                      [ordering]="true"
+                      [paging]="false"
+                      [currencyType]="this.currencyType"
+                      [searching]="false">
+      </app-data-table>
+    } @else {
+      <app-data-table [columns]="rateColumns"
+                      [data]="[]"
+                      [footerFixed]="false"
+                      [gridName]="'ltlRates'"
+                      [hidden]="this.hideGrid"
+                      [hover]="true"
+                      [info]="false"
+                      [ordering]="true"
+                      [paging]="false"
+                      [searching]="false">
+      </app-data-table>
+    }
+  }
+
+  @if (this.shipmentType === 'Truckload') {
+    @if (this.truckloadRatesData().length > 0){
+      <app-data-table (selectedRowData)="selectedTruckloadValue($event)"
+                      [columns]="truckloadRateColumns"
+                      [data]="truckloadRatesData()"
+                      [footerFixed]="false"
+                      [gridName]="'truckloadRates'"
+                      [hidden]="this.hideGrid"
+                      [hover]="true"
+                      [info]="false"
+                      [ordering]="true"
+                      [paging]="false"
+                      [currencyType]="this.currencyType"
+                      [searching]="false">
+      </app-data-table>
+
+      <div [hidden]="!this.showMoreRates">
+        <app-data-table (selectedRowData)="selectedTruckloadValue($event)"
+                        [columns]="truckloadRateColumnsMore"
+                        [data]="truckloadRatesData()"
+                        [footerFixed]="false"
+                        [gridName]="'truckloadRatesMore'"
+                        [hidden]="this.hideGrid"
+                        [hover]="true"
+                        [info]="false"
+                        [ordering]="true"
+                        [paging]="false"
+                        [currencyType]="this.currencyType"
+                        [searching]="false">
+        </app-data-table>
+      </div>
+    } @else {
+      <app-data-table
+        [columns]="truckloadRateColumns"
+        [data]="[]"
+        [footerFixed]="false"
+        [gridName]="'truckloadRates'"
+        [hidden]="this.hideGrid"
+        [hover]="true"
+        [info]="false"
+        [ordering]="true"
+        [paging]="false"
+        [searching]="false">
+      </app-data-table>
+    }
+  }
+
+  @if (!this.hideGrid && this.shipmentType === 'LTL') {
+    <div class="table-responsive disable-h-scroll disable-v-scroll" formGroupName="otherRates">
+      <table class="table table-borderless m-0 othersTable">
+
+        @for (rate of ratesArray.controls; track rate; let i = $index) {
+          <tr class="rateBorder d-flex">
+            <td [formGroupName]="i" class="border-0 d-inline-flex">
+              <div *ngVar="-this.ratesData().length as id" class="my-1">
+                <input
+                  (click)="otherClicked($event,i)" [checked]="true" [formControlName]="'assigned'"
+                  class="form-check-input" [attr.disabled]="disabled || !isCarrierSelected(i) ? 'disabled' : null"
+                  id="{{i+id}}" name="{{'otherCarrier'+i}}" type="checkbox">
+              </div>
+            </td>
+
+            <td [formGroupName]="i" class="border-0 d-inline-flex my-2">
+              <div class="form-label-group mr-0 mb-0">
+                <select (change)="updateOtherRate()" [formControlName]="'carrierID'"
+                        class="form-select custom-select form-select-sm">
+                  <option disabled hidden selected value="">Choose carrier</option>
+                  @for (carrier of carriers; track carrier.tiberID) {
+                    <option attr.name="{{'carrierID'+i}}" value="{{carrier.tiberID}}">
+                      {{carrier.carrierName}}
+                    </option>
+                  }
+                </select>
+              </div>
+            </td>
+
+            <td [formGroupName]="i" class="border-0 d-inline-flex my-2">
+              <div class="form-label-group mb-0">
+                <input (change)="updateOtherRate()"
+                       [formControlName]="'clientCost'"
+                       class="form-control d-inline-flex form-control-sm"
+                       id="{{'clientCost'+i}}"
+                       name="{{'clientCost'+i}}"
+                       type="text"/>
+                <label for="{{'clientCost'+i}}"> Client Cost</label>
+              </div>
+            </td>
+
+            <td [formGroupName]="i" class="border-0 d-inline-flex my-2">
+              <div class="form-label-group mb-0">
+                <input (change)="updateOtherRate()"
+                       [formControlName]="'carrierCost'"
+                       class="form-control d-inline-flex form-control-sm"
+                       id="{{'carrierCost'+i}}"
+                       name="{{'carrierCost'+i}}"
+                       type="text">
+                <label for="{{'carrierCost'+i}}">Carrier Cost</label>
+              </div>
+            </td>
+
+            <td [formGroupName]="i" class="border-0 d-inline-flex my-2">
+              <div class="form-label-group mb-0">
+                <input (change)="updateOtherRate()"
+                       [formControlName]="'quoteNumber'"
+                       class="form-control d-inline-flex form-control-sm"
+                       id="{{'quoteNumber'+i}}"
+                       name="{{'quoteNumber'+i}}"
+                       type="text">
+                <label for="{{'QuoteNumber'+i}}">Quote Number</label>
+              </div>
+            </td>
+
+            <td [formGroupName]="i" class="border-0 d-inline-flex my-2">
+              <div class="form-label-group mb-0">
+                <input (change)="updateOtherRate()"
+                       [formControlName]="'transitTime'"
+                       class="form-control d-inline-flex form-control-sm"
+                       id="{{'transitTime'+i}}"
+                       name="{{'transitTime'+i}}"
+                       type="text">
+                <label for="{{'transitTime'+i}}">TT</label>
+              </div>
+            </td>
+
+            <td [formGroupName]="i" class="border-0 d-inline-flex my-2">
+              <div class="form-label-group mb-0">
+                <input (change)="updateOtherRate()"
+                       [formControlName]="'notes'"
+                       class="form-control d-inline-flex form-control-sm"
+                       id="{{'notes'+i}}"
+                       name="{{'notes'+i}}"
+                       type="text">
+                <label for="{{'notes'+i}}">Notes</label>
+              </div>
+            </td>
+
+            <td [formGroupName]="i" hidden>
+              <input [formControlName]="'customerQuote'" hidden id="{{'customerQuote'+i}}" name="{{'customerQuote'+i}}">
+              <input [formControlName]="'clientQuote'" hidden id="{{'clientQuote'+i}}" name="{{'clientQuote'+i}}">
+              <input [formControlName]="'carrierQuote'" hidden id="{{'carrierQuote'+i}}" name="{{'carrierQuote'+i}}">
+              <input [formControlName]="'feesMap'" hidden id="{{'feesMap'+i}}" name="{{'feesMap'+i}}">
+              <input [formControlName]="'id'" hidden id="{{'id'+i}}" name="{{'id'+i}}">
+            </td>
+
+            <td class="border-0 d-inline-flex">
+              <button (click)="removeRate(i)" [disabled]="this.disabled" class="btn btn-sm btn-outline-light" type="button">
+                <i class="material-icons red" id="btnItemRemove">clear</i>
+              </button>
+              @if (i === 0) {
+                <button (click)="addRate()" [disabled]="this.disabled"  class="btn btn-sm btn-outline-light" type="button">
+                  <i class="material-icons dodger-blue" id="btnItemAdd">add_circle_outline</i>
+                </button>
+              }
+            </td>
+          </tr>
+        }
+        <tbody></tbody>
+      </table>
+    </div>
+  }
+
+
+  <div class="row">
+    <div class="col-sm-12 py-3 d-inline-flex">
+      @if (this.emailBtn) {
+        <div class="col">
+          <app-email-modal
+            [btnClassType]="'Primary'"
+            (eventEmailSent)="uploadDocumentSent()"
+            [btnLabel]="'Email Rates'"
+            [clientCode]="this.clientCode"
+            [BOLNumber]="this.quoteReferenceNumber"
+            [disableBtn]="false"
+            [emailBody]="buildEmailDisplayBodyMessage(true)"
+            [emailModalLabel]="'New Message - Quick Rates'"
+            [emailSubject]="this.clientCode + ' - Rates - Date('+this.currentDate+')'"
+            [htmlEmailBody]="buildEmailHtmlBodyMessage()"
+            [isHtml]="true">
+          </app-email-modal>
+        </div>
+      }
+
+      @if (this.downloadBtn) {
+        <div class="col px-1">
+          <button (click)="downloadRates()" [disabled]="false" class="btn btn-primary btn-sm w-100 fw-bold" type="button">
+            Download Rates
+          </button>
+        </div>
+      }
+
+      @if (!hideGrid) {
+        <div class="col px-1">
+          @if (this.shipmentType === 'LTL' && this.selectedRate) {
+            <button (click)="hideBuyRateCB()" [disabled]="this.disabled || this.disableEmailBtn" type="button"
+                    class="btn btn-primary btn-sm w-100 fw-bold" data-bs-target="#rateModal" data-bs-toggle="modal">
+              View Cost Breakdown
+            </button>
+          }
+        </div>
+      }
+
+      @if (this.createShipmentBtn) {
+        <div class="col px-1">
+          <button (click)="showVolumeRateDisclaimer()" [disabled]="this.disableEmailBtn"
+                  class="btn btn-success btn-sm w-100 fw-bold" type="button">
+            Create Shipment
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="row pb-2" [hidden]="hideGrid">
+    @if (this.shipmentType === 'Truckload') {
+      <div class="col-sm-12">
+        <button (click)="moreRates()" class="btn btn-primary btn-sm w-100 fw-bold" type="button">
+          {{ rateButtonText }}
+        </button>
+      </div>
+    }
+  </div>
+
+  <div class="row pb-2" [hidden]="hideGrid">
+    @if (this.shipmentType === 'Truckload' && this.historyRatesBtn) {
+      <div class="col-sm-12">
+        <button (click)="retrieveCarrierHistory(24)" [disabled]="this.disabled || this.disableEmailBtn"
+                class="btn btn-primary btn-sm w-100 fw-bold" type="button">
+          Retrieve Carrier History
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (this.shipmentType === 'Truckload' && !this.hideHistoryRatesGrid) {
+    <div class="row mb-2">
+      <div class="col-12 d-inline-flex ml-2">
+      <span class="label fw-bold pr-2">
+        Carrier History Rates
+      </span>
+        <div data-original-title="Collapse Report" data-placement="bottom" data-bs-toggle="tooltip" id="btnCollapsehistory" title="">
+          @if (!this.collapseRatesGrid) {
+            <i (click)="clickCollapseExpand(true, 'btnCollapsehistory')" class="material-icons p-0 gray">expand_less</i>
+          }
+        </div>
+        <div data-original-title="Expand Report" data-placement="bottom" data-bs-toggle="tooltip" id="btnExpandhistory" title="">
+          @if (this.collapseRatesGrid) {
+            <i (click)="clickCollapseExpand(false, 'btnExpandhistory')" class="material-icons p-0 blue">expand_more</i>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div [hidden]="this.hideHistoryRatesGrid || this.collapseRatesGrid" class="row mb-2">
+      <!-- <div class="row mb-2"> -->
+      <div class="col-10">
+        <div class="btn-group btn-group-sm btn-group-toggle ml-2 mb-2" data-bs-toggle="buttons">
+          <label class="btn btn-primary active">
+            <input (click)="setRangeWeeks(24)" autocomplete="off" checked id="option1" name="options"
+                   type="radio"> 24 Weeks
+          </label>
+          <label class="btn btn-primary">
+            <input (click)="setRangeWeeks(12)" autocomplete="off" id="option2" name="options" type="radio"> 12
+            Weeks
+          </label>
+          <label class="btn btn-primary">
+            <input (click)="setRangeWeeks(6)" autocomplete="off" id="option3" name="options" type="radio"> 6
+            Weeks
+          </label>
+        </div>
+      </div>
+      <div class="col-2">
+      <span class="fw-bold red">
+        Click Row to Drilldown
+      </span>
+      </div>
+      <div formGroupName="filterCarrier" class="col row ml-0 mb-2">
+        <div class="col-3">
+          <label class="my-1"><b>Equipment:</b></label>
+          <app-type-ahead-drop-down (modelValueOnChange)="setControlValue($event, 'equipmentType')"
+                                    [selectedValue]="this.selectedEquipmentType" [editable]="false" [name]="'equipmentType'" [data]="equipmentType"
+                                    [isRequired]="false">
+          </app-type-ahead-drop-down>
+        </div>
+        <div class="col-3">
+          <label class="my-1"><b>Client:</b></label>
+          <app-type-ahead-drop-down (modelValueOnChange)="setControlValue($event, 'customer')" [data]="this.ClientDropdownNew"
+                                    [editable]="false" [isRequired]="false" [name]="'customer'" [selectedValue]="this.selectedCustomer">
+          </app-type-ahead-drop-down>
+        </div>
+        <div class="col-3">
+          <label class="my-1"><b>Carrier Name:</b></label>
+          <app-type-ahead-drop-down (modelValueOnChange)="setControlValue($event, 'carrierName')"
+                                    [data]="this.carrierNamesDropDown" [editable]="false" [isRequired]="false" [name]="'carrierName'"
+                                    [selectedValue]="this.selectedCarrier">
+          </app-type-ahead-drop-down>
+        </div>
+        <div style="gap: 30px;" class="col-3 row ml-0 mb-2">
+          <div>
+            <button type="button" class="mt-4 btn btn-sm w-100 btn-primary" (click)="onSearchButtonClick()">Filter</button>
+          </div>
+          <div>
+            <button type="button" class="mt-4 btn btn-sm w-100 btn-danger" (click)="onClearButtonClick()">Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (this.shipmentType === 'Truckload') {
+    <div class="ml-2 pl-2 vl mb-2">
+      @if (!this.hideHistoryRatesGrid && !this.collapseRatesGrid){
+        <b>Last carrier</b>
+      }
+      <app-data-table (selectedRowData)="clickTruckHistoryRow($event)"
+                      [columns]="carrierHistoryRateColumns"
+                      [data]="this.carrierHistoryRatesLastData"
+                      [footerFixed]="false"
+                      [gridName]="'carrierHistoryRatesGrid'"
+                      [hidden]="this.hideHistoryRatesGrid || this.collapseRatesGrid"
+                      [info]="false"
+                      [ordering]="true"
+                      [paging]="false"
+                      [currencyType]="this.currencyType"
+                      [searching]="false">
+      </app-data-table>
+    </div>
+    <div class="ml-2 pl-2 vl mb-2">
+      @if (!this.hideHistoryRatesGrid && !this.collapseRatesGrid) {
+        <b>Past loads</b>
+      }
+      <app-data-table (selectedRowData)="clickTruckHistoryRow($event)"
+                      [columns]="carrierHistoryRatesDataColumns"
+                      [data]="this.carrierHistoryRatesData"
+                      [footerFixed]="false"
+                      [gridName]="'carrierHistoryRates'"
+                      [hidden]="this.hideHistoryRatesGrid || this.collapseRatesGrid"
+                      [info]="false"
+                      [ordering]="false"
+                      [paging]="false"
+                      [currencyType]="this.currencyType"
+                      [searching]="false">
+      </app-data-table>
+    </div>
+  }
+</form>
+
+<div aria-hidden="true" class="modal fade" id="rateModal" role="dialog" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <span class="fw-bold pl-1 modal-title" style="font-size: large">
+          {{this.ratesGridForm.get('selectedRate')?.value?.carrierName}}
+        </span>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center px-4 pt-0">
+        <app-data-table
+          [columns]="rateBreakdownColumns"
+          [data]="this.selectedRateFormat"
+          [footerFixed]="false"
+          [gridName]="'rateBreakdown'"
+          [hover]="true"
+          [info]="false"
+          [ordering]="false"
+          [paging]="true"
+          [currencyType]="this.currencyType"
+          [searching]="true">
+        </app-data-table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div aria-hidden="true" class="modal fade" id="historyTrucksModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        @for (history of this.historyTrucks; track history;) {
+          <span class="fw-bold pl-1 modal-title" style="font-size: large">
+            {{history.carrierName}} - Loads
+          </span>
+        }
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table class="table table-borderless">
+            <thead>
+            <tr>
+              <th class="fw-bold text-center">Date</th>
+              <th class="fw-bold text-center red">Buy Rate</th>
+              <th class="fw-bold text-center primary-blue">Sell Rate</th>
+              <th class="fw-bold text-center">GM $</th>
+              <th class="fw-bold text-center">GM %</th>
+              <th class="fw-bold text-center">MBR</th>
+              <th class="fw-bold text-center">BPMR</th>
+            </tr>
+            </thead>
+            @for (record of this.historyTrucks; track record;) {
+              <tbody>
+                @for (j of record?.truckDrilldown; track j.id) {
+                  <ng-container>
+                    <tr (click)="this.openTruckDetails(j.id)" data-original-title="Click to Open Truckload Details"
+                        data-placement="bottom" data-bs-toggle="tooltip" id="openTruckloadDetails" title="">
+                      <td class="text-center" style="cursor: pointer;">
+                        <span>{{j.creationDate | date:'MM-dd-yyyy'}}</span>
+                      </td>
+                      <td class="text-center" style="cursor: pointer;">
+                        <span>{{this.dollarUS.format(j.buy)}}</span>
+                      </td>
+                      <td class="text-center" style="cursor: pointer;">
+                        <span>{{this.dollarUS.format(j.sell)}}</span>
+                      </td>
+                      <td class="text-center" style="cursor: pointer;">
+                        <span>{{j.GMDollar ? this.dollarUS.format(j.GMDollar) : '-'}}</span>
+                      </td>
+                      <td class="text-center" style="cursor: pointer;">
+                        <span>{{j.GMPercent? j.GMPercent + ' %' : '-'}}</span>
+                      </td>
+                      <td class="text-center" style="cursor: pointer;">
+                        <span>{{j.marketBuyRate ? this.dollarUS.format(j.marketBuyRate) : '-'}}</span>
+                      </td>
+                      <td class="text-center" style="cursor: pointer;">
+                        <span>{{j.marketBuyRatePercent ? j.marketBuyRatePercent + ' %' : '-'}}</span>
+                      </td>
+                    </tr>
+                  </ng-container>
+                }
+              </tbody>
+            }
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

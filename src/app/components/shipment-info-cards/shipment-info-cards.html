@@ -1,0 +1,843 @@
+<ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="#fff" type="ball-spin" [fullScreen]="true">
+  <p style="color: white" > Loading... </p>
+</ngx-spinner>
+<form [formGroup]="shippingInfoGroup">
+  <div class="pb-2">
+    <div class="col-12 d-flex">
+      <div class="col-3 pr-1">
+        <div class="col pb-1 px-0 h-60">
+          <div class="card h-100">
+            <div class="card-body">
+              <h6 class="card-title text-size mb-2 fw-bold">ORIGIN</h6>
+              <div class="font-small">
+                {{shipmentHistory()?.shipper?.name?.toUpperCase() ?? ''}}
+                <br>
+                {{shipmentHistory()?.shipper?.streetAddress ? shipmentHistory()?.shipper?.streetAddress?.toUpperCase() : ''}}
+                <br>
+                @if (shipmentHistory()?.shipper?.address2 !== '') {
+                  {{shipmentHistory()?.shipper?.address2 ? shipmentHistory()?.shipper?.address2?.toUpperCase() : ''}}
+                }
+                {{shipmentHistory()?.shipper?.city && shipmentHistory()?.shipper?.state ? shipmentHistory()?.shipper?.city?.toUpperCase() + ', ' + shipmentHistory()?.shipper?.state + ' ' : ''}}{{shipmentHistory()?.shipper?.zip}}
+                <br>
+                @if (shipmentHistory()?.shipper?.phone) {
+                  <a href="tel:{{shipmentHistory()?.shipper?.phone}}">
+                    {{ (shipmentHistory()?.shipper?.phone ?? '') | mask:'(000) 000-0000' }}
+                  </a>
+                  <br>
+                }
+                <div>
+                  <a (click)="email.getEmailAttachmentBody()" data-bs-target="#emailModal" data-bs-toggle="modal" href="">
+                    {{shipmentHistory()?.shipper?.email && shipmentHistory()?.shipper?.email !== '' ?
+                    shipmentHistory()?.shipper?.email?.toLowerCase() : shipmentHistory()?.client?.email?.toLowerCase() }}
+                  </a>
+                  <app-email-modal
+                    [btnClassType]="''"
+                    [btnLabel]="''"
+                    [BOLNumber]="shipmentID() ?? ''"
+                    [disableBtn]="false"
+                    [emailBody]="statusEmailBody()"
+                    [emailIcon]="true"
+                    [emailIconLight]="true"
+                    [emailModalLabel]="'New Message - Status Alert'"
+                    [emailModalName]="'ShipmentInfoEmailModal'"
+                    [emailSubject]="'Status Alert: '+ (clientCode ? clientCode : '') + (shipmentID() ?? '')"
+                    [fromEmailAddress]="shipmentHistory()?.client?.lpTeamEmail ?? 'redteam@il2000.com'"
+                    [htmlEmailBody]="''"
+                    [isHtml]="false"
+                    [toEmailAddress]="shipmentHistory()?.shipper?.email?.toLowerCase() ?? ''"
+                    class="d-inline-block float-end">
+                  </app-email-modal>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col px-0 h-40">
+          <div class="card h-100">
+            <div class="card-body m-1 px-1 pt-2 pb-4">
+              <h6 class="card-title text-size mb-2 fw-bold">DESTINATION</h6>
+              <div class="font-small">
+                {{shipmentHistory()?.consignee?.name ? shipmentHistory()?.consignee?.name?.toUpperCase() : ''}}
+                <br>
+                {{shipmentHistory()?.consignee?.streetAddress ? shipmentHistory()?.consignee?.streetAddress?.toUpperCase() : ''}}
+                <br>
+                @if (shipmentHistory()?.consignee?.address2 !== '') {
+                  {{shipmentHistory()?.consignee?.address2 ? shipmentHistory()?.consignee?.address2?.toUpperCase() : ''}}
+                }
+                {{shipmentHistory()?.consignee?.city && shipmentHistory()?.consignee?.state ?
+                shipmentHistory()?.consignee?.city?.toUpperCase() + ', ' + shipmentHistory()?.consignee?.state?.toUpperCase() + ' ' : ''}}
+                {{shipmentHistory()?.consignee?.zip}}
+                @if (shipmentHistory()?.consignee?.phone) {
+                  <br>
+                  <a href="tel:{{shipmentHistory()?.consignee?.phone}}">
+                    {{ (shipmentHistory()?.consignee?.phone ?? '') | mask:'(000) 000-0000'}}
+                  </a>
+                }
+                @if (shipmentHistory()?.consignee?.email) {
+                  <br>
+                  <a href="mailto:{{shipmentHistory()?.consignee?.email}}">
+                    {{shipmentHistory()?.consignee?.email && shipmentHistory()?.consignee?.email !== '' ? shipmentHistory()?.consignee?.email?.toLowerCase() : ''}}
+                  </a>
+                }
+                <br>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-3 px-1">
+        <div class="col pb-1 px-0 h-60">
+          <div class="card h-100">
+            <div class="card-body">
+              <h6 class="card-title text-size mb-1 fw-bold">
+                {{ shipmentHistory()?.client?.groupName }}
+              </h6>
+              <h6 class="card-title text-size mb-2 fw-bold">
+                {{ showCarrierName() }}
+              </h6>
+              <div class="font-small">
+                <!--PRO NUMBER-->
+                @if (showEdit()) {
+                  <div class="col-12 d-inline-flex align-items-center mb-1">
+                    <label class="col-4">PRO:</label>
+                    <div class="col">
+                      <a (click)="goToCarrierSite(shipmentHistory()?.shipmentDetail?.carrier, shipmentHistory()?.shipmentDetail?.proNumber, shipmentID())"
+                         class="blue float-end icon-pointer px-1">
+                        {{shipmentHistory()?.shipmentDetail?.proNumber}}
+                      </a>
+                      @if (!proTextCopied && shipmentHistory()?.shipmentDetail?.proNumber) {
+                        <i (cdkCopyToClipboardCopied)="copied($event,'pro')" [cdkCopyToClipboard]="shipmentHistory()?.shipmentDetail?.proNumber ?? ''"
+                           class="material-icons d-inline-block icon-pointer clipboard-icon float-end" ngbTooltip="Copy Pro"
+                           placement="top">link
+                        </i>
+                      }
+                      @if (proTextCopied) {
+                        <i [closeDelay]="5000" ngbTooltip="Pro Copied!" placement="top"
+                           class="material-icons d-inline-block icon-pointer clipboard-icon float-end tool-tip-custom">
+                          check_circle
+                        </i>
+                      }
+                    </div>
+                  </div>
+                } @else {
+                  <!--Edit Mode-->
+                  <div class="col-12 d-inline-flex align-items-center mb-1">
+                    <label class="col-4">PRO:</label>
+                    <input [formControlName]="'proNumber'" name="proNumber" placeholder="" type="tel"
+                           class="form-control form-control-sm col small-font-size" id="proNumber">
+                  </div>
+                }
+
+                <!-- BOL NUMBER-->
+                <div class="col-12 d-inline-flex align-items-center mb-1">
+                  <label class="col-4">BOL:</label>
+                  <div class="col">
+                    <a (click)="getBOL()" class="blue float-end px-1 icon-pointer">
+                      {{shipmentHistory()?.shipmentDetail?.bolNumber ? shipmentHistory()?.shipmentDetail?.bolNumber : ''}}
+                    </a>
+                    @if (!bolTextCopied && shipmentHistory()?.shipmentDetail?.bolNumber) {
+                      <i placement="top" (cdkCopyToClipboardCopied)="copied($event,'bol')"
+                         [cdkCopyToClipboard]="shipmentHistory()?.shipmentDetail?.bolNumber ?? ''"
+                         class="material-icons d-inline-block icon-pointer clipboard-icon float-end" ngbTooltip="Copy Bol">
+                        link
+                      </i>
+                    }
+                    @if (bolTextCopied) {
+                      <i [closeDelay]="5000" ngbTooltip="Bol Copied!" placement="top"
+                         class="material-icons d-inline-block icon-pointer clipboard-icon float-end tool-tip-custom">
+                        check_circle
+                      </i>
+                    }
+                  </div>
+                </div>
+
+                <!-- Booking ID-->
+                <div class="col-12 d-inline-flex align-items-center mb-1">
+                  <label class="col-4">BOOKING ID:</label>
+                  <div class="col">
+                    <a class="blue float-end px-1">
+                      {{clientCode ? clientCode + ' - ' : ''}} {{shipmentID() ?? ''}}
+                    </a>
+                    @if (!bookingIDTextCopied && shipmentID()) {
+                      <i (cdkCopyToClipboardCopied)="copied($event,'bookingID')"
+                         [cdkCopyToClipboard]="shipmentID()" ngbTooltip="Copy Booking ID" placement="top"
+                         class="material-icons d-inline-block icon-pointer clipboard-icon float-end">
+                        link
+                      </i>
+                    }
+                    @if (bookingIDTextCopied) {
+                      <i [closeDelay]="5000" ngbTooltip="Booking ID Copied!" placement="top"
+                         class="material-icons d-inline-block icon-pointer clipboard-icon float-end tool-tip-custom">
+                        check_circle
+                      </i>
+                    }
+                  </div>
+                </div>
+
+                <!-- PICKUP CONFIRMATION #-->
+                @if (showEdit()) {
+                  <div class="col-12 d-inline-flex align-items-center mb-1">
+                    <label class="col-4">PU CONF #:</label>
+                    <div class="col">
+                      <span class="blue float-end px-1">
+                        {{shipmentHistory()?.shipmentDetail?.pickupNumber ? shipmentHistory()?.shipmentDetail?.pickupNumber : ''}}
+                      </span>
+                      @if (!confNumTextCopied && shipmentHistory()?.shipmentDetail?.pickupNumber) {
+                        <i (cdkCopyToClipboardCopied)="copied($event,'confNum')" placement="top"
+                           [cdkCopyToClipboard]="shipmentHistory()?.shipmentDetail?.pickupNumber ?? ''" ngbTooltip="Copy Conf #"
+                           class="material-icons d-inline-block icon-pointer clipboard-icon float-end">
+                          link
+                        </i>
+                      }
+                      @if (confNumTextCopied) {
+                        <i [closeDelay]="5000" ngbTooltip="Conf # Copied!" placement="top"
+                           class="material-icons d-inline-block icon-pointer clipboard-icon float-end tool-tip-custom">
+                          check_circle
+                        </i>
+                      }
+                    </div>
+                  </div>
+                } @else {
+                  <!--  EDIT MODE-->
+                  <div class="col-12 d-inline-flex align-items-center mb-1">
+                    <label class="col-4">PU CONF #:</label>
+                    <input [formControlName]="'pickupNumber'" class="form-control form-control-sm col small-font-size"
+                           id="pickupNumber" name="pickupNumber" placeholder="" type="tel">
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col px-0 h-40">
+          <div class="card h-100">
+            <div class="card-body">
+              <div class="col p-0">
+                <label class="fw-bold mb-0 mr-1">Last Tracking Message: </label>
+                <span class="label-no-edit"> {{ getLastTrackingMessage() }} </span>
+              </div>
+              <div class="col p-0 mt-1">
+                <label class="fw-bold mb-0 mr-1">Last Note to Client: </label>
+                <span class="label-no-edit read-more-section">
+                  {{lastClientNote() | slice:0:148}}
+                  @if (!readMore && lastClientNote().length > 148) {
+                    <span>...</span>
+                    <a class="read-more-link" data-bs-toggle="modal" data-bs-target="#readMoreModal">Read More</a>
+                  }
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-3 px-1">
+        <div class="card h-100">
+          <div class="card-body">
+            <h6 class="card-title text-size mb-1 fw-bold">TRANSIT DETAILS</h6>
+            <div class="font-small">
+              <!-- PUB DAYS -->
+              <div class="col-12 d-inline-flex align-items-baseline">
+                <label class="col-3">TRANSIT:</label>
+                <label class="col-3">ESTIMATE:</label>
+                <label class="col label-no-edit text-center">
+                  {{shipmentHistory()?.shipmentDetail?.estimatedTransitTime ? shipmentHistory()?.shipmentDetail?.estimatedTransitTime + ' Days' : ''}}
+                </label>
+              </div>
+              <div class="col-12 d-inline-flex align-items-baseline">
+                <label class="col-3"></label>
+                <label class="col-3">
+                  ACTUAL:
+                </label>
+                <label class="col label-no-edit text-center">
+                  {{shipmentHistory()?.shipmentDetail?.calculatedTransitTime ? shipmentHistory()?.shipmentDetail?.calculatedTransitTime + ' Days' : ''}}
+                </label>
+              </div>
+              <!-- PICKUP TIMES -->
+              <div class="col-12 d-inline-flex align-items-baseline">
+                <label class="col-3">PICKUP:</label>
+                <label class="col-3">ORIGINAL:</label>
+                <label class="col label-no-edit text-center">
+                  {{shipmentHistory()?.shipmentDetail?.originalShipDate | date : 'MM/dd/yyyy'}}
+                </label>
+              </div>
+              <div class="col-12 d-inline-flex align-items-baseline">
+                <label class="col-3"></label>
+                <label class="col-3">SCHEDULE:</label>
+                @if (showEdit()) {
+                  <label class="col label-no-edit text-center">
+                    {{shipmentHistory()?.shipmentDetail?.enteredShipDate | date : 'MM/dd/yyyy'}}
+                  </label>
+                } @else {
+                  <div class="col">
+                    <input [formControlName]="'enteredShipDate'" max="{{global.formattedMaxDate()}}"
+                           (change)="validateDates($event.target, 'enteredShipDate')"
+                           class="form-control form-control-sm p-1 m-0 actual-dates" id="enteredShipDate"
+                           name="enteredShipDate" type="date">
+                  </div>
+                }
+              </div>
+              <div class="col-12 d-inline-flex align-items-baseline">
+                <label class="col-3"></label>
+                <label class="col-3">APT:</label>
+                @if (showEdit()) {
+                  <label class="col label-no-edit">
+                    {{shipmentHistory()?.shipmentDetail?.pickupAppointmentStart && shipmentHistory()?.shipmentDetail?.pickupAppointmentStart !== '0000-00-00 00:00:00' && shipmentHistory()?.shipmentDetail?.pickupAppointmentStart !== 'Invalid date' ? (shipmentHistory()?.shipmentDetail?.pickupAppointmentStart | date : 'MM/dd/yyyy h:mm a') : null }}
+                    {{shipmentHistory()?.shipmentDetail?.pickupAppointmentStop && shipmentHistory()?.shipmentDetail?.pickupAppointmentStop !== '0000-00-00 00:00:00' && shipmentHistory()?.shipmentDetail?.pickupAppointmentStop !== 'Invalid date' ? ' - ' + (shipmentHistory()?.shipmentDetail?.pickupAppointmentStop | date: 'h:mm a') : null }}
+                    {{ (shipmentHistory()?.shipmentDetail?.pickupAppointmentStart && shipmentHistory()?.shipmentDetail?.pickupAppointmentStart !== '0000-00-00 00:00:00' && shipmentHistory()?.shipmentDetail?.pickupAppointmentStart !== 'Invalid date' ) || (shipmentHistory()?.shipmentDetail?.pickupAppointmentStop && shipmentHistory()?.shipmentDetail?.pickupAppointmentStop !== '0000-00-00 00:00:00' && shipmentHistory()?.shipmentDetail?.pickupAppointmentStop !== 'Invalid date') ? shipperTimezone : ""}}
+                  </label>
+                } @else {
+                  <div class="col">
+                    <input [formControlName]="'pickupAppointmentStart'" max="{{global.formattedMaxDate()}}"
+                           (change)="validateDates($event.target, 'pickupAppointmentStart')"
+                           class="form-control form-control-sm p-1 m-0 actual-dates" id="pickupAppointmentStart" type="datetime-local">
+                  </div>
+                }
+              </div>
+              @if (!showEdit()) {
+                <div class="col-12 d-inline-flex align-items-baseline">
+                  <label class="col-3"></label>
+                  <label class="col-3">APT END:</label>
+                  <div class="col">
+                    <input [formControlName]="'pickupAppointmentStop'" max="{{global.formattedMaxDate()}}"
+                           (change)="validateDates($event.target, 'pickupAppointmentStop')"
+                           class="form-control form-control-sm p-1 m-0 actual-dates" id="pickupAppointmentStop" type="datetime-local">
+                  </div>
+                </div>
+              }
+              <div class="col-12 d-inline-flex align-items-baseline">
+                <label class="col-3"></label>
+                <label class="col-3">ACTUAL:</label>
+                @if (showEdit()) {
+                  <label class="col label-no-edit text-center">
+                    {{ isDate(shipmentHistory()?.shipmentDetail?.actualShipDate) ?
+                    (shipmentHistory()?.shipmentDetail?.actualShipDate | date : 'MM/dd/yyyy') : '' }}
+                  </label>
+                } @else {
+                  <div class="col">
+                    <input (change)="onActualShipDateChange();validateDates($event.target, 'actualShipDate')"
+                           [formControlName]="'actualShipDate'"
+                           class="form-control form-control-sm p-1 m-0 actual-dates" id="actualShipDate"
+                           name="actualShipDate" max="{{global.formattedMaxDate()}}" type="date">
+                  </div>
+                }
+              </div>
+              <div class="col-12 d-inline-flex align-items-baseline">
+                <label class="col-3"></label>
+                <label class="col-3">EXCEPTION:</label>
+                @if (showEdit()) {
+                  <label class="col label-no-edit">
+                    {{mapException(shipmentHistory()?.shipmentDetail?.pickupException)}}
+                  </label>
+                } @else {
+                  <div class="col">
+                    <select [formControlName]="'pickupException'" name="pickupException" id="pickupException"
+                            (change)="changeException($event.target, 'pickupException')"
+                            class="form-select form-select-sm custom-select d-inline-flex">
+                      <option disabled hidden selected value="">Choose Exception</option>
+                      @for (exception of exceptionDropDown; track exception) {
+                        <option attr.name="{{exception.ExceptionName}}" value="{{exception.ExceptionID}}">
+                          {{exception.ExceptionName}}
+                        </option>
+                      }
+                    </select>
+                  </div>
+                }
+              </div>
+              <!-- DELIVERY TIMES -->
+              <div class="col-12 d-inline-flex align-items-baseline">
+                <label class="col-3">DELIVERY:</label>
+                <label class="col-3">ORIGINAL:</label>
+                <label class="col label-no-edit text-center">
+                  {{shipmentHistory()?.shipmentDetail?.originalDeliveryDate | date : 'MM/dd/yyyy'}}
+                </label>
+              </div>
+              <div class="col-12 d-inline-flex align-items-baseline">
+                <label class="col-3"></label>
+                <label class="col-3">SCHEDULE:</label>
+                @if (showEdit()) {
+                  <label class="col label-no-edit text-center">
+                    {{shipmentHistory()?.shipmentDetail?.scheduledDeliveryDate | date : 'MM/dd/yyyy'}}
+                  </label>
+                } @else {
+                  <div class="col">
+                    <input (change)="onActualShipDateChange();validateDates($event.target, 'scheduledDeliveryDate')"
+                           [formControlName]="'scheduledDeliveryDate'"
+                           class="form-control form-control-sm p-1 m-0 actual-dates" id="scheduledDeliveryDate"
+                           name="scheduledDeliveryDate" max="{{global.formattedMaxDate()}}" type="date">
+                  </div>
+                }
+              </div>
+              <div class="col-12 d-inline-flex align-items-baseline">
+                <label class="col-3"></label>
+                <label class="col-3">APT:</label>
+                @if (showEdit()) {
+                  <label class="col label-no-edit">
+                    {{shipmentHistory()?.shipmentDetail?.deliveryAppointmentStart && shipmentHistory()?.shipmentDetail?.deliveryAppointmentStart !== 'Invalid date' && shipmentHistory()?.shipmentDetail?.deliveryAppointmentStart !== '0000-00-00 00:00:00' ? (shipmentHistory()?.shipmentDetail?.deliveryAppointmentStart | date : 'MM/dd/yyyy h:mm a') : null }}
+                    {{shipmentHistory()?.shipmentDetail?.deliveryAppointmentStop && shipmentHistory()?.shipmentDetail?.deliveryAppointmentStop !== 'Invalid date' && shipmentHistory()?.shipmentDetail?.deliveryAppointmentStop !== '0000-00-00 00:00:00' ? ' - ' + (shipmentHistory()?.shipmentDetail?.deliveryAppointmentStop | date: 'h:mm a') : null }}
+                    {{ (shipmentHistory()?.shipmentDetail?.deliveryAppointmentStart && shipmentHistory()?.shipmentDetail?.deliveryAppointmentStart !== 'Invalid date' && shipmentHistory()?.shipmentDetail?.deliveryAppointmentStart !== '0000-00-00 00:00:00') || (shipmentHistory()?.shipmentDetail?.deliveryAppointmentStop && shipmentHistory()?.shipmentDetail?.deliveryAppointmentStop !== 'Invalid date' && shipmentHistory()?.shipmentDetail?.deliveryAppointmentStop !== '0000-00-00 00:00:00') ? consigneeTimezone : ""}}
+                  </label>
+                } @else {
+                  <div class="col">
+                    <input [formControlName]="'deliveryAppointmentStart'" max="{{global.formattedMaxDate()}}"
+                           (change)="validateDates($event.target, 'deliveryAppointmentStart')"
+                           class="form-control form-control-sm p-1 m-0 actual-dates" id="deliveryAppointmentStart" type="datetime-local">
+                  </div>
+                }
+              </div>
+              @if (!showEdit()) {
+                <div class="col-12 d-inline-flex align-items-baseline">
+                  <label class="col-3"></label>
+                  <label class="col-3">APT END:</label>
+                  <div class="col">
+                    <input [formControlName]="'deliveryAppointmentStop'" max="{{global.formattedMaxDate()}}"
+                           (change)="validateDates($event.target, 'deliveryAppointmentStop')"
+                           class="form-control form-control-sm p-1 m-0 actual-dates" id="deliveryAppointmentStop" type="datetime-local">
+                  </div>
+                </div>
+              }
+              <div class="col-12 d-inline-flex align-items-baseline">
+                <label class="col-3"></label>
+                <label class="col-3">ACTUAL:</label>
+                @if (showEdit()) {
+                  <label class="col label-no-edit text-center">
+                    {{shipmentHistory()?.shipmentDetail?.actualDeliveryDate | date : 'MM/dd/yyyy'}}
+                  </label>
+                } @else {
+                  <div class="col">
+                    <input (change)="onDeliveryDateChange();validateDates($event.target, 'actualDeliveryDate')"
+                           [formControlName]="'actualDeliveryDate'"
+                           [max]="todayDate()"
+                           class="form-control form-control-sm p-1 m-0 actual-dates" id="actualDeliveryDate"
+                           name="actualDeliveryDate" max="{{todayDate()}}" type="date">
+                  </div>
+                }
+              </div>
+              <div class="col-12 d-inline-flex align-items-baseline">
+                <label class="col-3"></label>
+                <label class="col-3">EXCEPTION:</label>
+                @if (showEdit()) {
+                  <label class="col label-no-edit text-center">
+                    {{mapException(shipmentHistory()?.shipmentDetail?.deliveryException)}}
+                  </label>
+                } @else {
+                  <div class="col">
+                    <select [formControlName]="'deliveryException'" name="deliveryException" id="deliveryException"
+                            (change)="changeException($event.target, 'deliveryException')"
+                            class="form-select form-select-sm custom-select d-inline-flex">
+                      <option disabled hidden selected value="">Choose Exception</option>
+                      @for (exception of exceptionDropDown; track exception) {
+                        <option attr.name="{{exception.ExceptionName}}"
+                                value="{{exception.ExceptionID}}">{{exception.ExceptionName}}</option>
+                      }
+                    </select>
+                  </div>
+                }
+              </div>
+              <div class="col-12 d-inline-flex align-items-baseline">
+                <label class="col-3">MABD:</label>
+                <label class="col label-no-edit text-center">
+                  {{ (shipmentHistory()?.shipmentDetail?.mabdDate | date : 'MM/dd/yyyy') ?? ''}}
+                </label>
+                <div class="col p-0 m-0 d-inline-flex">
+                  <label class=" col m-0 label-edit text-center" id="mabdDateLabel">
+                    @if (shipmentHistory()?.shipmentDetail?.mabdDate != null) {
+                      <i class="material-icons d-inline-block icon-size" style="vertical-align: middle;">event</i>
+                    }
+                  </label>
+                </div>
+              </div>
+              <div class="col-12 d-inline-flex align-items-baseline">
+                <label class="col-3">PRIORITY:</label>
+                <label [ngClass]="{'bold': shipmentPriority() == 'ELEVATED' || shipmentPriority() == 'EXPEDITED'}"
+                       class="col label-no-edit" id="shipmentPriorityTag">
+                  {{shipmentPriority()}}
+                </label>
+
+                <!--Elevate Shipment Button Group-->
+                @if (shipmentPriority() == 'ELEVATED') {
+                  <div class="col float-end">
+                    <button (click)="updatePriority('STANDARD')" class="btn btn-sm btn-info pb-0"
+                            ngbTooltip="Un-Elevate Shipment" placement="top" type="button">
+                      <i class="material-icons" style="font-size: 20px">arrow_downward</i>
+                    </button>
+                  </div>
+                }
+
+                <!--Expedite Shipment Button Group-->
+                @if (shipmentPriority() == 'EXPEDITED') {
+                  <div class="col float-end">
+                    <button (click)="updatePriority('STANDARD')" class="btn btn-sm btn-info pb-0"
+                            ngbTooltip="Un-Expedite Shipment" placement="top" type="button">
+                      <i class="material-icons" style="font-size: 20px">arrow_downward</i>
+                    </button>
+                  </div>
+                }
+              </div>
+
+              <div class="col-12 d-inline-flex align-items-baseline">
+                <label class="col-3">MODE:</label>
+                <label class="col label-no-edit">
+                  {{shipmentHistory()?.shipmentDetail?.modeDescription?.toUpperCase()}}
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-3">
+        <div class="card h-100">
+          <div class="card-body">
+            <!--PO Number and PO Moniker-->
+            <div class="row">
+              <div class="col">
+                <div class="card border-0 mb-3">
+                  <div>
+                    <h6 class="card-title fw-bold">{{poMoniker()}}</h6>
+                    <span class="label-no-edit">{{ shipmentHistory()?.shipmentDetail?.poNumber }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <!--REFERENCE SECTION  -->
+              <div class="col">
+                <div class="card border-0 mb-2">
+                  <div>
+                    <h6 class="card-title fw-bold">REFERENCE FIELDS</h6>
+                    @for (reference of shipmentHistory()?.referenceFields; track reference) {
+                      <div class="row">
+                        <div class="col">
+                          <label class="d-inline fw-bold">{{reference?.description}}</label>
+                          <span class="label-no-edit">  {{ reference?.value }}  </span>
+                        </div>
+                      </div>
+                    }
+                    @for (openRef of shipmentHistory()?.openReferenceFields; track openRef) {
+                      <div class="row">
+                        <div class="col">
+                          <label class="d-inline fw-bold">{{openRef?.rftDescription}}</label>
+                          <span class="label-no-edit">  {{ openRef?.value }}  </span>
+                        </div>
+                      </div>
+                    }
+                    <!--REFERENCE FIELDS EDIT CONTROLS-->
+                    <app-reference-field
+                      [hidden]="true"
+                      [shipmentID]="shipmentID()">
+                    </app-reference-field>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-2">
+    <div class="card-body py-2">
+      <div class="row px-2">
+        <div class="col px-1 align-content-center">
+          <div class="d-inline-flex">
+            <div class="form-check">
+              <input [attr.disabled]="showEdit() ? true : null" class="form-check-input" type="checkbox" id="isReturn"
+                     formControlName="isReturn" [checked]="shipmentHistory()?.shipmentDetail?.isReturn">
+              <label class="form-check-label" for="isReturn">
+                <span>
+                  {{ shipmentHistory()?.shipmentDetail?.isReturn ? 'Shipment Marked as Return' : 'Mark Shipment as Return' }}
+                </span>
+              </label>
+            </div>
+            <i class="material-icons" style="color:red;">flag</i>
+          </div>
+        </div>
+        <div class="col px-1 align-content-center">
+          <div class="d-inline-flex">
+            <div class="form-check">
+              <input [attr.disabled]="showEdit() ? true : null" class="form-check-input" type="checkbox" id="problem"
+                     [formControlName]="'problem'" [checked]="shipmentHistory()?.shipmentDetail?.problem">
+              <label class="form-check-label" for="problem">
+                <span>Shipment has Problem?</span>
+              </label>
+            </div>
+            <i class="material-icons pl-1" style="color:red;">flag</i>
+          </div>
+        </div>
+        <div class="col px-1 align-content-center">
+          <div class="inline-flex">
+            <div class="form-check">
+              @if (!isClaimOpened && isInternalUser && (global.currentUserType() == 32 || global.currentUserType() == 29)) {
+                <button (click)="onBtnOpenClaim()" class="btn btn-sm btn-primary w-100" type="button">
+                  Open Cargo Claim <i class="material-icons text-center blue" style="font-size: 14px; color:white"></i>
+                  <button [hidden]="true" data-bs-target="#openClaimPop" data-bs-toggle="modal" id="openClaimPopButton"
+                          style="display: none;"></button>
+                </button>
+              }
+              @if (isClaimOpened) {
+                <div class="w-100">
+                  CLAIM : <label class="label-no-edit" style="font-size: 14px;">{{claimNumber}} | {{claimStatus}}</label>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="col"></div>
+      </div>
+    </div>
+  </div>
+
+  @if (trackingContacts()) {
+  <div class="card mb-2">
+    <div class="card-body py-2 m-1 p-1">
+      <div class="row px-2">
+          <app-tracking-contacts
+            [trackingContactsMail]="trackingContacts() ?? []"
+            (trackingContactsEvent)="getTrackingContactsEvent($event)"
+            [shipmentType]="'LTL'"
+            [disabled]="showEdit() || disabledTrackingContacts()">
+          </app-tracking-contacts>
+      </div>
+    </div>
+  </div>
+  }
+
+  <div aria-hidden="true" class="modal fade" id="openClaimPop" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+        <span class="fw-bold pl-1 modal-title" style="font-size: large">Opening a Cargo Claim</span>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <p class="swal2-title">
+            Do you wish to submit shipment information to EZ Claim to open a cargo claim for this shipment?<br>
+          </p>
+          <p class="swal2-title">
+            Please Select the reason for the Claim :
+            <select id="claimReasonDropdown" class="form-select-sm form-select custom-select mt-2">
+              <option value="D">Damaged</option>
+              <option value="LIT">Lost</option>
+              <option value="SH">Shortage</option>
+              <option value="SD">Damaged and Short</option>
+            </select>
+          </p>
+        </div>
+        <div class="modal-footer text-center justify-content-center">
+          <button (click)="openClaim()" class="btn btn-success btn-sm w-25" data-bs-dismiss="modal">YES
+            <button [hidden]="true" data-bs-target="#openClaimDetails" data-bs-toggle="modal" id="openClaimDetailsButton"
+                    style="display: none;"></button>
+          </button>
+          <button class="btn btn-danger btn-sm w-25" data-bs-dismiss="modal" type="button">NO</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div aria-hidden="true" class="modal fade" id="trackingModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <b class="modal-header-font">{{modalHeader()}}</b>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          {{modalBody()}}<br>
+          <b><a href="tel:{{carrierPhone()}}">{{carrierPhone()}}</a></b>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div aria-hidden="true" class="modal fade" id="missingExceptionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <b class="modal-header-font" style="color:red;">Missing Exception Reason(s)</b>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          @if (needPickupException) {
+            <ng-container>You must enter a Pickup Exception to save changes.</ng-container>
+            <br>
+          }
+          @if (needDeliveryException) {
+            <ng-container>You must enter a Delivery Exception to save changes.</ng-container>
+          }
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<!-- AUTO GENERATED DOCUMENTS -->
+<div class="card mb-2">
+  <div class="card-body py-2">
+    <div class="text-size mb-2 fw-bold">DOCUMENTS [AUTO]</div>
+    <div class="row px-2">
+      <div class="col px-1">
+        <select (change)="documentSelect = true; setEmailDocument(selectedDocument)"
+                [(ngModel)]="selectedDocument"
+                class="form-select form-select-sm custom-select d-inline-flex mr-1 pt-1 pb-1"
+                id="docSelect">
+          <option disabled hidden selected value="">Select Document</option>
+          <option value="BOL">Bill of Lading</option>
+          @if (showEdit() && shipmentHistory()?.shipmentDetail?.shipmentStatus != 'PENDING') {
+            <option value="carrierconfirmation">Carrier Confirmation</option>
+            <option value="clientquote">Client Quote</option>
+          }
+        </select>
+      </div>
+      <div class="col px-1">
+        <button (click)="viewDocument(selectedDocument, true)" class="btn btn-sm btn-primary w-100"
+                [disabled]="!documentSelect" type="button">
+          View/Print <i class="material-icons text-center blue" style="font-size: 14px; color:white">print</i>
+        </button>
+      </div>
+      <div class="col px-1">
+        <app-email-modal [BOLNumber]="shipmentID() ?? ''"
+                         [attachments]="emailSendAttachment"
+                         [btnClassType]="'Document'"
+                         [btnLabel]="''"
+                         [disableBtn]="!documentSelect"
+                         [hideDocumentUpload]="true"
+                         [identifierType]="'LTL'"
+                         [sendingManualDoc]="false"
+                         [documentType]="emailSendDocumentType"
+                         [emailBody]="statusEmailBody()"
+                         [emailModalLabel]="emailSendSubject"
+                         [emailModalName]="'TruckDocumentEmailModal'"
+                         [emailSubject]="emailSendSubject"
+                         [fromEmailAddress]="shipmentHistory()?.client?.lpTeamEmail ?? ''"
+                         [htmlEmailBody]="''"
+                         [isHtml]="false"
+                         [toEmailAddress]="''"
+                         class="d-block justify-content-center">
+        </app-email-modal>
+      </div>
+      <div class="col px-1">
+        <button (click)="downloadDocument(selectedDocument, true)" class="btn btn-sm btn-success w-100"
+                [disabled]="!documentSelect" type="button">
+          Download <i class="material-icons text-center blue" style="font-size: 14px; color:white">download</i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MANUALLY UPLOADED DOCUMENTS -->
+<div class="card mb-4">
+  <div class="card-body py-2">
+    <div class="text-size mb-2 fw-bold">DOCUMENTS [MANUAL]</div>
+    <div class="row px-2">
+      <div class="col px-2">
+        <select id="docSelectManual" name="docSelectManual"
+                (change)="documentManualSelect = true;setManualDocumentType();"
+                [(ngModel)]="selectedManualDocument"
+                class="form-select form-select-sm custom-select d-inline-flex mr-1 pt-1 pb-1">
+          <option disabled hidden selected value="">Select Document</option>
+          @for (doc of manualDocDropdown; track doc) {
+            <option [value]="doc.description">{{doc.description}}</option>
+          }
+        </select>
+      </div>
+      <div class="col px-1">
+        <button (click)="viewManualDocument(selectedManualDocument)" class="btn btn-sm btn-primary w-100"
+                [disabled]="!documentManualSelect" type="button">
+          View/Print <i class="material-icons text-center blue" style="font-size: 14px; color:white">print</i>
+        </button>
+      </div>
+      <div class="col px-1">
+        <app-email-modal [BOLNumber]="shipmentID() ?? ''"
+                         [attachments]="emailSendAttachment"
+                         [btnClassType]="'Document'"
+                         [hideDocumentUpload]="true"
+                         [btnLabel]="''"
+                         [disableBtn]="!documentManualSelect"
+                         [documentType]="selectedManualDocument"
+                         [identifierType]="'LTL'"
+                         [sendingManualDoc]="true"
+                         [emailBody]="statusEmailBody()"
+                         [emailModalLabel]="emailSendSubject"
+                         [emailModalName]="'TruckManualDocumentEmailModal'"
+                         [emailSubject]="emailSendSubject"
+                         [fromEmailAddress]="shipmentHistory()?.client?.lpTeamEmail ?? ''"
+                         [htmlEmailBody]="''"
+                         [isHtml]="false"
+                         [toEmailAddress]="''"
+                         class="d-block justify-content-center">
+        </app-email-modal>
+      </div>
+      <div class="col px-1">
+        <button (click)="openUploadModal()" class="btn btn-sm btn-success w-100" type="button">
+          Upload <i class="material-icons text-center blue" style="font-size: 14px; color:white">upload</i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button [hidden]="true" data-bs-target="#uploadFileModal" data-bs-toggle="modal" id="uploadFileModalButton" style="display: none;">
+</button>
+
+<div aria-hidden="true" class="modal fade" id="uploadFileModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <span class="fw-bold pl-1 modal-title"
+              style="font-size: large">Upload File for Truck: {{shipmentID()}}</span>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body justify-content-center text-center px-4 pt-0">
+        <b>1. Select the type of document to upload</b><br><br>
+        <select id="manualUploadFileType" (change)="dropDownSelected = true;" style="width:200px!important; margin-bottom:15px"
+                class="form-select - form-select-sm custom-select form-control-sm">
+          <option disabled selected>Select Document Type</option>
+          <option value="Bill of Lading">Bill of Lading</option>
+          <option value="Carrier Confirmation">Carrier Confirmation</option>
+          <option value="Client Quote">Client Quote</option>
+          <option value="Quote Response">Quote Response</option>
+          <option value="Tracking Response">Tracking Response</option>
+          <option value="Insurance Certificate">Insurance Certificate</option>
+          <option value="Proof of Delivery">Proof of Delivery</option>
+          <option value="Other">Other</option>
+        </select>
+        <br>
+        <b>2. Click below to attach your file</b><br><br>
+        <input style="width:200px; display:inline-flex!important;" accept="application/pdf"
+               (change)="setFileSelected($event)" class="form-control-file" id="documentToEmail" type="file">
+        <br><br>
+      </div>
+      <div class="modal-footer text-center justify-content-center px-4 pt-0">
+        <button [disabled]="!dropDownSelected || !selectedFile" (click)="confirmFileUpload()"
+                class="btn btn-sm btn-success" style="width:300px;float:left!important; margin-top:15px;" type="button">
+          Upload <i class="material-icons text-center blue" style="font-size: 14px; color:white">upload</i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="readMoreModal" class="modal fade" tabindex="-1" aria-hidden="true" >
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Last Note to Client:</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body v-scroll">
+        <p>{{lastClientNote()}}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+

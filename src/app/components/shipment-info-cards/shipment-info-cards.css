@@ -1,0 +1,166 @@
+.label {
+  color: #999999;
+  text-align: left;
+  width: 25%;
+  height: 24px;
+}
+
+.blue {
+  color: #007bff;
+}
+
+.card-size {
+  min-height: 160px;
+}
+
+.text-size {
+  font-size: 14px;
+}
+
+.carrier-info-card {
+  background: #f8f9fa;
+}
+
+.center {
+  display: flex;
+  min-width: 1080px;
+  max-width: 1080px;
+  padding-right: 6rem;
+  overflow: hidden;
+  justify-content: center;
+}
+
+.label-no-edit {
+  color: #999999;
+  font-size: .8rem;
+  /*padding: .15rem 0 0 0;*/
+}
+
+.label-edit {
+  font-weight: bold;
+  color: black;
+  font-size: .8rem;
+  padding: 0 .4rem 0 0;
+}
+
+.icon-size {
+  font-size: 18px;
+  color: #007bff;
+}
+
+.check-box {
+  width: 10px;
+}
+
+.label-font-size {
+  font-size: .6rem;
+}
+
+.actual-dates {
+  max-width: 150px;
+  min-width: 115px;
+  /*height: 20px !important;*/
+  font-size: .7rem;
+  margin-bottom: 0.15rem !important;
+}
+
+.w-80 {
+  width: 80px;
+  min-width: 80px !important;
+}
+
+.w-70 {
+  width: 70px;
+  min-width: 70px;
+  max-width: 70px;
+}
+
+.date-margin-bottom {
+  margin-bottom: .1rem !important;
+}
+
+.icon-padding {
+  padding-left: 3.5rem !important;
+}
+
+@media only screen and (max-width: 600px) {
+  .icon-padding {
+    padding-left: 7.5rem !important
+  }
+}
+
+@media only screen and (min-width: 1920px) {
+  .icon-padding {
+    padding-left: 10.5rem !important;
+  }
+}
+
+@media only screen and (min-width: 2560px) {
+  .icon-padding {
+    padding-left: 19.5rem !important;
+  }
+}
+
+.modal-header-font {
+  font-size: 18px
+}
+
+.clipboard-icon {
+  font-size: 16px;
+  color: dodgerblue;
+  padding-top: .20rem !important;
+}
+
+.shipper-email {
+  height: 18px;
+}
+
+.shippingDetailsText span[id=emailText] {
+  text-transform: none;
+}
+
+.bold {
+  font-weight: bolder;
+  color: black;
+}
+
+@media (min-width: 576px) {
+  .card-deck .card {
+    margin-right: 5px;
+    margin-left: 5px;
+  }
+}
+
+.h-60 {
+  height: 55%!important;
+}
+
+.h-40 {
+  height: 45%!important;
+}
+
+.custom-select-sm {
+  font-size: .75rem;
+}
+
+.read-more-section {
+  word-break: break-all;
+}
+
+.read-more-link {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#readMoreModal {
+  margin-top: 10%;
+}
+
+.v-scroll {
+  overflow-y: scroll;
+  height: 300px;
+}
+
+.invalid {
+  border-color: #dc3545 !important;
+}
