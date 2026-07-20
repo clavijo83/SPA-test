@@ -1,0 +1,494 @@
+/* You can add global styles to this file, and also import other style files */
+
+/*Override Bootstrap Styling*/
+body {
+  font-size: .9rem !important;
+}
+
+.table td, .table th {
+  padding: .2rem .25rem !important;
+}
+
+.table td, .table th {
+  vertical-align: top !important;
+  border-top: 0 solid #dee2e6 !important;
+  border-bottom: 1px solid #dee2e6 !important;
+}
+
+td.border-bottom-0 {
+  border-bottom: 0 !important;
+}
+
+.table thead th {
+  text-align: center !important;
+}
+
+.card-body {
+  padding: .5rem 1rem !important;
+}
+
+.btn-light {
+  color: #797979 !important;
+  background-color: #F5F5F5;
+  border-color: #f8f9fa;
+}
+
+.client-code-shipment-id.header {
+  background: #294799;
+  color: white;
+  max-height: 36px;
+}
+
+.alert.header {
+  padding: .45rem .75rem .45rem .5rem;
+}
+
+body.font-smaller {
+  font-size: .7rem !important;
+}
+
+div.font-smaller {
+  font-size: .7rem !important;
+}
+
+span.material-icons.font-small {
+  font-size: small;
+}
+
+div.font-small {
+  font-size: .85rem !important;
+}
+
+.steps {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  display: flex;
+  overflow-x: hidden;
+}
+
+.step-circle {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1rem;
+  height: 1rem;
+  color: #adb5bd;
+  border: 2px solid #adb5bd;
+  border-radius: 100%;
+  background-color: #fff;
+}
+
+.step-circle::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: -2px;
+  width: calc(3.9rem + 1rem - 1.5rem);
+  height: 2px;
+  transform: translate(-100%, -50%);
+  color: #adb5bd;
+  background-color: currentColor;
+}
+
+.step-content {
+  box-sizing: content-box;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: 3.2rem;
+  min-width: 3.2rem;
+  max-width: 3.2rem;
+  padding: 0.6rem
+
+}
+
+.step:last-of-type .step-content {
+  padding-right: 20px;
+}
+
+
+.step-success .step-circle {
+  color: #28a745 !important;
+  background-color: #28a745 !important;
+  border-color: #28a745 !important;
+}
+
+/*bootstrap-steps Styling*/
+
+/*Removes arrows on number input */
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/*Removes arrows on number input */
+th.primary-blue, td.primary-blue {
+  color: #007bff !important;
+}
+
+div.accordion div.card div.card-header {
+  background-color: #e2e6ea !important;
+}
+
+.icon-pointer {
+  cursor: pointer;
+}
+
+.custom-select {
+  color: #636c72 !important;
+  border: 1px solid #ced4da !important
+}
+
+.form-check-input {
+  border: 1px solid #7fa2c6 !important;
+}
+
+.material-icons {
+  font-size: 20px;
+}
+
+.alert {
+  padding-top: .5rem !important;
+  padding-bottom: .5rem !important;
+  margin-bottom: .5rem !important;
+}
+
+.custom-select:invalid {
+  background: #fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") no-repeat right .75rem center/8px 10px !important;
+  /*padding-right: 0 !important;*/
+  /*margin-right: 0 !important;*/
+}
+
+button .custom-select:invalid {
+  background: #fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") no-repeat right .75rem center/8px 10px !important;
+  /*padding-right: 0 !important;*/
+  /*margin-right: 0 !important;*/
+}
+
+.form-control {
+  border: 1px solid #ced4da !important;
+}
+
+.form-control:invalid {
+  background: none no-repeat !important;
+  padding-right: 0 !important;
+  margin-right: 0 !important;
+  border: 1px solid #ced4da !important;
+}
+
+.custom-select:valid {
+  background: #fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") no-repeat right .75rem center/8px 10px !important;
+  border: 1px solid #ced4da !important;
+  transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out !important;
+}
+
+.custom-select:valid:focus {
+  background: #fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") no-repeat right .75rem center/8px 10px !important;
+  color: #495057 !important;
+  border-color: #80bdff !important;
+  outline: 0 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+}
+
+.form-control:valid {
+  background: none no-repeat !important;
+  padding-right: 6px !important;
+  margin-right: 0 !important;
+  border: 1px solid #ced4da !important;
+  transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out !important;
+}
+
+.form-control:valid:focus {
+  color: #495057 !important;
+  background-color: #fff !important;
+  border-color: #80bdff !important;
+  outline: 0 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+}
+
+table.dataTable tbody tr.selected td {
+  background-color: #eaeaea !important;
+}
+
+.disable-v-scroll {
+  overflow-y: hidden !important;
+}
+
+.disable-h-scroll {
+  overflow-x: hidden !important;
+}
+
+td.dt-nowrap {
+  white-space: nowrap
+}
+
+[tabindex="0"]:focus:not(:focus-visible) {
+  outline: 0 !important;
+}
+
+.pointer-event-none {
+  pointer-events: none
+}
+
+.btn-height {
+  max-height: 31px;
+}
+
+.dodger-blue {
+  color: #007bff;
+}
+
+.dropdown-position {
+  left: auto !important;
+  right: 0;
+}
+
+.spa-margin {
+  margin-right: 1rem;
+}
+
+.btn.disabled, .btn:disabled .search-icon {
+  opacity: .90 !important;
+  background-color: transparent !important;
+  border: 0 solid transparent !important;
+}
+
+.btn-dt-height {
+  height: 31px !important;
+}
+
+.campaign-dodger-blue {
+  content: url("assets/img/baseline_campaign_black_18dp.png");
+  filter: invert(35%) sepia(74%) saturate(3566%) hue-rotate(198deg) brightness(99%) contrast(111%);
+}
+
+.campaign-black-sm {
+  content: url("assets/img/baseline_campaign_black_18dp.png");
+  width: 12px;
+  height: 12px;
+}
+
+/*Styling For Floating Labels*/
+.form-label-group {
+  position: relative;
+  margin-bottom: .5rem;
+}
+
+.form-label-group > input,
+.form-label-group > label {
+  color: #636c72;
+}
+
+.form-label-group > label, ng-multiselect-dropdown ~ label {
+  position: absolute;
+  top: 0;
+  display: block;
+  width: 100%;
+  margin-bottom: 0;
+  line-height: 1.85;
+  color: #636c72;
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  transition: all .1s ease-in-out;
+  padding-left: .5rem;
+}
+
+.form-label-group input::-webkit-input-placeholder {
+  color: transparent;
+}
+
+.form-label-group input:-ms-input-placeholder {
+  color: transparent;
+}
+
+.form-label-group input::-ms-input-placeholder {
+  color: transparent;
+}
+
+.form-label-group input::-moz-placeholder {
+  color: transparent;
+}
+
+.form-label-group input::placeholder {
+  color: transparent;
+}
+
+.form-label-group input:not(:placeholder-shown) {
+  padding: .25rem .5rem;
+}
+
+.form-label-group input:not(:placeholder-shown) ~ label {
+  font-size: .6rem;
+  color: #636c72;
+  top: -10px;
+  font-weight: normal;
+  background-size: inherit;
+  background-color: white;
+  height: fit-content;
+  width: fit-content;
+}
+
+
+ng-multiselect-dropdown ~ label {
+  padding-left: 1.6rem !important;
+  height: 18px !important;
+}
+
+ng-multiselect-dropdown ~ label {
+  font-size: .6rem !important;
+  color: #636c72 !important;
+  top: -10px !important;
+  font-weight: normal !important;
+  background-size: inherit !important;
+  background-color: white !important;
+  height: fit-content !important;
+  width: fit-content !important;
+}
+
+/*End Styling For Floating Labels*/
+.red {
+  color: red !important;
+}
+
+.small-font-size {
+  font-size: .7rem !important;
+}
+
+.font-weight-500 {
+  font-weight: 500 !important;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+thead > tr > th.rateChk {
+  width: 3rem;
+}
+
+div.dataTables_wrapper div.dataTables_paginate {
+  margin: 1rem 0 0;
+}
+
+div.dt-length label {
+  float: left;
+  display: inline-flex;
+  margin-bottom: .25rem;
+  align-items: center;
+}
+
+
+/* theme */
+.blueHeaderContainerIcon {
+  /*vertical-align: bottom;*/
+  vertical-align: sub;
+  font-size: 20px;
+}
+
+.headerContainerIcon {
+  vertical-align: bottom;
+  margin-bottom: 4px;
+  margin-right: 6px;
+}
+
+.blueHeaderContainerButton {
+  border: 1px solid #294799 !important;
+  margin-right: 5px !important;
+  padding-top: 3px !important;
+  padding-bottom: 3px !important;
+  margin-top: 2px !important;
+}
+
+.greyContainer {
+  background-color: #f7f9fa !important;
+}
+
+.paddingContainer {
+  background-color: white;
+  padding: 21px;
+}
+
+.blueHeaderContainer {
+  background-color: #294799;
+  height: 3rem;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  color: white;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media screen and (max-width: 1725px) {
+  .form-label-group > label, ng-multiselect-dropdown ~ label {
+    left: 0.5rem;
+    padding-left: 0.15rem;
+    padding-top: 0.25rem;
+    font-size: .65rem;
+    word-wrap: break-word;
+  }
+
+  .form-label-group input:not(:placeholder-shown) ~ label {
+    top: -12px;
+  }
+
+  .form-label-group input:not(:placeholder-shown) {
+    font-size: .75rem;
+    padding-top: .35rem;
+    padding-right: 1.25rem;
+  }
+
+  .custom-select:valid {
+    background: #fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") no-repeat right .5rem center/8px 10px !important;
+    font-size: .75rem;
+  }
+}
+
+@media screen and (max-width: 1400px) {
+  .form-label-group > label, ng-multiselect-dropdown ~ label {
+    line-height: 1;
+  }
+}
+
+.multiselect-dropdown > div.disabled > span {
+  background-color: #eceeef !important;
+}
+
+table.dataTable th.dt-nowrap,
+table.dataTable td.dt-nowrap {
+  white-space: nowrap;
+}
+
+div.dt-container div.row {
+  margin-bottom: .5rem;
+}
+
+.acc-dropdown-menu {
+  background: white !important;
+  border: 1px solid #ced4da !important;
+  outline: none !important;
+  color: #495057;
+  padding: 6px 12px;
+  border-radius: .25rem !important;
+  line-height: 1.25 !important;
+  padding-top: .5rem !important;
+  width: 200px;
+  scroll-behavior: auto;
+  height: 30px;
+  max-height: 200px;
+  overflow-x: hidden;
+  font-size: .8rem;
+}
+
+.card-header {
+  border: 0 transparent !important;
+}
