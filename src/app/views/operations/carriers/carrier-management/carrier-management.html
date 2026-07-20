@@ -1,0 +1,741 @@
+<form (ngSubmit)="'false'" [formGroup]="carrierManagementForm" class="needs-validation" id="carrierManagementForm"
+      novalidate>
+  <div class="container-fluid">
+    <div [ngClass]="{'p-3': !isModal}" class="row">
+      <div [ngClass]="{'col-sm-10 offset-sm-2': !isModal && !global.isCollapsed(), 'col': !isModal && global.isCollapsed(), 'col-sm-12': isModal}">
+
+        @if (!isModal) {
+          <div class="row blueHeaderContainer">
+            <div class="col-12">
+              <p class="float-start mb-0">
+                <span class="material-icons p-1">local_shipping</span>
+              </p>
+              <span class="float-start ml-2 mt-1">{{ mcNumber ? 'Carrier Management' : 'Carrier Onboarding' }}</span>
+            </div>
+          </div>
+        }
+
+        <!--Carrier Details -->
+        @if (!newCarrier) {
+          <div class="row blueHeaderContainer mx-0">
+            <div class="col-12">
+              <span class="float-start ml-2 mt-1">Carrier Details</span>
+            </div>
+          </div>
+        }
+
+        <div class="row pb-3">
+          <div [ngClass]="{'col-sm-6': newCarrier}" class="col-sm-4">
+            <div class="form-label-group m-0">
+              <input [formControlName]="'carrierName'" [readOnly]="isModal && !newCarrier" aria-label="carrierName"
+                     class="form-control form-control-sm" id="carrierName" placeholder="Name*"
+                     required
+                     type="text">
+              <div class="invalid-tooltip">Carrier Name is missing.</div>
+              <label for="carrierName">Name*</label>
+            </div>
+          </div>
+
+          @if (newCarrier) {
+            <div class="col-sm-3">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'carrierScac'" [maxlength]="4" [readOnly]="isModal && !newCarrier"
+                       [value]="carrierManagementForm.get('carrierScac')?.value | uppercase"
+                       aria-label="carrierScac" class="form-control form-control-sm"
+                       id="carrierScac"
+                       placeholder="SCAC"
+                       type="text">
+                <label for="carrierScac">SCAC</label>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'TiberID'" [maxlength]="9" [readOnly]="isModal && !newCarrier"
+                       aria-label="TiberID" class="form-control form-control-sm" id="TiberID"
+                       oninput="value = value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
+                       placeholder="Tiber ID">
+                <label for="TiberID">TiberID</label>
+              </div>
+            </div>
+          }
+
+          <div [ngClass]="{'col-sm-6 pt-3': newCarrier}" class="col-sm-2 d-inline-flex">
+            <div class="form-label-group m-0 w-100">
+              <input [formControlName]="'McNumber'" [maxlength]="9" [readOnly]="isModal && !newCarrier"
+                     aria-label="McNumber" class="form-control form-control-sm"
+                     id="McNumber"
+                     placeholder="MC Number">
+              <div class="invalid-tooltip">MC Number is missing.</div>
+              <label for="McNumber">MC Number</label>
+            </div>
+            <button *ngIf="!isModal" class="btn btn-primary btn-sm material-icon-btn">
+              <i *ngIf="carrierSource === 'RMIS'" (click)="getCarrierByMCNumberFromRMIS()" class="material-icons"
+                 id="btnSearchCarrierRmis" style="cursor: pointer; font-size: 20px;">search</i>
+              <i *ngIf="carrierSource === 'MCLEOD'" (click)="searchCarrier(false, 'MC')" class="material-icons"
+                 id="btnSearchCarrier" style="cursor: pointer; font-size: 20px;">search</i>
+            </button>
+          </div>
+          <div [ngClass]="{'col-sm-6 pt-3': newCarrier}" class="col-sm-2 d-inline-flex">
+            <div class="form-label-group m-0 w-100">
+              <input [formControlName]="'DotNumber'" [maxlength]="8" [readOnly]="isModal && !newCarrier"
+                     aria-label="DotNumber" class="form-control form-control-sm"
+                     id="DotNumber"
+                     oninput="value = value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
+                     placeholder="DOT Number">
+              <div class="invalid-tooltip">DOT Number is missing.</div>
+              <label for="DotNumber">DOT Number</label>
+            </div>
+            <button *ngIf="!isModal" class="btn btn-primary btn-sm material-icon-btn">
+              <i *ngIf="carrierSource === 'RMIS'" (click)="getCarrierByDotFromRMIS()" class="material-icons"
+                 id="btnSearchCarrierDotRmis" style="cursor: pointer;font-size: 20px;">search</i>
+              <i *ngIf="carrierSource === 'MCLEOD'" (click)="searchCarrier()" class="material-icons"
+                 id="btnSearchCarrierDot" style="cursor: pointer;font-size: 20px;">search</i>
+            </button>
+          </div>
+          @if (!newCarrier) {
+            <div class="col-sm-2">
+              <app-type-ahead-drop-down
+                (modelValueOnChange)="setControlValue($event, 'compliance');"
+                [data]="yesNoDropdown"
+                [disabled]="isModal"
+                [editable]="false"
+                [isRequired]="true"
+                [name]="'compliance'"
+                [placeHolder]="'TSA compliance'"
+                [selectedValue]="carrierManagementForm.get('compliance')?.value"
+                [tagLine]="'TSA compliance'">
+              </app-type-ahead-drop-down>
+            </div>
+            <div class="col-sm-2">
+              <app-type-ahead-drop-down
+                (modelValueOnChange)="setControlValue($event, 'factoring');"
+                [data]="yesNoDropdown"
+                [disabled]="isModal"
+                [editable]="false"
+                [isRequired]="true"
+                [name]="'factoring'"
+                [placeHolder]="'Factoring company'"
+                [selectedValue]="carrierManagementForm.get('factoring')?.value"
+                [tagLine]="'Factoring company'">
+              </app-type-ahead-drop-down>
+            </div>
+          }
+        </div>
+        <div *ngIf="!newCarrier" class="row pb-3">
+          <div class="col-sm-4">
+            <div class="form-label-group m-0">
+              <input [formControlName]="'companyAddress'" [readOnly]="isModal"
+                     aria-label="companyAddress" class="form-control form-control-sm company-ctrl" id="companyAddress"
+                     placeholder="Address*"
+                     required
+                     type="text">
+              <div class="invalid-tooltip">Address is missing.</div>
+              <label for="companyAddress">Address*</label>
+            </div>
+          </div>
+          <div class="col-sm-2 d-inline-flex">
+            <div class="form-label-group m-0 w-100">
+              <input (focusout)="setCityStateByZip(carrierManagementForm.get('companyZip')?.value, 'company')"
+                     [formControlName]="'companyZip'" [readOnly]="isModal"
+                     aria-label="companyZip" class="form-control form-control-sm" id="companyZip"
+                     placeholder="Zip*"
+                     required
+                     type="number">
+              <div class="invalid-tooltip">Zip is missing.</div>
+              <label for="companyZip">Zip*</label>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="form-label-group m-0">
+              <input [formControlName]="'companyCity'" [readOnly]="isModal" aria-label="companyCity"
+                     class="form-control form-control-sm" id="companyCity" placeholder="City*"
+                     required
+                     type="text">
+              <div class="invalid-tooltip">Shipper city is missing.</div>
+              <label for="companyCity">City*</label>
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <select [attr.disabled]="isModal" [formControlName]="'companyState'" required
+                    class="form-select form-select-sm custom-select" id="companyState">
+              <option selected disabled value="">State*</option>
+              <option *ngFor="let state of stateList"
+                      value="{{state}}">{{state}}</option>
+            </select>
+            <div class="invalid-tooltip">State is missing.</div>
+          </div>
+        </div>
+        <div class="row pb-3">
+          <div *ngIf="!newCarrier" class="col-sm-4">
+            <div class="form-label-group m-0">
+              <input [formControlName]="'companyContact'" [readOnly]="isModal && !newCarrier"
+                     aria-label="companyContact" class="form-control form-control-sm"
+                     id="companyContact"
+                     placeholder="Contact">
+              <label for="companyContact">Contact</label>
+            </div>
+          </div>
+          <div [ngClass]="{'col-sm-6': newCarrier}" class="col-sm-2">
+            <div class="form-label-group m-0">
+              <input [formControlName]="'companyPhone'" [readOnly]="isModal && !newCarrier"
+                     aria-label="companyPhone" class="form-control form-control-sm" id="companyPhone"
+                     placeholder="Phone"
+                     type="number">
+              <label for="companyPhone">Phone</label>
+            </div>
+          </div>
+          <div [ngClass]="{'col-sm-6': newCarrier}" class="col-sm-3">
+            <div class="form-label-group m-0">
+              <input [formControlName]="'companyEmail'" [readOnly]="isModal && !newCarrier"
+                     aria-label="companyEmail" class="form-control form-control-sm" id="companyEmail"
+                     placeholder="Email"
+                     type="email">
+              <label for="companyEmail">Email</label>
+            </div>
+          </div>
+          <div *ngIf="!newCarrier" class="col-sm-3">
+            <div class="form-label-group m-0">
+              <input [formControlName]="'paymentMethod'" [readOnly]="isModal"
+                     aria-label="paymentMethod" class="form-control form-control-sm" id="paymentMethod"
+                     placeholder="Preferred Method of Payment"
+                     type="number">
+              <label for="paymentMethod">Preferred Method of Payment</label>
+            </div>
+          </div>
+        </div>
+        <div class="row pb-3 px-2">
+          <div class="fw-bold" [ngClass]="{'col-sm-2': !isModal, 'col-sm-3': isModal}">Is Certified
+            <span *ngIf="!isModal && certificationVerified && carrierCertified" class="pl-2 text-center">
+              <span class="material-icons" style="font-size:16px;color: green;">verified</span>
+            </span>
+            <span *ngIf="!isModal && certificationVerified && !carrierCertified" class="pl-2 text-center">
+              <span class="material-icons" style="font-size:16px;color: red;">error</span>
+            </span>
+            <span *ngIf="!isModal && !certificationVerified && !carrierCertified" class="pl-2 text-center">
+              <span class="pl-2 dodger-blue">{{ '-' }}</span>
+            </span>
+            <span *ngIf="isModal && modalCertificationVerified && modalCarrierCertified" class="pl-2 text-center">
+              <span class="material-icons" style="font-size:16px;color: green;">verified</span>
+            </span>
+            <span *ngIf="isModal && modalCertificationVerified && !modalCarrierCertified" class="pl-2 text-center">
+              <span class="material-icons" style="font-size:16px;color: red;">error</span>
+            </span>
+            <span *ngIf="isModal && !modalCertificationVerified && !modalCarrierCertified" class="pl-2 text-center">
+              <span class="pl-2 dodger-blue">{{ '-' }}</span>
+            </span>
+          </div>
+          <div class="fw-bold" [ngClass]="{'col-sm-4': !isModal, 'col-sm-6': isModal}">Certification Verified:
+            <span *ngIf="!isModal" class="pl-4 dodger-blue">{{ certificationVerified ?? '-' }}</span>
+            <span *ngIf="isModal" class="pl-4 dodger-blue">{{ modalCertificationVerified ?? '-' }}</span>
+          </div>
+        </div>
+
+        <!--Remit to address -->
+        <div *ngIf="!newCarrier && carrierSource === 'RMIS'" class="row pt-2 pb-2 form-inline">
+          <div [ngClass]="{'dodger-blue': isModal}" class="col fw-bold shipment-lbl">Remit To Address</div>
+        </div>
+        <div *ngIf="!newCarrier && carrierSource === 'RMIS'" class="row pb-2">
+          <div class="col-sm-4">
+            <div class="form-label-group m-0">
+              <input [formControlName]="'remitName'" [readOnly]="isModal" aria-label="remitName"
+                     class="form-control form-control-sm" id="remitName" placeholder="Company Name*"
+                     required
+                     type="text">
+              <div class="invalid-tooltip">Name is missing.</div>
+              <label for="remitName">Company Name*</label>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-label-group m-0">
+              <input [formControlName]="'remitAddress'" [readOnly]="isModal"
+                     aria-label="remitAddress" class="form-control form-control-sm remit-ctrl" id="remitAddress"
+                     placeholder="Address*"
+                     required
+                     type="text">
+              <div class="invalid-tooltip">Address is missing.</div>
+              <label for="remitAddress">Address*</label>
+            </div>
+          </div>
+          <div class="col-sm-1 d-inline-flex">
+            <div class="form-label-group m-0 w-100">
+              <input (focusout)="setCityStateByZip(carrierManagementForm.get('remitZip')?.value, 'remit')"
+                     [formControlName]="'remitZip'" [readOnly]="isModal"
+                     aria-label="remitZip" class="form-control form-control-sm" id="remitZip"
+                     placeholder="Zip*"
+                     required
+                     type="number">
+              <div class="invalid-tooltip">Zip is missing.</div>
+              <label for="remitZip">Zip*</label>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-label-group m-0">
+              <input [formControlName]="'remitCity'" [readOnly]="isModal" aria-label="remitCity"
+                     class="form-control form-control-sm" id="remitCity" placeholder="City*"
+                     required
+                     type="text">
+              <div class="invalid-tooltip">Shipper city is missing.</div>
+              <label for="remitCity">City*</label>
+            </div>
+          </div>
+          <div class="col-sm-1">
+            <div class="form-label-group m-0">
+              <input [formControlName]="'remitState'" [readOnly]="isModal" aria-label="remitState"
+                     class="form-control form-control-sm" id="remitState" placeholder="State*"
+                     required
+                     type="text">
+              <div class="invalid-tooltip">State is missing.</div>
+              <label for="remitState">State*</label>
+            </div>
+          </div>
+        </div>
+
+        <!--Dispatch -->
+        <div *ngIf="!newCarrier && carrierSource === 'RMIS'" class="row pt-2 pb-2 form-inline">
+          <div [ngClass]="{'dodger-blue': isModal}" class="col fw-bold shipment-lbl">Dispatch</div>
+        </div>
+        <div *ngIf="!newCarrier && carrierSource === 'RMIS'" class="row pb-2">
+          <div class="col-sm-4">
+            <div class="form-label-group m-0">
+              <input [formControlName]="'dispatchName'" [readOnly]="isModal"
+                     aria-label="dispatchName" class="form-control form-control-sm" id="dispatchName"
+                     placeholder="Name"
+                     type="text">
+              <label for="dispatchName">Name</label>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="form-label-group m-0">
+              <input [formControlName]="'dispatchEmail'" [readOnly]="isModal"
+                     aria-label="dispatchEmail" class="form-control form-control-sm" id="dispatchEmail"
+                     placeholder="Email"
+                     type="email">
+              <label for="dispatchEmail">Email</label>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="form-label-group m-0">
+              <input [formControlName]="'dispatchPhone'" [readOnly]="isModal"
+                     aria-label="dispatchPhone" class="form-control form-control-sm" id="dispatchPhone"
+                     placeholder="Phone"
+                     type="number">
+              <label for="dispatchPhone">Phone</label>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="carrierSource === 'RMIS'" class="row pt-3 pb-2">
+          <div class="col-sm-12">
+            <div class="accordion">
+              <div class="icon-pointer card">
+                <div (click)="headerClicked('#certificationHeader')" aria-controls="collapseOne" aria-expanded="false"
+                     class="card-header btn-light" data-bs-target="#certificationHeader"  data-bs-toggle="collapse">
+                  <div class="text-center fw-bold text-uppercase text-dark">
+                    Certification Status Info
+                    <i *ngIf="!panelExpanded" class="material-icons float-end pointer-event-none">expand_more</i>
+                    <i *ngIf="panelExpanded" class="material-icons float-end pointer-event-none">expand_less</i>
+                  </div>
+                </div>
+                <div aria-labelledby="certificationHeader" class="card-body collapse" data-parent="#accordion" id="certificationHeader">
+                  <div class="row pt-2 pb-2">
+                    <div class="col">
+                      <div class="row pb-2 px-2">
+                        <div class="col-sm-3 fw-bold">Is Certified
+                          <span class="pl-4 fw-bold dodger-blue">
+                            {{ certificationStatus?.IsCertified ? (certificationStatus?.IsCertified == 'True' || certificationStatus?.IsCertified == true ? 'Yes' : 'No') : '-' }}
+                          </span>
+                        </div>
+                        <div class="col-sm-3 fw-bold">Entities Certified
+                          <span class="pl-4 fw-bold dodger-blue">{{ certificationStatus?.EntitiesCertified ?? '-' }}</span>
+                        </div>
+                        <div class="col-sm-3 fw-bold">Entities Not Certified
+                          <span class="pl-4 fw-bold dodger-blue">{{ certificationStatus?.EntitiesNOTCertified ?? '-' }}</span>
+                        </div>
+                        <div class="col-sm-3 fw-bold">Status Date
+                          <span class="pl-4 fw-bold dodger-blue">{{ certificationStatus?.StatusDate ?? '-' }}</span>
+                        </div>
+                      </div>
+                      <div class="row pb-2 px-2">
+                        <div class="col-sm-6 fw-bold">Non Certified Reasons:
+                          <span class="pl-2 small-font-size" style="font-weight: normal">
+                              {{ certificationStatus?.NonCertifiedReasons?.Reason ?? '-' }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="isModal && onboardCarrier" class="row pt-3 pb-2">
+          <div class="col-sm-12">
+            <div class="accordion">
+              <div class="icon-pointer card">
+                <div (click)="headerClicked('#carrierHeader')" aria-controls="collapseOne" aria-expanded="false"
+                     class="card-header btn-light" data-bs-target="#carrierHeader" data-bs-toggle="collapse">
+                  <div class="text-center fw-bold text-uppercase text-dark">
+                    Equipment, Authority and CSA Safety Data
+                    <i *ngIf="!panel1Expanded" class="material-icons float-end pointer-event-none">expand_more</i>
+                    <i *ngIf="panel1Expanded" class="material-icons float-end pointer-event-none">expand_less</i>
+                  </div>
+                </div>
+                <div aria-labelledby="carrierHeader" class="card-body collapse" data-parent="#accordion" id="carrierHeader">
+                  <div class="row pt-2 pb-2">
+                    <div class="col">
+                      <div class="row pb-2">
+                        <div class="col-sm-4 fw-bold">Insurance certificate active
+                          <span class="pl-4 fw-bold dodger-blue">{{ hasInsurance ? (hasInsurance ? 'Y' : 'N') : '-' }}</span>
+                        </div>
+                        <div class="col-sm-4 fw-bold">Safety rating
+                          <span *ngIf="carrierSource === 'MCLEOD'" class="pl-4 fw-bold dodger-blue">{{ mcleodCarrier ? mcleodCarrier.drs_payee['@__safetyRatingDescr'] : '-' }}</span>
+                          <span *ngIf="carrierSource === 'RMIS'" class="pl-4 fw-bold dodger-blue">{{ dotInfo && dotInfo?.SafetyRating ? dotInfo?.SafetyRating?.toUpperCase() : '-' }}</span>
+                        </div>
+                        <div class="col-sm-4 fw-bold">Authority grant date
+                          <span *ngIf="carrierSource === 'MCLEOD'" class="pl-4 fw-bold dodger-blue">{{ mcleodCarrier ? (mcleodCarrier.drs_payee['@common_auth_grant_date'] ? mcleodCarrier.drs_payee['@common_auth_grant_date'].substring(0,8) : (mcleodCarrier.drs_payee['@contract_auth_grant_date'] ? mcleodCarrier.drs_payee['@contract_auth_grant_date'].substring(0,8) : '-')) : '-' }}</span>
+                          <span *ngIf="carrierSource === 'RMIS'" class="pl-4 fw-bold dodger-blue">{{ dotInfo?.LatestAuthorityGrantDate ?? dotInfo?.OriginalAuthorityGrantDate ?? '-' }}</span>
+                        </div>
+                      </div>
+                      <div class="row pb-2">
+                        <div class="col-sm-4 fw-bold">Number of drivers
+                          <span *ngIf="carrierSource === 'RMIS'" class="pl-4 fw-bold dodger-blue">{{ carrierProfile?.CompanyDrivers ?? '-' }}</span>
+                          <span *ngIf="carrierSource === 'MCLEOD'" class="pl-4 fw-bold dodger-blue">{{ mcleodCarrier ? mcleodCarrier.drs_payee['@drivers'] : '-' }}</span>
+                        </div>
+                        <div class="col-sm-4 fw-bold">Number of tractors
+                          <span *ngIf="carrierSource === 'RMIS'" class="pl-4 fw-bold dodger-blue">{{ dotInfo?.Tot_Pwr ?? '-' }}</span>
+                          <span *ngIf="carrierSource === 'MCLEOD'" class="pl-4 fw-bold dodger-blue">{{ mcleodCarrier ? mcleodCarrier.drs_payee['@power_units'] : '-' }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!newCarrier"  class="row pt-3 pb-2">
+          <div class="col-sm-12">
+            <div class="accordion">
+              <div class="icon-pointer card">
+                <div (click)="headerClicked('#carrierHeader1')" aria-controls="collapseOne" aria-expanded="false"
+                     class="card-header btn-light" data-bs-target="#carrierHeader1" data-bs-toggle="collapse">
+                  <div class="text-center fw-bold text-uppercase text-dark">
+                    Equipment, Authority and CSA Safety Data
+                    <i *ngIf="!panel1Expanded" class="material-icons float-end pointer-event-none"
+                       id="historyExpandMore">expand_more</i>
+                    <i *ngIf="panel1Expanded" class="material-icons float-end pointer-event-none"
+                       id="historyExpandLess">expand_less</i>
+                  </div>
+                </div>
+                <div aria-labelledby="carrierHeader1" class="card-body collapse" data-parent="#accordion" id="carrierHeader1">
+                  <div class="row pt-2 pb-2 row-cols-3">
+                    <div class="col">
+                      <div class="container">
+                        <div class="row pb-2">
+                          <div class="col" style="background-color: #007bff;">
+                            <label style="color: white; margin: 5px;">Equipment</label>
+                          </div>
+                        </div>
+                        <div *ngIf="carrierSource === 'MCLEOD'" class="row pb-1">
+                          <div class="col-sm-6 fw-bold">Power Units</div>
+                          <div class="col-sm-6 fw-bold dodger-blue">{{ mcleodCarrier ? mcleodCarrier.drs_payee['@power_units'] : '-' }}</div>
+                        </div>
+                        <div *ngIf="carrierSource === 'RMIS'" class="row pb-1">
+                          <div class="col-sm-6 fw-bold">Van</div>
+                          <div class="col-sm-6 fw-bold dodger-blue">{{ carrierProfile?.DryVans ?? '-' }}</div>
+                        </div>
+                        <div *ngIf="carrierSource === 'RMIS'" class="row pb-1">
+                          <div class="col-sm-6 fw-bold">Flatbed</div>
+                          <div class="col-sm-6 fw-bold dodger-blue">{{ carrierProfile?.FlatBeds ?? '-' }}</div>
+                        </div>
+                        <div *ngIf="carrierSource === 'RMIS'" class="row pb-1">
+                          <div class="col-sm-6 fw-bold">Reefer</div>
+                          <div class="col-sm-6 fw-bold dodger-blue">{{ carrierProfile?.RefrigeratedVans ?? '-' }}</div>
+                        </div>
+                        <div class="row pb-1">
+                          <div class="col-sm-6 fw-bold">Drivers</div>
+                          <div *ngIf="carrierSource === 'RMIS'" class="col-sm-6 fw-bold dodger-blue">{{ carrierProfile?.CompanyDrivers ?? '-' }}</div>
+                          <div *ngIf="carrierSource === 'MCLEOD'" class="col-sm-6 fw-bold dodger-blue">{{ mcleodCarrier ? mcleodCarrier.drs_payee['@drivers'] : '-' }}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col">
+                      <div class="container">
+                        <div class="row pb-2">
+                          <div class="col" style="background-color: #007bff;">
+                            <label style="color: white; margin: 5px;">Authority</label>
+                          </div>
+                        </div>
+                        <div class="row pb-1">
+                          <div class="col-sm-6 fw-bold">Broker Authority</div>
+                          <div *ngIf="carrierSource === 'RMIS'" class="col-sm-6 small-font-size fw-bold dodger-blue">{{ carrierDOT ? carrierDOT.dot_BrokerAuthority === 'A' ? 'ACTIVE' : 'NONE' : '-' }}</div>
+                          <div *ngIf="carrierSource === 'MCLEOD'" class="col-sm-6 small-font-size fw-bold dodger-blue">{{ mcleodCarrier ? mcleodCarrier.drs_payee['@__brokerAuthStatusDescr'] : '-' }}</div>
+                        </div>
+                        <div class="row pb-1">
+                          <div class="col-sm-6 fw-bold">Common Authority</div>
+                          <div *ngIf="carrierSource === 'RMIS'" class="col-sm-6 small-font-size fw-bold dodger-blue">{{ carrierDOT ? carrierDOT.dot_CommonAuthority === 'A' ? 'ACTIVE' : 'NONE' : '-' }}</div>
+                          <div *ngIf="carrierSource === 'MCLEOD'" class="col-sm-6 small-font-size fw-bold dodger-blue">{{ mcleodCarrier ? mcleodCarrier.drs_payee['@__commonAuthStatusDescr'] : '-' }}</div>
+                        </div>
+                        <div class="row pb-1">
+                          <div class="col-sm-6 fw-bold">Contract Authority</div>
+                          <div *ngIf="carrierSource === 'RMIS'" class="col-sm-6 small-font-size fw-bold dodger-blue">{{ carrierDOT ? carrierDOT.dot_ContractAuthority === 'A' ? 'ACTIVE' : 'NONE' : '-' }}</div>
+                          <div *ngIf="carrierSource === 'MCLEOD'" class="col-sm-6 small-font-size fw-bold dodger-blue">{{ mcleodCarrier ? mcleodCarrier.drs_payee['@__contractAuthStatusDescr'] : '-' }}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col">
+                      <div class="container">
+                        <div class="row pb-2">
+                          <div class="col" style="background-color: #007bff;">
+                            <label style="color: white; margin: 5px;">CSA Safety Data</label>
+                          </div>
+                        </div>
+                        <div class="row pb-1">
+                          <div class="col-sm-6 fw-bold">Rating</div>
+                          <div *ngIf="carrierSource === 'RMIS'" class="col-sm-6 small-font-size fw-bold dodger-blue">{{ dotInfo?.SafetyRating?.toUpperCase() ?? '-' }}</div>
+                          <div *ngIf="carrierSource === 'MCLEOD'" class="col-sm-6 small-font-size fw-bold dodger-blue">{{ mcleodCarrier ? mcleodCarrier.drs_payee['@__safetyRatingDescr'] : '-' }}</div>
+                        </div>
+                        <div class="row pb-1">
+                          <div class="col-sm-6 fw-bold">Rating Type</div>
+                          <div *ngIf="carrierSource === 'RMIS'" class="col-sm-6 small-font-size fw-bold dodger-blue">{{ dotInfo?.SafetyReviewType?.toUpperCase() ?? '-' }}</div>
+                          <div *ngIf="carrierSource === 'MCLEOD'" class="col-sm-6 small-font-size fw-bold dodger-blue">{{ mcleodCarrier ? mcleodCarrier.drs_payee['@safety_review_type'] : '-' }}</div>
+                        </div>
+                        <div class="row pb-1">
+                          <div class="col-sm-6 fw-bold">Operating Status</div>
+                          <div *ngIf="carrierSource === 'RMIS'" class="col-sm-6 small-font-size fw-bold dodger-blue">{{ dotInfo?.OperatingStatus?.toUpperCase() ?? '-' }}</div>
+                          <div *ngIf="carrierSource === 'MCLEOD'" class="col-sm-6 small-font-size fw-bold dodger-blue">{{ mcleodCarrier ? mcleodCarrier.drs_payee['@operations_class'] : '-' }}</div>
+                        </div>
+                        <div class="row pb-1">
+                          <div class="col-sm-6 fw-bold">Out of Service</div>
+                          <div *ngIf="carrierSource === 'RMIS'" class="col-sm-6 small-font-size fw-bold dodger-blue">{{ dotInfo?.OutOfServiceDate ?? '-' }}</div>
+                          <div *ngIf="carrierSource === 'MCLEOD'" class="col-sm-6 small-font-size fw-bold dodger-blue">{{ mcleodCarrier ? mcleodCarrier.drs_payee['@out_of_service'] : '-' }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--Operating area, preferred lanes -->
+        <div *ngIf="!newCarrier && carrierSource === 'RMIS'" class="row pt-3 pb-2">
+          <div class="col-sm-12">
+            <div class="accordion">
+              <div class="icon-pointer card">
+                <div (click)="headerClicked('#carrierHeader2')" aria-controls="collapseOne" aria-expanded="false"
+                     class="card-header btn-light" data-bs-target="#carrierHeader2" style="background-color: #e2e6ea !important;"
+                     data-bs-toggle="collapse">
+                  <div class="text-center fw-bold text-uppercase text-dark">
+                    Operating area - Preferred lanes
+                    <i *ngIf="!panel2Expanded" class="material-icons float-end pointer-event-none">expand_more</i>
+                    <i *ngIf="panel2Expanded" class="material-icons float-end pointer-event-none">expand_less</i>
+                  </div>
+                </div>
+                <div aria-labelledby="carrierHeader2" class="card-body collapse" data-parent="#accordion" id="carrierHeader2">
+                  <div class="row pt-2 pb-2 row-cols-2">
+                    <div class="col">
+                      <div class="container">
+                        <div class="row pb-2">
+                          <div class="col" style="background-color: #007bff;">
+                            <label style="color: white; margin: 5px;">Operating Areas</label>
+                          </div>
+                        </div>
+                        <div *ngIf="!carrierProfile?.OperatingArea" class="row pb-1">
+                          <div class="col-sm-6 fw-bold">-</div>
+                        </div>
+                        <div *ngFor="let item of operatingAreas; " class="row pb-1">
+                          <div class="col-sm-12 fw-bold">{{ item["@Description"] ?? '-' }}
+                            , {{ item["@Description1"] ?? '' }}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col">
+                      <div class="container">
+                        <div class="row pb-2">
+                          <div class="col" style="background-color: #007bff;">
+                            <label style="color: white; margin: 5px;">Preferred Lanes</label>
+                          </div>
+                        </div>
+                        <div *ngIf="!additionalFields" class="row pb-1">
+                          <div class="col-sm-6 fw-bold">-</div>
+                        </div>
+                        <div *ngFor="let item of additionalFields; " class="row pb-1">
+                          <div class="col-sm-12 fw-bold">{{ item.Value ?? '-' }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!newCarrier" class="row pt-3 pb-2">
+          <div class="col-sm-12">
+            <div class="accordion">
+              <div class="icon-pointer card">
+                <div (click)="headerClicked('#carrierHeader3')" aria-controls="collapseOne" aria-expanded="false"
+                     class="card-header btn-light" data-bs-target="#carrierHeader3" style="background-color: #e2e6ea !important;"
+                     data-bs-toggle="collapse">
+                  <div class="text-center fw-bold text-uppercase text-dark">
+                    Insurance
+                    <i *ngIf="!panel3Expanded" class="material-icons float-end pointer-event-none">expand_more</i>
+                    <i *ngIf="panel3Expanded" class="material-icons float-end pointer-event-none">expand_less</i>
+                  </div>
+                </div>
+                <div aria-labelledby="carrierHeader3" class="card-body collapse" data-parent="#accordion" id="carrierHeader3">
+                  <div class="row pt-2 pb-2 row-cols-1 px-3">
+                    <div class="col">
+                      <div class="row pb-2">
+                        <div class="col-12" style="background-color: #007bff;">
+                          <label style="color: white; margin: 5px;">Insurance</label>
+                        </div>
+                      </div>
+                      <div class="row pb-1">
+                        <div class="col-sm-3 fw-bold">Description</div>
+                        <div class="col-sm-3 fw-bold">Status</div>
+                        <div class="col-sm-3 fw-bold">Expiration Date</div>
+                        <div class="col-sm-3 fw-bold">Underwriter</div>
+                      </div>
+                      <div *ngIf="carrierSource === 'RMIS'">
+                        <div *ngFor="let item of insuranceInfo; " class="row pb-1">
+                          <div class="col-sm-3 small-font-size fw-bold">{{item.CoverageDescription}}</div>
+                          <div class="col-sm-3 small-font-size fw-bold">{{item.Status}}</div>
+                          <div class="col-sm-3 small-font-size fw-bold">{{item.ExpirationDate}}</div>
+                          <div class="col-sm-3 small-font-size fw-bold">{{item.Underwriter}}</div>
+                        </div>
+                        <div *ngIf="!insuranceInfo" class="row pb-1">
+                          <div class="col-sm-3 small-font-size fw-bold">-</div>
+                          <div class="col-sm-3 small-font-size fw-bold">-</div>
+                          <div class="col-sm-3 small-font-size fw-bold">-</div>
+                          <div class="col-sm-3 small-font-size fw-bold">-</div>
+                        </div>
+                      </div>
+                      <div *ngIf="carrierSource === 'MCLEOD' && mcleodCarrier">
+                        <div class="row pb-1">
+                          <div class="col-sm-3 small-font-size fw-bold">CARGO</div>
+                          <div class="col-sm-3 small-font-size fw-bold">{{ mcleodCarrier.drs_payee['@cargo_ins_on_file'] == 'Y' ? 'Valid' : '-' }}</div>
+                          <div class="col-sm-3 small-font-size fw-bold">{{ mcleodCarrier.drs_payee['@cargo_ins_on_file'] == 'Y' ?
+                            mcleodCarrier.drs_payee['@cargo_ins_renew_dt'].substring(0,8) : '-' }}</div>
+                          <div class="col-sm-3 small-font-size fw-bold">{{ mcleodCarrier.drs_payee['@cargo_ins_on_file'] == 'Y' ?
+                            mcleodCarrier.drs_payee['@cargo_insurer'] : '-' }}</div>
+                        </div>
+                        <div class="row pb-1">
+                          <div class="col-sm-3 small-font-size fw-bold">LIABILITY</div>
+                          <div class="col-sm-3 small-font-size fw-bold">{{ mcleodCarrier.drs_payee['@liability_amount'] && parseFloat(mcleodCarrier.drs_payee['@liability_amount']) > 0 ? 'Valid' : '-' }}</div>
+                          <div class="col-sm-3 small-font-size fw-bold">{{ mcleodCarrier.drs_payee['@liab_expire_date'] ? mcleodCarrier.drs_payee['@liab_expire_date'].toString().substring(0, 8) : '-' }}</div>
+                          <div class="col-sm-3 small-font-size fw-bold">{{ mcleodCarrier ? mcleodCarrier.drs_payee['@liability_insurer'] : '-' }}</div>
+                        </div>
+                      </div>
+                      <div *ngIf="carrierSource === 'MCLEOD' && !mcleodCarrier" class="row pb-1">
+                        <div class="col-sm-3 small-font-size fw-bold">-</div>
+                        <div class="col-sm-3 small-font-size fw-bold">-</div>
+                        <div class="col-sm-3 small-font-size fw-bold">-</div>
+                        <div class="col-sm-3 small-font-size fw-bold">-</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--buttons -->
+        <div *ngIf="!isModal" class="row pt-3">
+          <div class="col-sm-2">
+            <button class="btn btn-sm w-100 btn-danger" routerLink="/SPAs/carriers" type="button">
+              Back
+            </button>
+          </div>
+          <div class="col-sm-2">
+            <button class="btn btn-sm w-100 btn-primary" (click)="resetCarrierForm()" type="button">
+              Reset
+            </button>
+          </div>
+          <ng-template [ngIf]="!isModal">
+            <div class="col-sm-3" *ngIf="!isNetworkTTStatus">
+              <button class="btn btn-sm w-100 btn-primary" (click)="syncCarrier()" type="button" >
+                Trucker Tools - Sync Carrier
+              </button>
+            </div>
+          </ng-template>
+          <ng-template [ngIf]="!isModal">
+            <div class="col-sm-3" *ngIf="isNetworkTTStatus">
+              <button class="btn btn-sm w-100 btn-danger" (click)="rejectCarrier()" type="button">
+                Trucker Tools - Reject Carrier
+              </button>
+            </div>
+          </ng-template>
+          <div *ngIf="carrierSource ==='RMIS'" class="col-sm-2">
+            <button class="btn btn-sm w-100 btn-primary" (click)="validateMeetRules()" type="button" [disabled]="disableBtn">
+              Onboard Carrier
+              <i class='material-icons text-center' style="font-size: 14px; color:white">forward_to_inbox</i>
+            </button>
+            <app-email-modal [btnClassType]="'Onboard'"
+                             [hideBtn]="true"
+                             [btnLabel]="'Onboard Carrier'"
+                             (eventEmailSent)="onboardingMailSent()"
+                             [fromEmailAddress]="'tl@il2000.com'"
+                             [toEmailAddress]="carrierManagementForm.get('companyEmail')?.value"
+                             [disableBtn]="disableBtn"
+                             [reloadAfterSend]="false"
+                             [emailBody]="buildEmailDisplayBodyMessage()"
+                             [emailModalLabel]="'New Message - Carrier Onboarding'"
+                             [emailSubject]="'[Action required] IL2000 Carrier onboarding'"
+                             [htmlEmailBody]="buildEmailHtmlBodyMessage()" [isHtml]="true"></app-email-modal>
+          </div>
+        </div>
+
+        <div *ngIf="isModal" class="row pt-3">
+          <div *ngIf="newCarrier || onboardCarrier" class="col-sm-2">
+            <button (click)="closeNewCarrierModal()" class="btn btn-sm w-100 btn-danger" type="button">
+              Cancel
+            </button>
+          </div>
+          <ng-template [ngIf]="isModal">
+            <div class="col-sm-4"  *ngIf="!modalNetwotkTT">
+              <button class="btn btn-sm w-100 btn-primary" (click)="syncCarrier()" type="button" >
+                Trucker Tools - Sync Carrier
+              </button>
+            </div>
+          </ng-template>
+          <ng-template [ngIf]="isModal">
+            <div class="col-sm-4"  *ngIf="modalNetwotkTT">
+              <button class="btn btn-sm w-100 btn-danger" (click)="rejectCarrier()" type="button">
+                Trucker Tools - Reject Carrier
+              </button>
+            </div>
+          </ng-template>
+          <div *ngIf="newCarrier" class="col-sm-2">
+            <button (click)="onClickNewCarrier()" [disabled]="!carrierManagementForm.valid"
+                    class="btn btn-sm w-100 btn-primary" type="button">
+              Save Quote
+            </button>
+          </div>
+          <div *ngIf="onboardCarrier && carrierSource === 'RMIS'" class="col-sm-4">
+            <app-email-modal [btnClassType]="'Onboard'"
+                             [btnLabel]="'Save quote and onboard carrier'"
+                             (eventEmailSent)="onboardingMailSent()"
+                             [fromEmailAddress]="'tl@il2000.com'"
+                             [toEmailAddress]="carrierManagementForm.get('companyEmail')?.value"
+                             [disableBtn]="disableEmailBtn"
+                             [reloadAfterSend]="false"
+                             [emailBody]="buildEmailDisplayBodyMessage()"
+                             [emailModalLabel]="'New Message - Carrier Onboarding'"
+                             [emailSubject]="'[Action required] IL2000 Carrier onboarding'"
+                             [htmlEmailBody]="buildEmailHtmlBodyMessage()" [isHtml]="true"></app-email-modal>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+<ngx-spinner name="spinnerCarrierForm"></ngx-spinner>
+

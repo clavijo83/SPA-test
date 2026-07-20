@@ -1,0 +1,140 @@
+<div class="container-fluid">
+  <div class="row p-3">
+    <div [ngClass]="{'col-sm-10 offset-sm-2': !this.global.isCollapsed(), 'col': this.global.isCollapsed()}">
+
+      <div class="row blueHeaderContainer">
+        <div class="col-12">
+          <p class="float-start mb-0">
+            <span class="material-icons p-1">local_shipping</span>
+          </p>
+          <span class="float-start ml-2 mt-1">Carrier Management</span>
+        </div>
+      </div>
+
+      <div class="row pb-3">
+
+        <div class="col-sm-3">
+          <button class="btn btn-primary btn-sm w-100" routerLink="/SPAs/carriers/onboard" type="button"
+                  ngbTooltip="search for the carrier in RMIS and onboard it" placement="right">
+            Search/Onboard Carrier
+          </button>
+        </div>
+
+        @if (carrierSource === 'RMIS') {
+          <div class="col-sm-3">
+            <button (click)="onClickRegistrationStep()" class="btn btn-sm w-100 btn-primary"
+                    ngbTooltip="view a carriers’ latest registration step in RMIS"
+                    placement="right" type="button">
+              View Carrier Registration Steps
+            </button>
+          </div>
+        }
+        <div class="col-2"></div>
+        <div class="col">
+          <div class="float-end">
+            <span class="mx-3">Filter Carriers: </span>
+            <div class="btn-group" role="group">
+
+              <input (click)="setCarriersData(true)" type="radio" class="btn-check" name="options" id="option1" autocomplete="off" checked>
+              <label class="btn btn-sm btn-outline-primary" for="option1">Approved</label>
+
+              <input (click)="setCarriersData(false)" type="radio" class="btn-check" name="options" id="option2" autocomplete="off">
+              <label class="btn btn-sm btn-outline-primary" for="option2">Pending</label>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-12 pb-3 font-smaller disable-h-scroll disable-v-scroll">
+          <app-data-table [autoWidth]="false"
+                          [columns]="this.carriersTableColumns"
+                          [customFixedHeight]="true"
+                          [customSort]="this.sortOrder"
+                          [data]="this.carriers"
+                          [footerNoBtnFixed]="true"
+                          [gridName]="'carrierList'"
+                          [hover]="true"
+                          [info]="true"
+                          [lengthChange]="false"
+                          [ordering]="true"
+                          [paging]="true"
+                          [searching]="true"
+                          id="carrierList">
+          </app-data-table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<ngx-spinner name="spinnerCarrierForm"></ngx-spinner>
+
+<div aria-hidden="true" class="modal fade" id="carrierRegistrationStepModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <span class="fw-bold pl-1 modal-title" style="font-size: large">
+          Carrier Registration Step {{this.mcNumber}}
+        </span>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        @if (registrationRecords) {
+          <div class="table-responsive">
+            <table class="table table-borderless">
+              <thead>
+              <tr>
+                <th class="fw-bold" scope="col">Company Name</th>
+                <th class="fw-bold" scope="col">MC Number</th>
+                <th class="fw-bold" scope="col">DOT Number</th>
+                <th class="fw-bold" scope="col">Last Step</th>
+                <th class="fw-bold" scope="col">Date</th>
+              </tr>
+              </thead>
+              <tbody>
+              @for (record of this.registrationRecords; track record;) {
+                <tr>
+                  <td>
+                    <span>{{record.CompanyName}}</span>
+                  </td>
+                  <td>
+                    <span>{{record.MCNumber}}</span>
+                  </td>
+                  <td>
+                    <span>{{record.USDOTNumber}}</span>
+                  </td>
+                  <td>
+                    <span>{{record.LastStep}}</span>
+                  </td>
+                  <td>
+                    <span>{{record.UTC_RegistrationDate | date:'MM-dd-yyyy'}}</span>
+                  </td>
+                </tr>
+              }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<div aria-hidden="true" class="modal fade" id="newCarrierModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <span class="fw-bold pl-1 modal-title" style="font-size: large">New Carrier</span>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <app-carrier-management [isModal]="true" [newCarrier]="true"></app-carrier-management>
+      </div>
+    </div>
+  </div>
+</div>
+
+

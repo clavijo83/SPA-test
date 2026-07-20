@@ -1,0 +1,111 @@
+.spr {
+  padding-right: 16rem;
+}
+
+.spot-rate-modal-w {
+  width: 80% !important;
+}
+
+.spot-rate-text-ctrl {
+  width: 800px;
+}
+
+.container-fluid-w {
+  max-width: 1500px;
+}
+
+.carrier-management-type-toggle {
+  margin-top: 50px;
+  margin-left: 8px;
+}
+
+.client-info-lbl {
+  margin-left: 9px;
+}
+
+.shipment-lbl {
+  margin-left: 2px;
+}
+
+.margin-20-left {
+  margin-left: 20px;
+}
+
+.mabd-col {
+  max-width: 160px !important
+}
+
+.ship-con-form-group {
+  margin-top: 10px;
+  margin-left: 10px !important
+}
+
+.shipper-ctrl {
+  min-width: 200px;
+  max-width: 400px;
+}
+
+.shipper-zip-ctrl {
+  min-width: 65px;
+  max-width: 100px;
+}
+
+.shipper-city-ctrl {
+  min-width: 100px;
+  max-width: 100px;
+}
+
+.shipper-state-ctrl {
+  min-width: 65px;
+  max-width: 65px;
+}
+
+.label {
+  color: black;
+}
+
+.add-circle-icon {
+  color: #9B9B9B;
+}
+
+.shipment-total-footer {
+  background: white;
+  min-width: 500px;
+  max-width: 1100px;
+  height: 50px;
+}
+
+.btn-group-row {
+  max-width: 1100px;
+}
+
+.nav-item {
+  cursor: pointer;
+}
+
+.multiStop-add-btn-col {
+  max-width: 38px;
+}
+
+.multiStop-remove-btn {
+  max-height: 38px;
+}
+
+.multiStop-col {
+  max-width: 350px;
+}
+
+.multiStop-type {
+  padding-bottom: .1rem;
+  padding-top: .1rem;
+}
+
+.elevate-btn {
+  height: 38px;
+  max-height: 38px;
+}
+
+.material-icon-btn {
+  margin-left: 5px;
+  height: 30px
+}

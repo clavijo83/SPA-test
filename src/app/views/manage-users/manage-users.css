@@ -1,0 +1,23 @@
+#searchIcon {
+  vertical-align: top;
+  margin-bottom: 0px;
+}
+
+#searchText {
+  vertical-align: top;
+  display: inline-block;
+  margin-bottom: 0px;
+}
+
+.tableColumn {
+  padding: 0.15rem 0.6rem !important;
+  padding-left: 0px !important;
+}
+
+.table th {
+  padding: 0.15rem 0.6rem !important;
+}
+
+.btn-close {
+  padding: .5em .5em !important;
+}

@@ -1,0 +1,110 @@
+<form [formGroup]="activeNotesForm" class="needs-validation" id="activeNotesForm" novalidate>
+  <div class="container-fluid">
+    <div class="row p-3">
+      <div [ngClass]="{'col-sm-10 offset-sm-2': !this.global.isCollapsed(), 'col': this.global.isCollapsed()}" class="col-sm-10 offset-sm-2">
+
+        <div class="row blueHeaderContainer">
+          <div class="col-12">
+            <span class="float-start ml-2 mt-1">Active Notes</span>
+          </div>
+        </div>
+
+        <div class="row pb-3">
+          <div class="col">
+            <div class="form-label-group m-0">
+              <app-client-dropdown (clientChangeEvent)="onClientChange()" (groupEvent)="groupEventHandler($event)"
+                                   [clientRequired]="false" [currentClient]="this.currentClient"
+                                   [currentGroupName]="this.currentGroupName" [currentGroup]="this.currentGroupID" [plantEditable]="true"
+                                   [plantRequired]="false"
+                                   [setPlantWhenSelectClient]="false">
+              </app-client-dropdown>
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="form-label-group m-0">
+              <app-type-ahead-drop-down
+                (modelValueOnChange)="setControlValue($event,'carrierID');"
+                [data]="availableCarrierList"
+                [editable]="false"
+                [isRequired]="false"
+                [name]="'carrierID'"
+                [placeHolder]="'Carrier'"
+                [selectedValue]="this.activeNotesForm.get('carrierName')?.value"
+                [tagLine]="'Carrier ID'">
+              </app-type-ahead-drop-down>
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="form-label-group m-0">
+              <app-type-ahead-drop-down
+                (modelValueOnChange)="setControlValue($event, 'shipperState');"
+                [data]="this.stateDropdown"
+                [editable]="false"
+                [name]="'shipperState'"
+                [placeHolder]="'Shipper State'"
+                [selectedValue]="this.activeNotesForm.get('shipperState')?.value"
+                [tagLine]="'Shipper State'">
+              </app-type-ahead-drop-down>
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="form-label-group m-0">
+              <app-type-ahead-drop-down
+                (modelValueOnChange)="setControlValue($event, 'consigneeState');"
+                [data]="this.stateDropdown"
+                [editable]="false"
+                [name]="'consigneeState'"
+                [placeHolder]="'Consignee State'"
+                [selectedValue]="this.activeNotesForm.get('consigneeState')?.value"
+                [tagLine]="'Consignee State'">
+              </app-type-ahead-drop-down>
+            </div>
+          </div>
+        </div>
+        <div class="row pb-3">
+          <div class="col">
+            <div class="form-label-group m-0">
+              <textarea [formControlName]="'note'"
+                        class="form-control form-control-sm mt-1"
+                        id="notesText"
+                        placeholder="Note"
+                        required="required"
+                        rows="5"
+                        type="textarea">
+              </textarea>
+            </div>
+          </div>
+        </div>
+        <div class="row pt-4">
+          <div class="col-sm-1">
+            <button class="btn btn-sm btn-danger w-100" routerLink="/SPAs/notes/list" type="button">
+              Back
+            </button>
+          </div>
+          <div class="col">
+          </div>
+          @if (this.noteID) {
+            <div class="col-2">
+              <button (click)="onClickSaveActiveNote()" class="btn btn-sm fw-bold btn-success w-100" type="button">
+                Update
+              </button>
+            </div>
+
+            <div class="col-2">
+              <button (click)="onClickDeleteActiveNote()" class="btn btn-sm fw-bold mb-2 btn-danger w-100" type="button">
+                Delete
+              </button>
+            </div>
+          } @else {
+            <div class="col-2">
+              <button (click)="onClickSaveActiveNote()" class="btn btn-sm w-100 fw-bold btn-success w-100" type="button">
+                Save
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+<ngx-spinner name="activeNotesSpinner"></ngx-spinner>

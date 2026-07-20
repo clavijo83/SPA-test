@@ -1,0 +1,50 @@
+<head>
+  <meta charset="UTF-8">
+  <title>Icarus Login</title>
+</head>
+<body>
+<div class="container">
+  <div class="row mb-3">
+    <div class="col-3">&nbsp;</div>
+    <div class="col-6">&nbsp;</div>
+    <div class="col-3">&nbsp;</div>
+  </div>
+  <div class="row mb-3">
+    <div class="col-3"></div>
+    <div class="col-6 align-middle">
+      <table class="table">
+        <tr>
+          <td class="text-center border-bottom-0">
+            <img alt="IL2000 logo" class="img" src="assets/img/IL2K_eShipping_Logo.png">
+          </td>
+        </tr>
+        <tr>
+          <td class="border-bottom-0 align-middle align-content-center">
+            <amplify-authenticator [hideSignUp]="true" [loginMechanisms]="['username', 'email']">
+              <ng-template amplifySlot="authenticated" class="host" let-signOut="signOut">
+                <div class="align-content-center align-self-center">
+                  <button type="button" (click)="signOut()"
+                          class="amplify-button amplify-button--large amplify-button--primary--error float-end">
+                    <slot>Sign out</slot>
+                  </button>
+                </div>
+              </ng-template>
+            </amplify-authenticator>
+          </td>
+        </tr>
+        <tr>
+          <td class="align-content-center align-self-center">
+            <div class="row justify-content-center" [ngClass]="{'d-block': !this.hideBtn, 'd-none': this.hideBtn}">
+              <button type="button" (click)="refreshAuth()" class="btn btn-sm btn-info">
+                Go To Login
+              </button>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div class="col-3"></div>
+  </div>
+</div>
+</body>
+

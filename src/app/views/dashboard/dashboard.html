@@ -1,0 +1,35 @@
+<!-- Placeholder -->
+<div [formGroup]="dashboardForm" class="form">
+  <div class="container float-end">
+    <div class="row">
+      <div class="col-sm-6 col-md-5 col-lg-4 offset-sm-6 offset-md-7 offset-lg-8">
+        <div class="input-group form-inline flex-nowrap">
+          <label class="label col-form-label-sm pr-2 " for="bolInputControl">Go-To</label>
+          <input aria-describedby="bol-input" aria-label="BOLNumber" class="form-control form-control-sm form-inline"
+                 formControlName="bolInputControl" id="bolInputControl" placeholder="BOL"
+                 required type="text">
+          <div class="input-group-append">
+            <button (click)="onSubmit()" class="btn btn-primary btn-sm w-100 btn-sm" style="max-height: 31px;"
+                    type="button">
+              <i class="material-icons" id="bolBtn" style="color:white;">arrow_forward</i>
+            </button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-6 col-md-5 col-lg-4 offset-sm-6 offset-md-7 offset-lg-8">
+            @if ((this.dashboardFormControl['bolInputControl'].touched || submitted) && dashboardFormControl['bolInputControl'].errors?.['required']) {
+              <div class="text-danger text-sm-right">
+                BOL is required
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<iframe id="content"
+        src="https://app.powerbi.com/reportEmbed?reportId=9e696502-4684-4120-8440-ba94c2c7322e&autoAuth=true&ctid=f2864543-f513-4a93-8b61-12b252580965&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly93YWJpLXVzLXdlc3QyLXJlZGlyZWN0LmFuYWx5c2lzLndpbmRvd3MubmV0LyJ9">
+</iframe>
+
+

@@ -1,0 +1,363 @@
+<form>
+  <div class="container-fluid">
+    <div class="row p-3">
+      <div [ngClass]="{'col-sm-10 offset-sm-2': !this.global.isCollapsed(), 'col': this.global.isCollapsed()}">
+
+        <div class="row blueHeaderContainer">
+          <div class="col-12">
+            <p class="float-start mb-0">
+              <span class="material-icons p-1">groups</span>
+            </p>
+            <span class="float-start ml-2 mt-1">Manage users</span>
+            <button (click)="loadCreateUserForm()" class="btn btn-primary btn-sm float-end mt-1"
+                    data-bs-toggle="modal" data-bs-target="#signUpUser">
+              Sign Up User
+            </button>
+          </div>
+        </div>
+
+        <div class="row p-2 greyContainer">
+          <div class="col">
+            <div class="row">
+              @if (this.users().length > 0) {
+                <div class="col-12 font-small">
+                  <app-data-table (manageUserClickEvent)="clickEventHandler($event)"
+                                  [columns]="productColumns"
+                                  [customSort]="this.sortOrder"
+                                  [data]="this.users()"
+                                  [footerFixed]="false"
+                                  [gridName]="'manageUsers'"
+                                  [hover]="true"
+                                  [info]="false"
+                                  [isFreightForm]="true"
+                                  [isProductList]="true"
+                                  [ordering]="true"
+                                  [paging]="true"
+                                  [searching]="true">
+                  </app-data-table>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="editUser" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+
+            <div class="blueHeaderContainer">
+              <div class="col-12">
+                <div class="float-start">
+                  <span class="material-icons p-1">person</span>
+                </div>
+                <span class="float-start ml-2 mt-1">Edit user</span>
+                <div class="mr-2">
+                  <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+              </div>
+            </div>
+
+            <div class="greyContainer">
+              <div class="col">
+                <form (ngSubmit)="onSubmitSignUpUser('edit')" [formGroup]="userFormEdit" id="edit-validation">
+                  <div class="row">
+                    <div class="col-1"></div>
+                    <div class="col-10 px-0">
+                      <div class="row">
+                        @if (this.formType === 'edit') {
+                          <div class="col-12 mb-3">
+                            <label class="d-block mb-1">User Permission</label>
+                            <div class="mb-4">
+                              <div class="col-6 d-inline-block">
+                                <div class="form-check form-check-inline">
+                                  <input (change)="userPermission(1)" [checked]="this.isEnable()"
+                                         class="form-check-input" id="radio1"
+                                         name="inlineRadioOptions" type="radio">
+                                  <label class="form-check-label" for="radio1">Enable</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                  <input (change)="userPermission(0)" [checked]="this.isDisable()"
+                                         class="form-check-input" id="radio2"
+                                         name="inlineRadioOptions2" type="radio">
+                                  <label class="form-check-label" for="radio2">Disable</label>
+                                </div>
+                              </div>
+                              <div class="col-6 d-inline-block">
+                                <button (click)="this.updateUserPermission()" class="btn btn-success btn-sm float-end" type="button">
+                                  Update Permission
+                                </button>
+                              </div>
+                            </div>
+                            <app-client-dropdown
+                              (clientChangeEvent)="info()"
+                              (clientPlantSelected)="isClientPlantSelected()"
+                              (groupEvent)="groupEventHandler($event)"
+                              [currentClient]="this.currentClient"
+                              [currentGroupName]="this.currentGroupName"
+                              [currentGroup]="this.currentGroupID"
+                              [disabled]=""
+                              [manageUsers]="'yes'">
+                            </app-client-dropdown>
+                          </div>
+                        }
+                        @if (this.editUserFirstName()) {
+                          <div class="col-12 mb-2">
+                            <div class="alert alert-danger" role="alert">
+                              First name can only contain letters*
+                            </div>
+                          </div>
+                        }
+                        @if (this.editUserLastName()) {
+                          <div class="col-12 mb-2">
+                            <div class="alert alert-danger" role="alert">
+                              Last name can only contain letters*
+                            </div>
+                          </div>
+                        }
+                        <div class="col-6 mb-2">
+                          <div class="form-group">
+                            <label for="editFirstName">First Name</label>
+                            <input class="form-control form-control-sm"
+                                   formControlName="firstName"
+                                   id="editFirstName"
+                                   pattern="[a-zA-Z]*"
+                                   type="text">
+                          </div>
+                        </div>
+                        <div class="col-6 mb-2">
+                          <div class="form-group">
+                            <label for="editlastName">Last Name</label>
+                            <input class="form-control form-control-sm"
+                                   formControlName="lastName"
+                                   id="editlastName"
+                                   pattern="[a-zA-Z]*"
+                                   type="text">
+                          </div>
+                        </div>
+                        <div class="col-12 mb-2">
+                          <div class="form-group">
+                            <label for="editEmail">Email</label>
+                            <input (change)="onEmailChange('edit')"
+                                   class="form-control form-control-sm"
+                                   formControlName="email"
+                                   id="editEmail"
+                                   type="email">
+                            <div class="invalid-tooltip">Email is missing.</div>
+                          </div>
+                        </div>
+                        <div class="col-12 mb-2">
+                          <div class="form-group">
+                            <label for="editUsername">Username *</label>
+                            <input class="form-control form-control-sm p-disabled" formControlName="username"
+                                   id="editUsername"
+                                   placeholder=""
+                                   readonly
+                                   required
+                                   type="text">
+                          </div>
+                        </div>
+                        <div class="col-12 mb-2">
+                          <div class="form-group">
+                            <label for="editManager">User Manager</label>
+                            <input class="form-control form-control-sm p-disabled" formControlName="userManager"
+                                   id="editManager"
+                                   readonly
+                                   type="text">
+                          </div>
+                        </div>
+                        <div class="col-12 mb-2 d-inline-block">
+                          <label for="editUserRole">Role</label>
+                          <div class="input-group mb-3">
+                            <select (change)="selectRole('editUserRole')" class="form-select form-select-sm custom-select" id="editUserRole">
+                              <option disabled="disabled" selected>Choose...</option>
+                              @if (userFormEdit.controls['email'].value) {
+                                @if (this.userFormEdit.get('email').value.split('@')[1] !== 'il2000.com' && this.userFormEdit.get('email').value.split('@')[1] !== 'eshipping.biz') {
+                                  @for (role of roleListForClient; track role) {
+                                    <option [selected]="roleSelected(role)" value="{{role}}">{{ role }}</option>
+                                  }
+                                } @else {
+                                  <option *ngFor="let role of roleList" [selected]="roleSelected(role)" value="{{role}}">
+                                    {{ role }}
+                                  </option>
+                                }
+                              } @else {
+                                <option *ngFor="let role of roleListForEditUser" [selected]="roleSelected(role)" value="{{role}}">
+                                  {{ role }}
+                                </option>
+                              }
+                            </select>
+                          </div>
+                          @if (userFormEdit.controls['aliases'].value) {
+                            <div class="input-group mb-2">
+                              <input aria-describedby="basic-addon2" aria-label="Recipient's username"
+                                     class="form-control form-control-sm" disabled type="text"
+                                     value="{{userFormEdit.controls['aliases'].value}}">
+                              <div class="input-group-append">
+                                <button (click)="removeRole('editUser')" class="btn btn-danger" type="button">
+                                  x
+                                </button>
+                              </div>
+                            </div>
+                          }
+                        </div>
+                        <div class="col-12 mb-3">
+                          <button [disabled]='this.validUser("onEditUser")' class="btn btn-success w-100" type="submit">
+                            Update User
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-1"></div>
+                  </div> <!-- end of row -->
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="signUpUser" tabindex="-1" aria-hidden="true" >
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+
+            <div class="blueHeaderContainer">
+              <div class="col-12">
+                <div class="float-start">
+                  <span class="material-icons p-1">person</span>
+                </div>
+                <span class="float-start ml-2 mt-1">Create user</span>
+                <div class="mr-2">
+                  <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+              </div>
+            </div>
+
+            <div class="greyContainer">
+              <div class="col">
+                <form (ngSubmit)="onSubmitSignUpUser('create')" [formGroup]="userForm" id="sign-up-validation">
+                  <div class="row">
+                    <div class="col-1"></div>
+                    <div class="col-10 px-0">
+                      <div class="row">
+                        <div class="col-12 mb-3">
+                          <app-client-dropdown (clientChangeEvent)="info()"
+                                               (clientPlantSelected)="isClientPlantSelected()"
+                                               (groupEvent)="groupEventHandler($event)"
+                                               [currentClient]="this.currentClient"
+                                               [currentGroupName]="this.currentGroupName"
+                                               [currentGroup]="this.currentGroupID"
+                                               [disabled]=""
+                                               [manageUsers]="'yes'">
+                          </app-client-dropdown>
+                        </div>
+                        @if (this.userFirstName()) {
+                          <div class="col-12 mb-2">
+                            <div class="alert alert-danger" role="alert">
+                              First name can only contain letters*
+                            </div>
+                          </div>
+                        }
+                        @if (this.userLastName()) {
+                          <div class="col-12 mb-2">
+                            <div class="alert alert-danger" role="alert">
+                              Last name can only contain letters*
+                            </div>
+                          </div>
+                        }
+                        <div class="col-6 mb-2">
+                          <div class="form-group">
+                            <label for="firstName">First Name *</label>
+                            <input class="form-control form-control-sm" formControlName="firstName" id="firstName"
+                                   pattern="[a-zA-Z]*" placeholder="" required type="text">
+                            <div class="invalid-tooltip">First Name is missing.</div>
+                          </div>
+                        </div>
+                        <div class="col-6 mb-2">
+                          <div class="form-group">
+                            <label for="lastName">Last Name *</label>
+                            <input class="form-control form-control-sm" formControlName="lastName" id="lastName"
+                                   pattern="[a-zA-Z]*" placeholder="" required type="text">
+                            <div class="invalid-tooltip">Last Name is missing.</div>
+                          </div>
+                        </div>
+                        <div class="col-12 mb-2">
+                          <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input (change)="onEmailChange('create')"
+                                   class="form-control form-control-sm"
+                                   email="true"
+                                   formControlName="email"
+                                   id="email"
+                                   placeholder=""
+                                   required
+                                   type="email">
+                            <div class="invalid-tooltip">Email is missing.</div>
+                          </div>
+                        </div>
+                        <div class="col-12 mb-2">
+                          <div class="form-group">
+                            <label for="username">Username</label>
+                            <input class="form-control form-control-sm p-disabled" formControlName="username" id="username" readonly
+                                   type="text">
+                          </div>
+                        </div>
+                        <div class="col-12 mb-2">
+                          <div class="form-group">
+                            <label for="manager">User Manager</label>
+                            <input class="form-control form-control-sm p-disabled" formControlName="userManager" id="manager" readonly
+                                   type="text">
+                          </div>
+                        </div>
+                        <div class="col-12 mb-2">
+                          @if (this.userForm.get('email').value) {
+                            <label for="signUpUserRole">Role *</label>
+                            <div class="input-group mb-3">
+                              <select (change)="selectRole('onSubmitSignUpUser')"
+                                    [attr.required]="(this.userForm.get('email').value.split('@')[1] !== 'il2000.com' &&
+                                    this.userForm.get('email').value.split('@')[1] !== 'eshipping.biz') || null"
+                                    class="form-select form-select-sm custom-select" id="signUpUserRole">
+                                <option disabled="disabled" selected>Choose...</option>
+                                @if (this.userForm.get('email').value.split('@')[1] !== 'il2000.com' && this.userForm.get('email').value.split('@')[1] !== 'eshipping.biz') {
+                                  <option *ngFor="let role of roleListForClient" value="{{role}}">{{ role }}</option>
+                                } @else {
+                                  <option *ngFor="let role of roleList" value="{{role}}">{{ role }}</option>
+                                }
+                              </select>
+                            </div>
+                          }
+                          @if (userForm.controls['aliases'].value) {
+                            <div class="input-group mb-2">
+                              <input aria-describedby="basic-addon2" aria-label="Recipient's username" class="form-control form-control-sm"
+                                     disabled type="text" value="{{userForm.controls['aliases'].value}}">
+                              <div class="input-group-append">
+                                <button (click)="removeRole('onSubmitSignUpUser')" class="btn btn-danger" type="button">
+                                  x
+                                </button>
+                              </div>
+                            </div>
+                          }
+                        </div>
+                        <div class="col-12 mb-3">
+                          <button [disabled]='this.validUser("onSubmitSignUpUser")' class="btn btn-success w-100" type="submit">
+                            Signup user
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-1"></div>
+                  </div> <!-- end of row -->
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+<ngx-spinner name="signUpUserForm"></ngx-spinner>
+<ngx-spinner name="editUserForm"></ngx-spinner>
+<ngx-spinner name="users"></ngx-spinner>

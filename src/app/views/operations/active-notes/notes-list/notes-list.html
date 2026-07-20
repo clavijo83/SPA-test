@@ -1,0 +1,39 @@
+<div class="container-fluid">
+  <div class="row p-3">
+    <div [ngClass]="{'col-sm-10 offset-sm-2': !this.global.isCollapsed(), 'col': this.global.isCollapsed()}">
+
+      <div class="row blueHeaderContainer">
+        <div class="col-12">
+          <p class="float-start mb-0">
+            <span class="material-icons p-1">list</span>
+          </p>
+          <span class="float-start ml-2 mt-1">Active Notes list</span>
+          <button class="btn btn-primary btn-sm float-end mt-1" routerLink="/SPAs/notes" type="button">Add Note
+          </button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12 font-smaller py-3 disable-h-scroll disable-v-scroll">
+          <app-data-table
+            [autoWidth]="false"
+            [columns]="notesTableColumns"
+            [customFixedHeight]="true"
+            [customSort]="sortOrder"
+            [data]="reportData"
+            [footerNoBtnFixed]="true"
+            [gridName]="'notesList'"
+            [hover]="true"
+            [info]="true"
+            [lengthChange]="false"
+            [ordering]="true"
+            [paging]="true"
+            [searching]="false"
+            id="notesList">
+          </app-data-table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<ngx-spinner name="notesListSpinner"></ngx-spinner>

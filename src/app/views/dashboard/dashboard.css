@@ -1,0 +1,26 @@
+#content {
+  position: absolute;
+  left: 200px;
+  right: 0;
+  bottom: 0;
+  top: 130px;
+  max-height: 100%;
+  width: 85%;
+  height: 85%; /* needs to be this height because of the nav bar */
+}
+
+/*.material-icons {*/
+/*  font-size: 18px;*/
+/*}*/
+
+.input-group-append .btn, .input-group-prepend .btn {
+  position: relative;
+  z-index: 0 !important;
+}
+
+.input-group > .custom-file, .input-group > .custom-select, .input-group > .form-control, .input-group > .form-control-plaintext {
+  position: relative;
+  flex: 1 1 0;
+  margin-bottom: 0;
+  min-width: 100px !important;
+}
