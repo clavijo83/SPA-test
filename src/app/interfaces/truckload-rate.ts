@@ -1,0 +1,20 @@
+export interface TruckloadRate {
+  targetRateID: number | null;
+  creationDate: string | null;
+  fuelSurchargeBuy: string | null;
+  fuelSurchargeSell: string | null;
+  targetBuy: string | null;
+  targetSell: string | null;
+  fuelSurchargeAvg: string | null;
+  ratePerMileAvg: string | null;
+  marketAvg: string | null;
+  marketLow: string | null;
+  marketHigh: string | null;
+  originName: string | null;
+  originType: string | null;
+  destinationName: string | null;
+  destinationType: string | null;
+  timeFrame: string | null;
+  equipment: string | null;
+  mileage: number | null;
+}

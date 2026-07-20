@@ -1,0 +1,40 @@
+export interface ManualQuote {
+  id?: any | null;
+  quoteID: string | null;
+  carrierName: string | null;
+  carrierID: string | null;
+  clientCost: string | null;
+  carrierCost: string | null;
+  quoteNumber: string | null;
+  transitTime: any | null;
+  notes: string | null;
+  assigned: boolean | null;
+  rateType: number | null;
+  serviceLevel: string | null;
+  mcNumber?: string | null;
+  timeStamp?: any | null;
+}
+
+export interface TLManualQuote {
+  quoteID: string | null;
+  carrierName: string | null;
+  carrierID: string | null;
+  clientCost: string | null;
+  carrierCost: string | null;
+  quoteNumber: string | null;
+  transitTime: any | null;
+  notes: string | null;
+  assigned: boolean | null;
+  truckNotUsed: boolean | false;
+  equipment: string | null;
+  reasonCode: string | null;
+  lostReasonNotes: string | null;
+  currencyID: number | null;
+  exchangeRate: number | null;
+  rateDate: string | null;
+  exchangeInfo: string | null;
+  clientQuote: boolean | false;
+  mcNumber?: string | null;
+  dotNumber?: string | null;
+  selected?: any | [];
+}

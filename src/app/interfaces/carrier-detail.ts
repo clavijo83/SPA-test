@@ -1,0 +1,19 @@
+export interface CarrierDetail {
+  address1: string | null;
+  carrierID: number | null;
+  carrierName: string | null;
+  city: string | null;
+  phone: string | null;
+  postalCode: string | null;
+  scac: string | null;
+  state: string | null;
+  tiberID: string | null;
+  mcNumber: string | null;
+  dotNumber: string | null;
+  onboarded: number | null;
+  inNetworkTT: boolean | null;
+  trackingAPIEnabled?: number | null;
+  trackingURL?: string | null;
+  carcutAbbreviation?: string | null;
+  currencyID?: number | null;
+}

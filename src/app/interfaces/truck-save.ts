@@ -1,0 +1,46 @@
+import {ShipmentSave} from './shipment-save';
+import {TLManualQuote} from './manual-quote';
+import {TruckFees} from './truck-fees';
+
+export interface TruckSave {
+  truckID: number | null;
+  equipmentType: string | null ;
+  linearFoot: number | null;
+  shipDate: Date | null;
+  nickName: string | null;
+  carrierName: string | null;
+  carrierAddress: string | null;
+  carrierPhone: string | null;
+  carrierQuote: number | null;
+  state: string | null;
+  carrierEmail: string | null;
+  proLoadNumber: string | null;
+  licensePlateNo: string | null;
+  isCompanyTruck: number | 0;
+  pickupExceptionFK: number | null;
+  deliveryExceptionFK: number | null;
+  mapUrl: string | null;
+  lasttouch: Date | null;
+  carrierId: number | null;
+  driverPhone: string | null;
+  loadPosted: boolean | false;
+  loadBoardID: string | null;
+  lastUpdated: string | null;
+  quoteDueBy: string | null;
+  isLoadTrackCreated?: number | 0;
+  shipments: ShipmentSave[] | null;
+  tlQuotes: TLManualQuote[] | null;
+  mileage: number | null;
+  isProblem: boolean | false;
+  truckFees: TruckFees[] | [];
+  documents?: any[];
+  deliveryDate?: string | null;
+  salesRep?: number | null;
+  salesRepUser?: any;
+  loadPostedTT?: boolean | false;
+  loadCoveredTT?: boolean | false;
+  trailerNumber: string | null;
+  extTruckNumber: string | null;
+  tractorNumber: string | null;
+  mpOrderId: string | null;
+}

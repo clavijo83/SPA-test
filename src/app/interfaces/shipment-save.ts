@@ -1,0 +1,37 @@
+import {ShipmentDetails} from './shipment-details';
+import {BillTo} from './bill-to';
+import {Location} from './location';
+import {LineItem} from './line-item';
+import {ReferenceField} from './reference-field';
+import {Accessorial} from './accessorial';
+import {Client} from './client';
+import {UserDetail} from './user-detail';
+import {CarrierDetail} from './carrier-detail';
+import {TruckloadRate} from './truckload-rate';
+import {HistoricalEvent} from './historical-event';
+import {ManualQuote} from './manual-quote';
+import {WhiteGlove} from './whiteglove';
+import {NotificationMail} from './notification-mail';
+import {TrackingContacts} from './tracking-contacts';
+import {SelectedRate} from './selectedRate';
+
+export interface ShipmentSave {
+  shipmentDetail: ShipmentDetails | any;
+  client: Client | null;
+  user: UserDetail | null;
+  carrierDetail: CarrierDetail | null;
+  shipper: Location | null;
+  consignee: Location | null;
+  billTo: BillTo | null;
+  lineItems: LineItem[] | [];
+  referenceFields: ReferenceField[] | [];
+  openReferenceFields: any[] | [];
+  historicalEvents: HistoricalEvent[] | [];
+  manualQuotes: ManualQuote[] | [];
+  accessorials: Accessorial[] | [];
+  targetRates: TruckloadRate | null;
+  whiteGlove: WhiteGlove | null;
+  notificationMails: NotificationMail[] | [];
+  trackingContacts: TrackingContacts[] | [];
+  selectedRate?: SelectedRate | null;
+}
