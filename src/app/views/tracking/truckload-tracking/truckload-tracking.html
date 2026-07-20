@@ -1,0 +1,94 @@
+<ngx-spinner name="truckloadTrackingSpinner"></ngx-spinner>
+
+@if (truckloadTrackingStatus() === 'truckloadTracking') {
+  <div class="row">
+    <div class="container-fluid">
+      <div class="row mb-3 p-3">
+        <div class="col-sm-12 offset-sm-2">
+          <div><h1 class="truckloadTrackHeader">Select a board on the left to view Truckload Shipments</h1></div>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<div [ngClass]="{'d-block': truckloadTrackingStatus() === 'TruckloadPending', 'd-none': truckloadTrackingStatus() !== 'TruckloadPending'}" class="d-none">
+  <app-truckload-pending (navRecordCount)="requestForTruckloadPendingRecordCount()"></app-truckload-pending>
+</div>
+
+<div [ngClass]="{'d-block': truckloadTrackingStatus() === 'RequestForQuote', 'd-none': truckloadTrackingStatus() !== 'RequestForQuote'}" class="d-none">
+  <app-request-for-quote (navRecordCount)="requestForQuoteTabRecordCount()"></app-request-for-quote>
+</div>
+
+<div [ngClass]="{'d-block': truckloadTrackingStatus() === 'LateQuoteResponses', 'd-none': truckloadTrackingStatus() !== 'LateQuoteResponses'}" class="d-none">
+  <app-late-quote-responses (navRecordCount)="requestForLateQuoteResponsesTabRecordCount()"></app-late-quote-responses>
+</div>
+
+<div [ngClass]="{'d-block': truckloadTrackingStatus() === 'SubmittedQuotes', 'd-none': truckloadTrackingStatus() !== 'SubmittedQuotes'}" class="d-none">
+  <app-submitted-quotes (navRecordCount)="requestForSubmittedQuotesTabRecordCount()"></app-submitted-quotes>
+</div>
+
+<div [ngClass]="{'d-block': truckloadTrackingStatus() === 'PrebookedNoteLate', 'd-none': truckloadTrackingStatus() !== 'PrebookedNoteLate'}" class="d-none">
+  <app-prebooked-note-late (navRecordCount)="requestForPrebookedNoteLateTabRecordCount()"></app-prebooked-note-late>
+</div>
+
+<div [ngClass]="{'d-block': truckloadTrackingStatus() === 'PrebookedAndLate', 'd-none': truckloadTrackingStatus() !== 'PrebookedAndLate'}" class="d-none">
+  <app-prebooked-and-late (navRecordCount)="requestForPrebookedAndLateTabRecordCount()"></app-prebooked-and-late>
+</div>
+
+<div [ngClass]="{'d-block': truckloadTrackingStatus() === 'PickupDateAndTimePassed', 'd-none': truckloadTrackingStatus() !== 'PickupDateAndTimePassed'}" class="d-none">
+  <app-pickup-date-and-time-passed (navRecordCount)="requestForPickupDateAndTimePassedTabRecordCount()"></app-pickup-date-and-time-passed>
+</div>
+
+<div [ngClass]="{'d-block': truckloadTrackingStatus() === 'TruckloadInTransit', 'd-none': truckloadTrackingStatus() !== 'TruckloadInTransit'}" class="d-none">
+  <app-truckload-in-transit (navRecordCount)="requestForTruckloadInTransitRecordCount()"></app-truckload-in-transit>
+</div>
+
+<div [ngClass]="{'d-block': truckloadTrackingStatus() === 'TruckloadProblem', 'd-none': truckloadTrackingStatus() !== 'TruckloadProblem'}" class="d-none">
+  <app-truckload-problem (navRecordCount)="requestForTruckloadProblemRecordCount()"></app-truckload-problem>
+</div>
+
+<div [ngClass]="{'d-block': truckloadTrackingStatus() === 'TruckloadDispatched', 'd-none': truckloadTrackingStatus() !== 'TruckloadDispatched'}" class="d-none">
+  <app-truckload-dispatched (navRecordCount)="requestForTruckloadDispatchedRecordCount()"></app-truckload-dispatched>
+</div>
+
+<div [ngClass]="{'d-block': truckloadTrackingStatus() === 'TruckloadAll', 'd-none': truckloadTrackingStatus() !== 'TruckloadAll'}" class="d-none">
+  <app-all-trucks (navRecordCount)="requestForTruckloadAllRecordCount()"></app-all-trucks>
+</div>
+
+<div [ngClass]="{'d-block': truckloadTrackingStatus() === 'TruckloadFailure', 'd-none': truckloadTrackingStatus() !== 'TruckloadFailure'}" class="d-none">
+  <app-truckload-failure (navRecordCount)="requestForTruckloadFailureRecordCount()"></app-truckload-failure>
+</div>
+
+<div [ngClass]="{'d-block': truckloadTrackingStatus() === 'MissingTransitUpdate', 'd-none': truckloadTrackingStatus() !== 'MissingTransitUpdate'}" class="d-none">
+  <app-missing-transit-update (navRecordCount)="requestForMissingTransitUpdateTabRecordCount()"></app-missing-transit-update>
+</div>
+
+<div [ngClass]="{'d-block': truckloadTrackingStatus() === 'LateDelivery', 'd-none': truckloadTrackingStatus() !== 'LateDelivery'}" class="d-none">
+  <app-late-delivery (navRecordCount)="requestForLateDeliveryTabRecordCount()"></app-late-delivery>
+</div>
+
+<div [ngClass]="{'d-block': truckloadTrackingStatus() === 'DeliveredNeedsPOD', 'd-none': truckloadTrackingStatus() !== 'DeliveredNeedsPOD'}" class="d-none">
+  <app-delivered-needs-pod (navRecordCount)="requestForDeliveredNeedsPODTabRecordCount()"></app-delivered-needs-pod>
+</div>
+
+<div [ngClass]="{'d-block': truckloadTrackingStatus() === 'AtPickupStop', 'd-none': truckloadTrackingStatus() !== 'AtPickupStop'}" class="d-none">
+  <app-truckload-at-pickup (navRecordCount)="requestForTruckloadAtPickupRecordCount()"></app-truckload-at-pickup>
+</div>
+
+<div [ngClass]="{'d-block': truckloadTrackingStatus() === 'AtDeliveryLocation', 'd-none': truckloadTrackingStatus() !== 'AtDeliveryLocation'}"
+     class="d-none">
+  <app-truckload-at-delivery (navRecordCount)="requestForTruckloadAtdeliveryRecordCount()"></app-truckload-at-delivery>
+</div>
+
+<div [ngClass]="{'d-block': truckloadTrackingStatus() === 'TruckloadDelivered', 'd-none': truckloadTrackingStatus() !== 'TruckloadDelivered'}"
+     class="d-none">
+  <app-truckload-delivered (navRecordCount)="requestForTruckloadDeliveredRecordCount()"></app-truckload-delivered>
+</div>
+
+<div [ngClass]="{'d-block': truckloadTrackingStatus() === 'PrebookedRolled', 'd-none': truckloadTrackingStatus() !== 'PrebookedRolled'}"
+     class="d-none">
+  <app-prebooked-rolled (navRecordCount)="requestForPrebookedRolledRecordCount()"></app-prebooked-rolled>
+</div>
+
+
