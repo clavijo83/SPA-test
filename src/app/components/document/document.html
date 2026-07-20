@@ -1,0 +1,129 @@
+<form [formGroup]="documentForm">
+  <!-- Modal -->
+  <div aria-hidden="true" class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="uploadModalLabel">Upload Document</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row p-2">
+            <!-- Upload Button Hidden set showUploadBtn(true) to show-->
+            <div class="col-sm-12 col-md-6 col-lg-5 d-inline-flex pb-2">
+              <label class="label d-inline-block col-form-label pe-2 font-weight-bold" for="documentType">Name:</label>
+              <select class="form-control pe-2 document-type-dem" formControlName="documentType" id="documentType">
+                <option disabled hidden selected value="">Select File Name</option>
+                <ng-container *ngFor="let imageTypes of this.imageTypes;">
+                  <option value="{{imageTypes.imtID}}">{{imageTypes.imtDescription}}</option>
+                </ng-container>
+              </select>
+            </div>
+            <div *ngIf="showUploadBtn(true)" class="col-sm-12 col-md-6 col-lg-5  d-inline-flex">
+              <div class="input-group">
+                <div style="alignment: left" class="custom-file">
+                  <input (change)="uploadChange($event)" accept="application/pdf" aria-describedby="inputGroupFileAddon01"
+                         class="custom-file-input input-lg" formControlName="uploadFile"
+                         id="inputGroupFile01" type="file">
+                  <label class="custom-file-label text-left form-control" for="inputGroupFile01">{{fileLabel}}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
+          <button (click)="addFile()" class="btn btn-primary" data-bs-dismiss="modal" type="button">Add File</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row form-inline pb-2">
+    <div class="col-sm-12">
+      <div class="card border-light border-0">
+        <div class="card-body">
+          <!-- Documents Data Grid -->
+          <div class="table-responsive border border-light">
+            <table class="table table-hover p-0" id="myTable">
+              <thead>
+              <tr>
+                <th scope="col">Print/Save</th>
+                <th scope="col">Document Type</th>
+                <th scope="col"></th>
+                <th class="text-right" scope="col">Items</th>
+              </tr>
+              </thead>
+              <tbody>
+              <!--ADD DOCUMENTS DATA *ngFor=""-->
+              <tr *ngFor="let doc of documentControls.controls; let i=index" formArrayName="documentControls">
+                <td (click)="onDocTableClick(i)" [formGroupName]="i">
+                  <span class="form-check m-2 float-start">
+                    <input class="custom-checkbox doc-check-color" formControlName="docCheck" name="{{'docCheck' + i}}"
+                           type="checkbox">
+                    </span>
+                </td>
+                <td (click)="onDocTableClick(i)" [formGroupName]="i">
+                  <span *ngIf="doc.value.type ==='3 Piece Labels'">{{'Piece Labels'}}</span>
+                  <span *ngIf="doc.value.type !='3 Piece Labels' && doc.value.type !='BOL'">{{doc.value.type}}</span>
+                  <span *ngIf="doc.value.type ==='BOL'">{{'Signed BOL'}}</span>
+                </td>
+                <td></td>
+                <td (click)="onDocTableClick(i)" [formGroupName]="i" class="text-right font-weight-bold">
+                  <span *ngIf="doc.value.type ==='3 Piece Labels'">{{this.sumPieces}}</span>
+                  <span *ngIf="doc.value.type ==='HU Labels'">{{this.sumHUs}}</span>
+                  <span
+                    *ngIf="doc.value.type !='HU Labels' && doc.value.type !='3 Piece Labels'">{{doc.value.items}}</span>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+            <div class="row pb-2">
+              <!--Change col-sm-10 to col-sm-6 when we add Save As and Email buttons-->
+              <div *ngIf="!this.disablePrintSave" class="col-sm-6 d-inline-flex">
+                <button (click)="onPrintDocument()" class="btn btn-sm w-100 btn-primary font-weight-bold m-2 print-save-btn-dem"
+                        type="button">
+                  Print/Save
+                </button>
+              </div>
+              <div *ngIf="this.disablePrintSave" class="col-sm-6 d-inline-flex">
+                <button class="btn btn-sm w-100 btn-secondary font-weight-bold m-2 print-save-btn-dem print-save-btn-text-color"
+                        disabled
+                        type="button">
+                  Print/Save
+                </button>
+              </div>
+              <div class="col-sm-2 d-inline-flex">
+                <button class="upload btn btn-light btn-sm w-100 font-weight-bold m-2 upload-btn-dem" data-target="#uploadModal"
+                        data-toggle="modal" type="button">
+                  <i class="material-icons text-center upload-btn-color" id="btnUpload">publish</i>
+                </button>
+              </div>
+              <div class="col-sm-2 d-inline-flex ">
+                <div *ngIf="showUploadBtn(true)">
+                  <app-email-modal [BOLNumber]="BOLNumber ? BOLNumber : ''"
+                                   [attachments]="this.imageBills" [btnClassType]="'Custom'"
+                                   [btnLabel]="'Email'" [clientCode]="this.clientCode"
+                                   [disableBtn]="this.disablePrintSave"
+                                   [emailBody]="this.emailBodyDocuments" [emailModalName]="'DocumentEmailModal'"
+                                   [emailSubject]="BOLNumber ? this.clientCode + ' - ' + this.BOLNumber.toString() : ''"
+                                   [toEmailAddress]="this.toEmailAddress"></app-email-modal>
+                </div>
+              </div>
+              <div class="col-sm-2 d-inline-flex">
+                <div *ngIf="showUploadBtn(false)">
+                  <button (click)="download()" class="btn btn-sm w-50 btn-primary font-weight-bold m-2 save-as-btn-dem"
+                          type="button">
+                    Save As
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!--Action Buttons - Print, Email, Save Ass, Upload-->
+</form>
+
+

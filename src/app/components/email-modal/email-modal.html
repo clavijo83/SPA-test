@@ -1,0 +1,163 @@
+<!-- Email Modal -->
+<ngx-spinner id="{{'spinner'+this.emailModalName}}" name="emailModal"></ngx-spinner>
+<form [formGroup]="emailForm" [hidden]="this.hideModalButton">
+  <!-- Hidden Button for Email Success Message -->
+  <button [attr.data-bs-target]="'#SuccessModal'+this.emailModalName"
+          class="btn btn-outline-primary btn-sm w-100 fw-bold m-2" data-bs-toggle="modal"
+          hidden id="{{'MessageSent' + this.emailModalName}}"
+          type="button">
+    Success
+  </button>
+
+  <div aria-hidden="true" aria-labelledby="emailModalLabel" class="modal fade" id="{{'emailModal'+this.emailModalName}}"
+       data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-dark" id="{{'emailModalLabel'+this.emailModalName}}">{{emailModalLabel}}</h5>
+        </div>
+        <div class="modal-body">
+          <div [formGroupName]="'email'">
+            <div class="form-group form-inline mb-1">
+              <label class="col-form-label-sm pr-1 " for="{{'emailFrom-name' + this.emailModalName}}">From:</label>
+              <input class="form-control form-control-sm" formControlName="emailFrom"
+                     id="{{'emailFrom-name' + this.emailModalName}}"
+                     type="text">
+            </div>
+            <div class="form-group form-inline mb-1">
+              <label class="col-form-label-sm pr-1 " for="{{'emailTo-name' + this.emailModalName}}">To:</label>
+              <input class="form-control form-control-sm" formControlName="emailTo"
+                     id="{{'emailTo-name' + this.emailModalName}}"
+                     type="text">
+            </div>
+            <div class="form-group form-inline mb-1">
+              <label class="col-form-label-sm pr-1 "
+                     for="{{'emailSubject-name' + this.emailModalName}}">Subject:</label>
+              <input class="form-control form-control-sm" formControlName="emailSubject"
+                     id="{{'emailSubject-name' + this.emailModalName}}"
+                     type="text">
+            </div>
+
+            <!-- document type selection -->
+            <div [hidden]="hideDocumentUpload" class="form-group form-inline mb-2">
+              <label class="col-form-label-sm pr-1" for="{{'message-text' + this.emailModalName}}">
+                Document Type:
+              </label>
+
+              <select (change)="documentUploadType($event)" class="form-select form-select-sm custom-select">
+                @if (documentType!='') {
+                  <option selected>{{this.documentType}}</option>
+                } @else {
+                  <option disabled selected>Select Document Type</option>
+                }
+                <option value="Bill of Lading">Bill of Lading</option>
+                <option value="Carrier Confirmation">Carrier Confirmation</option>
+                <option value="Client Quote">Client Quote</option>
+                <option value="Quote Response">Quote Response</option>
+                <option value="Tracking Response">Tracking Response</option>
+                <option value="Insurance Certificate">Insurance Certificate</option>
+                <option value="Proof of Delivery">Proof of Delivery</option>
+                <option value="Other">Other</option>
+              </select>
+
+            </div>
+
+            <div [hidden]="hideDocumentUpload" class="form-group form-inline mb-1">
+              <div class="input-group mb-3">
+                <input accept="application/pdf" (change)="setFileSelected($event)" class="form-control form-control-sm" id="documentToEmail" type="file">
+              </div>
+            </div>
+
+            <div class="form-group form-inline mb-1">
+              <label class="col-form-label-sm pr-1" for="{{'message-text' + this.emailModalName}}">Message:</label>
+              <textarea class="form-control form-control-sm" formControlName="emailBody"
+                        id="{{'message-text' + this.emailModalName}}" rows="6">
+              </textarea>
+            </div>
+            @if (emailError) {
+              <div class="form-group form-inline">
+                <span class="badge badge-danger">{{this.messageError}}</span>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button (click)="onModalCloseClick()" class="btn btn-danger btn-sm" id="{{'close-email' + this.emailModalName}}" type="button">
+            Close
+          </button>
+          <button (click)="sendEmail()" class="btn btn-success btn-sm" type="button">Send Message</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="{{'SuccessModal'+this.emailModalName}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Success</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Email Sent</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal" id="{{'close-success' + this.emailModalName}}"
+                  type="button">Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (emailIcon) {
+    <div>
+      <button (click)="getEmailAttachmentBody()" [attr.data-bs-target]="'#emailModal' + this.emailModalName"
+              class="btn btn-sm btn-primary" data-bs-toggle="modal">
+        <i [ngClass]="{'text-white': emailIconLight}" class="material-icons icon-pointer email-icon">email</i>
+      </button>
+    </div>
+  } @else {
+    <div>
+      @if (btnClassType === 'Document') {
+        <button (click)="getEmailAttachmentBody()" data-bs-toggle="modal" type="button"
+                [attr.data-bs-target]="'#emailModal' + this.emailModalName" [ngClass]="{'d-none': hideBtn}"
+                [disabled]="disableBtn" class="btn btn-sm btn-primary w-100">
+          Email <i class="material-icons text-center blue" style="font-size: 14px; color:white">email</i>
+        </button>
+      }
+      @if (btnClassType === 'Primary') {
+        <button (click)="getEmailAttachmentBody()" [attr.data-bs-target]="'#emailModal' + this.emailModalName"
+                [disabled]="disableBtn" class="btn btn-sm w-100 fw-bold btn-primary" data-bs-toggle="modal" type="button">
+          {{this.btnLabel}}
+        </button>
+      }
+      @if (btnClassType === 'Secondary') {
+        <button (click)="getEmailAttachmentBody()" [attr.data-bs-target]="'#emailModal' + this.emailModalName" data-bs-toggle="modal"
+                [disabled]="disableBtn" class="btn btn-sm w-100 fw-bold btn-secondary" type="button">
+          {{this.btnLabel}}
+        </button>
+      }
+      @if (btnClassType === 'Light') {
+        <button (click)="getEmailAttachmentBody()" [attr.data-bs-target]="'#emailModal' + this.emailModalName" data-bs-toggle="modal"
+                [disabled]="disableBtn" class="btn btn-sm w-100 fw-bold btn-outline-primary" type="button">
+          {{this.btnLabel}}
+        </button>
+      }
+      @if (btnClassType === 'Custom') {
+        <button (click)="getEmailAttachmentBody()" [attr.data-bs-target]="'#emailModal' + this.emailModalName" data-bs-toggle="modal"
+                [disabled]="disableBtn" class="mt-2 btn btn-sm w-100 fw-bold btn-outline-primary custom-btn" type="button">
+          {{this.btnLabel}}
+        </button>
+      }
+      @if (btnClassType === 'Onboard') {
+        <button (click)="getEmailAttachmentBody()" [attr.data-bs-target]="'#emailModal' + this.emailModalName"
+                [disabled]="disableBtn" class="btn btn-sm w-100 btn-primary" [ngClass]="{'d-none': hideBtn}"
+                data-bs-toggle="modal" type="button">
+          {{this.btnLabel}}
+          <i class='material-icons text-center' style="font-size: 14px; color:white">forward_to_inbox</i>
+        </button>
+      }
+    </div>
+  }
+</form>

@@ -1,0 +1,76 @@
+.btn i[id=btnUpload] {
+  font-size: medium;
+}
+
+.custom-file-input {
+  width: 400px;
+  max-width: 400px;
+  min-width: 200px;
+  text-align: left !important;
+}
+
+.table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.table td, .table th {
+  border-top: 0 !important;
+  border-bottom: 1px solid #f5f5f5 !important;
+  vertical-align: middle !important;
+}
+
+.bg-secondary {
+  background-color: #f5f5f5 !important;
+}
+
+.table-hover tbody tr:hover {
+  color: #212529;
+  background-color: #f5f5f5 !important;
+}
+
+.table thead th {
+  vertical-align: bottom;
+  border-bottom: 1px solid #f5f5f5 !important;
+}
+
+.document-type-dem {
+  width: 400px;
+  max-width: 400px;
+  min-width: 200px;
+}
+
+.doc-check-color {
+  color: #007bff;
+}
+
+.print-save-btn-dem {
+  width: 800px;
+  max-width: 800px;
+  min-width: 100px;
+}
+
+.print-save-btn-text-color {
+  color: white;
+}
+
+.upload-btn-dem {
+  width: 150px;
+  max-width: 500px;
+  min-width: 50px;
+}
+
+.save-as-btn-dem {
+  width: 150px;
+  max-width: 500px;
+  min-width: 100px;
+}
+
+.upload-btn-color {
+  color: grey
+}
+
+.modal {
+  top: 3rem;
+}

@@ -1,0 +1,408 @@
+<form (keydown)="'return keyCode != 13;'" [formGroup]="freightForm" [id]="'freightForm'+ stopId()">
+
+  <div class="row mb-3">
+    <div class="col-12 d-inline-flex px-0">
+      <div class="fw-bold px-2">
+        Freight
+      </div>
+      <button (click)="this.dt.rerender()" class="btn btn-primary btn-sm p-0" data-bs-target="#productModal"
+              data-bs-toggle="modal" ngbTooltip="Product List" placement="top">
+        <i class="material-icons icon-pointer text-white p-1" id="reply">list</i>
+      </button>
+    </div>
+  </div>
+
+  @for (freight of freights.controls; track freight; let i = $index;) {
+    <div class="mb-2" formArrayName="freights">
+      <div [formGroupName]="i" id="rowItem{{i}}">
+        <div class="row ml-2 vl">
+          <div class="col-12 d-inline-flex row-height">
+            <div class="col-1 px-1">
+              <app-type-ahead-drop-down
+                (modelValueOnChange)="setControlValue($event,'item',i);setProductValues(i);"
+                [dataType]="'Object'"
+                [data]="productItemList"
+                [disabled]="disabled()"
+                [editable]="true"
+                [isRequired]="false"
+                [name]="stopId() + 'item'+ i"
+                [placeHolder]="'Item'"
+                [selectedValue]="{item: this.freights.at(i).get('item')?.value, value: this.freights.at(i).get('productID')?.value}"
+                [tagLine]="'Item Code'">
+              </app-type-ahead-drop-down>
+              <div class="invalid-tooltip">Item type is missing.</div>
+            </div>
+            <div class="col-11 px-1">
+              <div class="form-label-group mb-2">
+                <input [attr.disabled]="disabled() ? 'disabled' : null" aria-label="description"
+                       class="form-control d-inline-flex mr-1 form-control form-control-sm"
+                       formControlName="description"
+                       id="{{stopId() + 'description' + i }}"
+                       maxlength="200"
+                       placeholder="Description"
+                       type="text">
+                <label for="{{stopId() + 'description' + i }}">Description</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 d-inline-flex row-height mt-2">
+            <div class="col-3 px-1 d-inline-flex">
+              <div class="form-label-group mb-2 w-100">
+                <!-- NMFC # input field -->
+                <input [attr.disabled]="disabled() ? 'disabled' : null" aria-label="NMFC1"
+                       class="form-control form-control form-control-sm" formControlName="nmfcNumber"
+                       id="{{stopId() + 'nmfcNumber' + i }}" placeholder="NMFC" type="text">
+                <label for="{{stopId() + 'nmfcNumber' + i }}">NMFC</label>
+              </div>
+
+              <button class="btn btn-primary btn-sm p-1" style="margin-left:5px; margin-bottom:5px;"
+                      type="button">
+                <i (click)="searchNMFC()" class="material-icons text-white" id="{{stopId() + 'searchIcon' + i }}"
+                   ngbTooltip="NMFC Lookup">search</i>
+              </button>
+            </div>
+            <div class="col-2 px-1">
+              <app-type-ahead-drop-down (modelValueOnChange)="setControlValue($event,'classNumber',i);"
+                                        [data]="classDropdownValues"
+                                        [disabled]="disabled()"
+                                        [editable]="true"
+                                        [isRequired]="shipmentType() === 'LTL'"
+                                        [name]="stopId() + 'classNumber'+i"
+                                        [placeHolder]="shipmentType() === 'LTL' ? 'Class*' : 'class'"
+                                        [selectedValue]="this.freights.at(i).get('classNumber')?.value"
+                                        [tagLine]="'Class'">
+              </app-type-ahead-drop-down>
+            </div>
+            <div class="px-1" [ngClass]="{'col-3': shipmentType() === 'LTL', 'col-4': shipmentType() !== 'LTL'}">
+              <div class="form-label-group mb-2">
+                <input [attr.disabled]="disabled() ? 'disabled' : null" aria-label="Suggested"
+                       class="form-control form-control-sm"
+                       id="{{stopId() + 'freightSuggestedClass' + i }}"
+                       placeholder="Suggested" readonly type="text">
+                <label class="small" for="{{stopId() + 'freightSuggestedClass' + i }}">Suggested</label>
+              </div>
+            </div>
+            <div class="col-1 mt-1 px-1">
+              <div class="form-check">
+                <!-- HM checkbox field -->
+                <input [attr.disabled]="disabled() ? 'disabled' : null" class="form-check-input" formControlName="hm" id="{{stopId() + 'hm' + i }}"
+                       type="checkbox" value="">
+                <label class="form-check-label custom-font dark-grey" for="{{stopId() + 'hm' + i }}"><i>HM</i></label>
+              </div>
+            </div>
+            <div class="col-1 px-1">
+              <div class="row">
+                <div class="col" style="text-align: center">
+                  <label class="fw-bold custom-font" for="{{stopId() + 'cbf'+i}}">CBF</label>
+                </div>
+                <div class="col" style="text-align: center">
+                  <label class="fw-bold custom-font" for="{{stopId() + 'pcf'+i}}">PCF</label>
+                </div>
+              </div>
+            </div>
+            <div [ngClass]="{'col-2': shipmentType() === 'LTL', 'col-1': shipmentType() !== 'LTL'}" class="col-2 px-1">
+              <div class="row" style="justify-content: center">
+                @if (shipmentType() === 'LTL') {
+                  <div class="col-10">
+                    <label class="p-0 m-0 fw-bold custom-font" for="loadOptimizationGroup">Load
+                      Optimization</label>
+                  </div>
+                }
+                <div class="col-2 m-0 p-0">
+                  <button (click)="removeItem(i)" [attr.disabled]="disabled() ? 'disabled' : null" ngbTooltip="Remove freight" placement="top"
+                          class="btn btn-sm btn-danger p-0" id="{{stopId() + 'btn' + i }}">
+                    <i class="material-icons text-white p-1" id="{{stopId() + 'btnIcon' + i }}">clear</i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 d-inline-flex">
+            @if (validateSelectedClass(i)) {
+              <div class="col">
+                <div class="m-1 py-1 alert alert-warning">Suggested class differs from the selected class.
+                  <span (click)="setSuggestedClass(i)" class="dodger-blue pointer">Click here to use suggested class <span
+                    id="{{stopId() + 'calculatedClass' + i }}"></span> </span>
+                </div>
+              </div>
+            }
+          </div>
+          <div class="col-12 d-inline-flex mt-2">
+            <div [ngClass]="{'col-1': shipmentType() === 'LTL', 'col-2': shipmentType() !== 'LTL'}" class="col-1 px-1">
+              <!-- HU field -->
+              <div class="form-label-group mb-2">
+                <input (input)="setControlValue($event,'hu',i);validateHUvsPieces(i)"
+                       [attr.disabled]="disabled() ? 'disabled' : null"
+                       [min]="isMinimum[i] ? 1 : 0"
+                       [required]="!(stopId() !== null && stopId() !== '') && isMinimum[i]"
+                       aria-label="H/U" class="form-control form-control-sm d-inline-flex"
+                       formControlName="unitNumber"
+                       id="{{stopId() + 'unitNumber' + i }}"
+                       placeholder="H/U*"
+                       type="number">
+                <label for="{{stopId() + 'unitNumber' + i }}">H/U{{ stopId() !== null && stopId() !== '' ? '' : '*' }}</label>
+                <div class="invalid-tooltip">HU is missing / HU must be less than or equal to Pieces</div>
+              </div>
+            </div>
+            <div class="col-2 px-1">
+              <app-type-ahead-drop-down (modelValueOnChange)="setControlValue($event,'unitType',i);"
+                                        [data]="this.unitTypeDropdownValues"
+                                        [disabled]="disabled()"
+                                        [editable]="false"
+                                        [isRequired]="true"
+                                        [name]="stopId() + 'unitType'+i"
+                                        [placeHolder]="'Unit Type*'"
+                                        [selectedValue]="this.freights.at(i).get('unitType')?.value"
+                                        [tagLine]="'Unit Type'">
+              </app-type-ahead-drop-down>
+              <!-- UnitType input field -->
+            </div>
+            <div class="col-1 px-1">
+              <!-- Pieces input fields -->
+              <div class="form-label-group mb-2">
+                <input (input)="validateHUvsPieces(i)" [attr.disabled]="disabled() ? 'disabled' : null"
+                       [min]="isMinimum[i] ? 1 : 0"
+                       [required]="!(stopId() !== null && stopId() !== '' )" class="form-control d-inline-flex form-control-sm"
+                       formControlName="piecesNumber"
+                       id="{{stopId() + 'piecesNumber' + i }}"
+                       placeholder="Pieces*"
+                       type="number">
+                <label
+                  for="{{stopId() + 'piecesNumber' + i }}">Pieces{{ stopId() !== null && stopId() !== '' ? '' : '*' }}</label>
+                <div class="invalid-tooltip">Pieces count is missing / Pieces must be equal to or greater than HU</div>
+              </div>
+            </div>
+            <div class="col-1 px-1">
+              <div class="form-label-group mb-2">
+                <input (input)="setControlValue($event,'piecesInputOne',i)" [attr.disabled]="disabled() ? 'disabled' : null"
+                       [min]="isMinimum[i] ? 1 : 0"
+                       class="form-control d-inline-flex form-control-sm "
+                       formControlName="piecesInputOne"
+                       id="{{stopId() + 'piecesInputOne' + i }}" placeholder="lbs/units" type="number">
+                <label for="{{stopId() + 'piecesInputOne' + i }}">lbs/units</label>
+              </div>
+            </div>
+            <div class="col-1 px-1">
+              <div class="form-label-group mb-2">
+                <input (input)="setControlValue($event,'piecesInputTwo',i)" [attr.disabled]="disabled() ? 'disabled' : null"
+                       [min]="isMinimum[i] ? 1 : 0"
+                       [required]="!(stopId() !== null && stopId() !== '')"
+                       class="form-control d-inline-flex form-control-sm " formControlName="piecesInputTwo"
+                       id="{{stopId() + 'piecesInputTwo' + i }}"
+                       placeholder="Total lbs*"
+                       type="number">
+                <label for="{{stopId() + 'piecesInputTwo' + i }}">Total
+                  lbs{{ stopId() !== null && stopId() !== '' ? '' : '*' }}</label>
+                <div class="invalid-tooltip">Total weight is missing.</div>
+              </div>
+            </div>
+            <div class="col-1 px-1">
+              <div class="form-label-group mb-2">
+                <input [attr.disabled]="disabled() ? 'disabled' : null" class="form-control d-inline-flex form-control-sm "
+                       formControlName="length" id="{{stopId() + 'length' + i }}"
+                       min="1"
+                       placeholder="Length" type="number">
+                <label for="{{stopId() + 'length' + i }}">Length</label>
+              </div>
+            </div>
+            <div class="col-1 px-1">
+              <div class="form-label-group mb-2">
+                <input [attr.disabled]="disabled() ? 'disabled' : null" class="form-control d-inline-flex form-control-sm "
+                       formControlName="width" id="{{stopId() + 'width' + i }}"
+                       min="1"
+                       placeholder="Width" type="number">
+                <label for="{{stopId() + 'width' + i }}">Width</label>
+              </div>
+            </div>
+            <div class="col-1 px-1">
+              <div class="form-label-group mb-2">
+                <input [attr.disabled]="disabled() ? 'disabled' : null" class="form-control d-inline-flex form-control-sm "
+                       formControlName="height" id="{{stopId() + 'height' + i }}"
+                       min="1"
+                       placeholder="Height" type="number">
+                <label for="{{stopId() + 'height' + i }}">Height</label>
+              </div>
+            </div>
+            <div class="col-1 px-1">
+              <div class="row">
+                <div class="col" style="text-align: center">
+                  <label class="m-0 p-0" id="{{stopId() + 'cbf'+i}}">{{ this.calculateCBF(freight.value) }}</label>
+                </div>
+                <div class="col" style="text-align: center">
+                  <label class="m-0 p-0" id="{{stopId() + 'pcf'+i}}">{{ this.calculatePCF(freight.value) }}</label>
+                </div>
+              </div>
+            </div>
+            <!--Load Optimization GROUP-->
+            <div [ngClass]="{'col-2': shipmentType() === 'LTL', 'col-1': shipmentType() !== 'LTL'}" class="col-2 px-1">
+              @if (shipmentType() === 'LTL') {
+                <div class="p-0 m-0 col-12 d-inline-flex" id="loadOptimizationGroup">
+                  <div class="col-11 px-1">
+                    <div class="form-check">
+                      <!-- Stack checkbox field -->
+                      <input (click)="onControlClick(stopId() + 'stackChk' + i,'Do NOT stack line item ', i)"
+                             [attr.disabled]="disabled() ? 'disabled' : null" [defaultValue]="false"
+                             class="form-check-input"
+                             formControlName="stackChk"
+                             id="{{stopId() + 'stackChk' + i }}"
+                             type="checkbox">
+                      <label class="form-check-label custom-font dark-grey"
+                             for="{{stopId() + 'stackChk' + i }}">Stackable</label>
+                    </div>
+                    <div class="form-check">
+                      <input (click)="onControlClick(stopId() + 'sameSkid' + i,'Same Skid line item ', i)"
+                             [attr.disabled]="disabled() ? 'disabled' : null" [defaultValue]="false"
+                             class="form-check-input"
+                             formControlName="sameSkid"
+                             id="{{stopId() + 'sameSkid' + i }}"
+                             type="checkbox">
+                      <label class="form-check-label custom-font dark-grey" for="{{stopId() + 'sameSkid' + i }}">Same
+                        Skid</label>
+                    </div>
+                  </div>
+                  <div class="col-1 px-1">
+                    <button class="btn btn-primary btn-sm p-0 float-end" data-bs-target="#infoModal" data-bs-toggle="modal"
+                            style="margin-right: -6px;" type="button">
+                      <i class="material-icons text-white p-1">info</i>
+                    </button>
+                  </div>
+                </div>
+              }
+
+            </div>
+          </div>
+        </div>
+        <!--END FORM ARRAY FORM GROUP -->
+      </div>
+    </div>
+  }
+
+  <!--Totals Section-->
+  @if (showTotals()) {
+    <div class="card-footer p-1 border-top mx-3">
+      <div class="row form-inline">
+        <div class="col-sm-12 d-inline-flex">
+          <div class="col pl-2 d-inline-flex">
+            <label class="card-text-left fw-bold">Totals</label>
+          </div>
+          <div class="col p-1 d-inline-flex">
+            <label class="card-text fw-bold d-inline-flex mr-2">{{ this.totalHUSum }}</label>
+            <label class="card-text  d-inline-flex m-10">&nbsp;H/U</label>
+          </div>
+          <div class="col p-1 d-inline-flex">
+            <label class="card-text fw-bold d-inline-flex mr-2">{{ this.totalPiecesSum }}</label>
+            <label class="card-text d-inline-flex">&nbsp;Pieces</label>
+          </div>
+          <div class="col p-1 d-inline-flex">
+            <label class="card-text fw-bold d-inline-flex mr-2">{{ this.totalUnitWeight }}</label>
+            <label class="card-text d-inline-flex">&nbsp;Lbs/Units</label>
+          </div>
+          <div class="col p-1 d-inline-flex">
+            <label class="card-text fw-bold d-inline-flex mr-2">{{ this.totalLbsSum }}</label>
+            <label class="card-text d-inline-flex">&nbsp;Lbs</label>
+          </div>
+          <div class="col p-1 d-inline-flex">
+            <label class="card-text fw-bold d-inline-flex mr-2">{{ this.totalCubicFeet }}</label>
+            <label class="card-text d-inline-flex">&nbsp;CBF</label>
+          </div>
+          <div class="col p-1 d-inline-flex">
+            <label class="card-text fw-bold d-inline-flex mr-2">{{ this.totalDensity }}</label>
+            <label class="card-text d-inline-flex">&nbsp;PCF</label>
+          </div>
+          <div class="col p-1 d-inline-flex">
+            <label class="card-text fw-bold d-inline-flex mr-2">{{ this.mileage }}</label>
+            <label class="card-text  d-inline-flex m-10">&nbsp;Mileage</label>
+          </div>
+          <div class="col-sm-2 d-inline-flex p-1">
+            <label class="card-text fw-bold d-inline-flex mr-2">{{ this.linearFeet }}</label>
+            <label class="card-text">&nbsp;Linear Feet</label>
+          </div>
+          <div class="justify-content-end pr-2" ngbTooltip="Add freight" placement="bottom">
+            <button (click)="addFreights()" [attr.disabled]="disabled() ? 'disabled' : null"
+                    class="btn btn-sm btn-success">
+              <i class="material-icons p-1 text-white" id="btnIconAdd">add_circle_outline</i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div>
+      <div [ngClass]="{'mt-2': stopId() == ''}" class="mx-3 float-end" ngbTooltip="Add freight" placement="bottom">
+        <button (click)="addFreights()" [attr.disabled]="disabled() ? 'disabled' : null"
+                [ngClass]="{'mt-1': stopId() == ''}"
+                class="btn btn-success btn-sm">
+          <i class="material-icons p-1 text-white" id="btnIconAdd2" style="margin-top: 2px; vertical-align: middle;">add_circle_outline</i>
+          <span style="vertical-align: middle;">&nbsp;Add freight</span>
+        </button>
+      </div>
+    </div>
+  }
+</form>
+
+<!--LOAD OPTIMIZATION INFO MODAL -->
+<div aria-hidden="true" class="modal fade" id="infoModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <h4 class="blue">FREIGHT LOADING OPTIMIZATION</h4>
+        <p class="grey">Reduce the linear space of your freight by following efficient loading practices<br>
+          including stacking pallets.
+      </div>
+      <div class="modal-footer justify-content-center border-0">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" aria-label="Close">Close</button>
+      </div>
+      <small class="dark-grey text-center pb-2"> Rates are not guaranteed. Rates returned by insufficient or inaccurate
+        information could be subject to rate changes. </small>
+    </div>
+  </div>
+</div>
+
+<div aria-hidden="true" class="modal fade" id="productModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0 py-2">
+        <span class="fw-bold pl-1 modal-title blue" style="font-size: large">
+          CLICK TO SELECT
+        </span>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body py-1">
+        <app-data-table (freightClickEvent)="disabled() ? clickEventHandler(null) : clickEventHandler($event)"
+                        [columns]="productColumns"
+                        [data]="this.productList()"
+                        [footerFixed]="false"
+                        [hover]="true"
+                        [info]="false"
+                        [isFreightForm]="true"
+                        [isProductList]="true"
+                        [ordering]="false"
+                        [paging]="true"
+                        [searching]="true">
+        </app-data-table>
+      </div>
+      <div class="modal-footer pt-0">
+        <div class="col p-1 d-inline-flex">
+          <label class="card-text fw-bold d-inline-flex mr-2 blue">{{ this.totalDensity }}</label>
+          <label class="card-text d-inline-flex blue">PCF</label>
+        </div>
+        <button (click)="productsToAdd.length = 0" class="btn btn-danger" data-bs-dismiss="modal">Clear</button>
+        <button (click)="confirmFromProductList()" class="btn btn-success" data-bs-dismiss="modal">Add Selections</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="position-fixed bottom-25 end-0">
+  <div aria-atomic="true" aria-live="assertive" class="toast" data-autohide="true" role="alert">
+    <div class="toast-header">
+      <strong class="mr-auto">Success!</strong>
+    </div>
+    <div class="toast-body">
+      Product added to shipment.
+    </div>
+  </div>
+</div>

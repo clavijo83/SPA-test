@@ -1,0 +1,4 @@
+/* overwrite custom select that is causing selected value to be hidden*/
+.custom-select {
+  width: auto !important;
+}

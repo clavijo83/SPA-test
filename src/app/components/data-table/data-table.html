@@ -1,0 +1,111 @@
+<ngx-spinner name="{{this.gridName}}"></ngx-spinner>
+
+@if (this.gridName === 'ltlRates' && this.isInternalGroupMgmt) {
+  <div class="mb-3">
+    <button (click)="showHideBuyRate()" class="btn btn-primary btn-sm il2kOnlyButton" type="button">Show IL2k cost</button>
+  </div>
+}
+
+@if (this.gridName === 'rateBreakdown' && this.isInternalGroupMgmt) {
+  <div class="mb-3 float-start">
+    <button (click)="showHideBuyRateCB()" class="btn btn-primary btn-sm il2kOnlyButton" type="button">Show IL2k cost</button>
+  </div>
+}
+
+<div class="table-responsive pb-1 pr-2 disable-v-scroll text-center">
+  @if (hover) {
+    <table datatable [dtOptions]="dtOption" [dtTrigger]="dtTrigger"
+           class="table-sm table-hover table-borderless table dataTables_scrollHead m-0 dataTable"
+           id="{{this.gridName+'DataTable'}}">
+    </table>
+  } @else {
+    <table datatable [dtOptions]="dtOption" [dtTrigger]="dtTrigger"
+           class="table-sm table-borderless table dataTables_scrollHead m-0"
+           id="{{this.gridName+'DataTable1'}}" style="width: 100%">
+    </table>
+  }
+</div>
+
+@if (getLocationPath().includes('/SPAs/records') || getLocationPath().includes('/SPAs/ltltrack')) {
+  <div class="pl-2 icon-key-container">
+
+    <div class="dropdown-divider" style="color: #dee2e6;"></div>
+
+    <div id="rowIconContainer">
+
+      @if (this.gridName == 'trackingWhiteboard') {
+        <i class="material-icons m-1" id="ExpeditedTrackingIcon" style="color:red; font-size:9px">fiber_manual_record</i>
+        <label class="small mb-1" for="ExpeditedTrackingIcon" style="color:red">Expedited</label>
+        <div class="iconDivider">|</div>
+
+        <i class="material-icons m-1" id="ElevatedTrackingIcon" style="color:#FF6600; font-size:9px">fiber_manual_record</i>
+        <label class="small mb-1" for="ElevatedTrackingIcon" style="color:#FF6600">Elevated</label>
+        <div class="iconDivider">|</div>
+
+        <i class="material-icons m-1" id="smallPackageTrackingIcon" style="color:purple; font-size:8px">fiber_manual_record</i>
+        <label class="small mb-1" for="smallPackageTrackingIcon" style="color:purple">Small Package</label>
+        <div class="iconDivider">|</div>
+
+        <i class="material-icons m-1" id="ltlNeedProTrackingIcon" style="color:green; font-size:8px">fiber_manual_record</i>
+        <label class="small mb-1" for="ltlNeedProTrackingIcon" style="color:green;">LTL Need PRO</label>
+        <div class="iconDivider">|</div>
+
+        <i class="material-icons m-1" id="guaranteedTrackingIcon" style="color:#3333CC; font-size:8px">fiber_manual_record</i>
+        <label class="small mb-1" for="guaranteedTrackingIcon" style="color:#3333CC;">Guaranteed</label>
+        <div class="iconDivider">|</div>
+
+        <i class="material-icons m-1" id="oceanTrackingIcon" style="color:#FF00FF; font-size:8px">fiber_manual_record</i>
+        <label class="small mb-1" for="oceanTrackingIcon" style="color:#FF00FF;">Domestic Ocean</label>
+        <div class="iconDivider">|</div>
+
+        <i class="material-icons m-1" id="nonLTLTrackingIcon" style="color:darkred; font-size:8px">fiber_manual_record</i>
+        <label class="small mb-1" for="nonLTLTrackingIcon" style="color:darkred;">Other non-LTL</label>
+        <div class="iconDivider">|</div>
+
+        <i class="material-icons m-1" id="ltlTrackingIcon" style="color:black; font-size:8px">fiber_manual_record</i>
+        <label class="small mb-1" for="ltlTrackingIcon" style="color:black;">LTL</label>
+      }
+
+      <i class="material-icons m-1" id="dispatchTrackingIcon" style="color:green; font-size:9px">play_arrow</i>
+      <label class="small dim-gray" for="dispatchTrackingIcon">Auto Dispatched & Tracking</label>
+      <div class="iconDivider">|</div>
+
+      <i class="material-icons m-1" id="trackingIcon" style="color:green; font-size:8px">fiber_manual_record</i>
+      <label class="small dim-gray" for="trackingIcon">Tracking</label>
+      <div class="iconDivider">|</div>
+
+      <i class="material-icons m-1" id="idleIcon" style="color:green; font-size:9px">pause</i>
+      <label class="small dim-gray" for="idleIcon">Tracking / Updated > 12hr ago</label>
+      <div class="iconDivider">|</div>
+
+      <i class="material-icons m-1" id="clearIcon" style="color:red; font-size:8px">clear</i>
+      <label class="small dim-gray" for="clearIcon">Cannot Track</label>
+      <div class="iconDivider">|</div>
+
+      <i class="material-icons m-1" id="elevatedIcon" style="color:#6f42c1; font-size:9px">arrow_upward</i>
+      <label class="small dim-gray" for="elevatedIcon">Elevated</label>
+      <div class="iconDivider">|</div>
+
+      <i class="material-icons m-1" id="expeditedIcon" style="color:#6f42c1; font-size:9px">directions_run</i>
+      <label class="small dim-gray" for="expeditedIcon">Expedited</label>
+    </div>
+  </div>
+}
+
+@if (this.advancedSearch && this.setAdvancedFilterData()) {
+  <app-advanced-search-modal (clearFilter)="reset($event)"
+                             (formFilters)="advancedFilters($event)"
+                             [carrierSearchList]="this.setCarrierFilterData"
+                             [clientSearchList]="this.setClientsFilterData"
+                             [statusesSearchList]="this.setStatusesFilterData"
+                             [trackingDropDownData]="this.setAdvancedFilterData()"
+                             modalName="{{this.gridName}}">
+  </app-advanced-search-modal>
+}
+
+@if (this.footerFixed || this.footerNoBtnFixed) {
+  <div>
+    <i (click)="refreshIconClick()" class="material-icons icon-pointer refresh-fixed-bottom refresh-icon ml-2 mb-1">refresh</i>
+    <label class="last-updated-fixed-bottom"> {{ 'Last updated ' + lastUpdatedTime }}</label>
+  </div>
+}

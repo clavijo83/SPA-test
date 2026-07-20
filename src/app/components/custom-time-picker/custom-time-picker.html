@@ -1,0 +1,52 @@
+<form [formGroup]="time">
+  <div class="row">
+    <div class="col-sm-6 d-inline-flex">
+      <div [formGroupName]="'startTime'" class="row">
+        <div class="col-sm-2 d-inline-flex">
+          <select (change)="onTimeChange('start')" class="form-select form-select-sm custom-select d-inline-flex me-1 pt-1 pb-1"
+                  formControlName="hour" id="startHour">
+            @for (hour of this.startHours; track hour) {
+              <option disabled hidden selected value="">HH</option>
+              <option value="{{hour.value}}">{{ hour.hour }}</option>
+            }
+          </select>
+          <label class="label d-inline-flex me-1">:</label>
+          <select (change)="onTimeChange('startMin')"
+                  class="form-select form-select-sm custom-select d-inline-flex me-1 pt-1 pb-1"
+                  formControlName="minute" id="startMin">
+            @for (min of this.minutes; track min) {
+              <option disabled hidden selected value="">mm</option>
+              <option value="{{min}}">{{ min }}</option>
+            }
+          </select>
+          <button (click)="getMedian('start');handleBtnClick($event)" class="btn btn-sm btn-primary" type="button">
+            <span>{{ this.btnLabelStart }}</span>
+          </button>
+        </div>
+      </div>
+      <label class="label m-2">to</label>
+      <div [formGroupName]="'endTime'" class="row">
+        <div class="col-sm-2 d-inline-flex">
+          <select (change)="onTimeChange('end')" class="form-select form-select-sm custom-select d-inline-flex me-1 pt-1 pb-1"
+                  formControlName="hour" id="endHour">
+            @for (hour of this.endHours; track hour) {
+              <option disabled hidden selected value="">HH</option>
+              <option value="{{hour.value}}">{{ hour.hour }}</option>
+            }
+          </select>
+          <label class="label d-inline-flex me-1">:</label>
+          <select (change)="onTimeChange('endMin')" class="form-select form-select-sm custom-select d-inline-flex me-1 pt-1 pb-1"
+                  formControlName="minute" id="endMin">
+            @for (min of this.minutes; track min) {
+              <option disabled hidden selected value="">mm</option>
+              <option value="{{min}}">{{ min }}</option>
+            }
+          </select>
+          <button (click)="getMedian('end');handleBtnClick($event)" class="btn btn-sm btn-primary" type="button">
+            <span>{{ this.btnLabelEnd }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

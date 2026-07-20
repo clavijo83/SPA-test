@@ -1,0 +1,106 @@
+.blue{
+  color: #007bff;
+}
+
+.total {
+  font-weight: bold;
+  position: fixed;
+  right: 3%;
+  bottom: 50px;
+  left: 27%;
+  z-index: 1;
+  color: #007bff;
+}
+
+.refresh-fixed-bottom {
+  position: fixed;
+  right: 0;
+  bottom: 42px;
+  left: 29%;
+  z-index: 1030;
+}
+
+.last-updated-fixed-bottom {
+  position: fixed;
+  right: 0;
+  bottom: 50px;
+  left: 31%;
+  z-index: 1030;
+  max-width: 200px;
+  min-width: 100px;
+}
+
+.refresh-icon {
+  font-size: 20px;
+  width: 20px;
+}
+
+@media screen and (min-width: 1920px) {
+  .refresh-fixed-bottom {
+    position: fixed;
+    right: 0;
+    bottom: 42px;
+    left: 48%;
+    z-index: 1030;
+  }
+}
+
+/* icon divider */
+.iconDivider {
+  margin-left: 3px;
+  margin-right: 3px;
+  display: inline-block;
+}
+
+#rowIconContainer, #rowColorModesContainer {
+  text-align: center;
+  margin-top: .35rem;
+}
+
+#rowIconContainer label, #rowIconContainer i, #rowColorModesContainer label, #rowColorModesContainer i{
+  font-size: .7rem !important;
+}
+
+#iconHeaderLine {
+  height: 0;
+  margin: 0.5rem 0;
+  overflow: hidden;
+  border-top: 1px solid #e9ecef;
+}
+
+.il2kOnlyButton {
+  margin-left: 11px;
+}
+
+.dropdown-divider {
+  margin:.35rem 0;
+}
+
+:host::ng-deep .dt-scroll-headInner table thead {
+  display: none;
+}
+
+:host::ng-deep .dt-scroll-foot {
+  display: none;
+}
+
+:host::ng-deep ul.pagination {
+  --bs-pagination-font-size: .8rem;
+}
+
+:host::ng-deep .pagination {
+  justify-content: flex-end;
+  padding-right: 3rem;
+  margin-bottom: 0;
+}
+
+.table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+:host::ng-deep div.dt-length label select {
+  margin-left: .35rem !important;
+  margin-right: .35rem !important;
+}

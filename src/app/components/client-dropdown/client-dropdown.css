@@ -1,0 +1,9 @@
+.custom-padding-left {
+  padding-left: 0.5rem !important;
+  padding-right: 0 !important;
+}
+
+.custom-padding-right {
+  padding-right: 0.5rem !important;
+  padding-left: 0 !important;
+}

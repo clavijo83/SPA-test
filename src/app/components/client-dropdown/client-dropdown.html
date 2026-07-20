@@ -1,0 +1,46 @@
+<div [formGroup]="groupForm" class="row">
+  <!-- CLIENT & PLANT DROPDOWNS-->
+  @if (this.isIL2000 || (this.clients.length!==1)) {
+    <div class="pb-1 col-6" [ngClass]="{'custom-padding-right': !isQuickRatePage, '': isQuickRatePage}">
+      @if (this.manageUsers === '') {
+        <app-type-ahead-drop-down
+          (modelValueOnChange)="setClientValue($event);this.setClient();this.onClientChange();checkIfClientPlantSelected();"
+          [disabled]="this.disabled"
+          [data]="this.ClientDropdownNew"
+          [editable]="false"
+          [isRequired]="this.clientRequired"
+          [name]="'client'"
+          [placeHolder]="this.clientRequired ? 'Select Client*' : 'Select Client'"
+          [selectedValue]="this.currentClient"
+          [tagLine]="'Client'">
+        </app-type-ahead-drop-down>
+      } @else {
+        <app-type-ahead-drop-down
+          (modelValueOnChange)="setClientValue($event);this.setClient();this.onClientChange();checkIfClientPlantSelected();"
+          [disabled]="this.disabled"
+          [data]="this.ClientDropdownNew"
+          [editable]="false"
+          [isRequired]="this.clientRequired"
+          [name]="'client'"
+          [placeHolder]="'Select Company *'"
+          [selectedValue]="this.currentClient"
+          [tagLine]="'Client'">
+        </app-type-ahead-drop-down>
+      }
+    </div>
+  }
+  <div class="col-6" [ngClass]="{'custom-padding-left': !isQuickRatePage, '': isQuickRatePage}">
+    <app-type-ahead-drop-down
+      (modelValueOnChange)="setPlantValue($event);"
+      [disabled]="this.disabled"
+      [data]="this.PlantDropdownNew"
+      [editable]="this.plantEditable"
+      [isRequired]="this.plantRequired"
+      [name]="'plant'"
+      [placeHolder]="this.plantRequired ? 'Select Plant*' : 'Select Plant'"
+      [selectedValue]="this.currentGroupName"
+      [tagLine]="'Plant'">
+    </app-type-ahead-drop-down>
+  </div>
+</div>
+

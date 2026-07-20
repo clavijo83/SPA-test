@@ -1,0 +1,11 @@
+.custom-btn {
+  width: 150px;
+  max-width: 500px;
+  min-width: 100px;
+  color: gray;
+}
+
+.email-icon {
+  font-size: 18px;
+  color: dodgerblue;
+}
