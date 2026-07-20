@@ -1,0 +1,108 @@
+<ngx-spinner name="trackingSpinner"></ngx-spinner>
+
+<div [ngClass]="{'d-block': trackingStatus() === 'All', 'd-none': trackingStatus() !== 'All'}" class="d-none">
+  <app-all></app-all>
+</div>
+
+<div [ngClass]="{'d-block': trackingStatus() === 'Elevated', 'd-none': trackingStatus() !== 'Elevated'}" class="d-none">
+  <app-priority (navRecordCount)="trackingRecordCount()"></app-priority>
+</div>
+
+<div [ngClass]="{'d-block': trackingStatus() === 'Expedited', 'd-none': trackingStatus() !== 'Expedited'}" class="d-none">
+  <app-expedited (navRecordCount)="trackingRecordCount()"></app-expedited>
+</div>
+
+<div [ngClass]="{'d-block': trackingStatus() === 'DeliveryDateException', 'd-none': trackingStatus() !== 'DeliveryDateException'}" class="d-none">
+  <app-delivery-date-exception (navRecordCount)="trackingRecordCount()"></app-delivery-date-exception>
+</div>
+
+<div [ngClass]="{'d-block': trackingStatus() === 'Delayed', 'd-none': trackingStatus() !== 'Delayed'}" class="d-none">
+  <app-delay (navRecordCount)="trackingRecordCount()"></app-delay>
+</div>
+
+<div [ngClass]="{'d-block': trackingStatus() === 'Pending', 'd-none': trackingStatus() !== 'Pending'}" class="d-none">
+  <app-pending (navRecordCount)="trackingRecordCount()"></app-pending>
+</div>
+
+<div [ngClass]="{'d-block': trackingStatus() === 'AppointmentRequired', 'd-none': trackingStatus() !== 'AppointmentRequired'}" class="d-none">
+  <app-appointment-required-ltl (navRecordCount)="trackingRecordCount()"></app-appointment-required-ltl>
+</div>
+
+<div [ngClass]="{'d-block': trackingStatus() === 'SubmittedQuotes', 'd-none': trackingStatus() !== 'SubmittedQuotes'}" class="d-none">
+  <app-reports-quotes (navRecordCount)="trackingRecordCount()"></app-reports-quotes>
+</div>
+
+<div [ngClass]="{'d-block': trackingStatus() === 'LatePickup', 'd-none': trackingStatus() !== 'LatePickup'}" class="d-none">
+  <app-pickup-missed (navRecordCount)="trackingRecordCount()"></app-pickup-missed>
+</div>
+
+<div [ngClass]="{'d-block': trackingStatus() === 'DeliveryToday', 'd-none': trackingStatus() !== 'DeliveryToday'}" class="d-none">
+  <app-delivered-delivery-today (navRecordCount)="trackingRecordCount()"></app-delivered-delivery-today>
+</div>
+
+<div [ngClass]="{'d-block': trackingStatus() === 'BookedNotLate', 'd-none': trackingStatus() !== 'BookedNotLate'}" class="d-none">
+  <app-booked-not-late (navRecordCount)="trackingRecordCount()"></app-booked-not-late>
+</div>
+
+<div [ngClass]="{'d-block': trackingStatus() === 'DeliveryOSD', 'd-none': trackingStatus() !== 'DeliveryOSD'}" class="d-none">
+  <app-delivery-osd (navRecordCount)="trackingRecordCount()"></app-delivery-osd>
+</div>
+
+<div [ngClass]="{'d-block': trackingStatus() === 'RequestForQuote', 'd-none': trackingStatus() !== 'RequestForQuote'}" class="d-none">
+  <app-ltl-request-for-quote (navRecordCount)="trackingRecordCount()"></app-ltl-request-for-quote>
+</div>
+
+<div [ngClass]="{'d-block': trackingStatus() === 'UnabletoTrack', 'd-none': trackingStatus() !== 'UnabletoTrack'}" class="d-none">
+  <app-no-track (navRecordCount)="trackingRecordCount()"></app-no-track>
+</div>
+
+<div [ngClass]="{'d-block': trackingStatus() === 'Returns', 'd-none': trackingStatus() !== 'Returns'}" class="d-none">
+  <app-returns (navRecordCount)="trackingRecordCount()"></app-returns>
+</div>
+
+<div [ngClass]="{'d-block': trackingStatus() === 'Problem', 'd-none': trackingStatus() !== 'Problem'}" class="d-none">
+  <app-problem (navRecordCount)="trackingRecordCount()"></app-problem>
+</div>
+
+<div [ngClass]="{'d-block': trackingStatus() === 'Ocean', 'd-none': trackingStatus() !== 'Ocean'}" class="d-none">
+  <app-ocean-shipment (navRecordCount)="trackingRecordCount()"></app-ocean-shipment>
+</div>
+
+<div [ngClass]="{'d-block': trackingStatus() === 'Whiteboard', 'd-none': trackingStatus() !== 'Whiteboard'}" class="d-none">
+  <app-whiteboard (navRecordCount)="trackingRecordCount()"></app-whiteboard>
+</div>
+
+<!-- OLD BOARDS -->
+
+<!--<div-->
+<!--  [ngClass]="{'d-block': trackingStatus() === 'pickupMissed', 'd-none': trackingStatus() !== 'pickupMissed'}"-->
+<!--  class="d-none">-->
+<!--  <app-pickup-missed (navRecordCount)="pickupMissedTabRecordCount()"></app-pickup-missed>-->
+<!--</div>-->
+
+<!--<div-->
+<!--  [ngClass]="{'d-block': trackingStatus() === 'quotesSentToClient', 'd-none': trackingStatus() !== 'quotesSentToClient'}"-->
+<!--  class="d-none">-->
+<!--  <app-reports-quotes (navRecordCount)="recordsQuoteTabCount()"></app-reports-quotes>-->
+<!--</div>-->
+
+<!--<div-->
+<!--  [ngClass]="{'d-block': trackingStatus() === 'UnableToDeliver', 'd-none': trackingStatus() !== 'UnableToDeliver'}"-->
+<!--  class="d-none">-->
+<!--  <app-unable-to-deliver-->
+<!--    (navRecordCount)="unableToDeliverTabRecordCount()"></app-unable-to-deliver>-->
+<!--</div>-->
+
+<!--<div-->
+<!--  [ngClass]="{'d-block': trackingStatus() === 'trackingMABD', 'd-none': trackingStatus() !== 'trackingMABD'}"-->
+<!--  class="d-none">-->
+<!--  <app-mabd-appointment (navRecordCount)="MABDTabRecordCount()"></app-mabd-appointment>-->
+<!--</div>-->
+
+<!--<div-->
+<!--  [ngClass]="{'d-block': trackingStatus() === 'Delivered', 'd-none': trackingStatus() !== 'Delivered'}"-->
+<!--  class="d-none">-->
+<!--  <app-delivered (navRecordCount)="DeliveredTabRecordCount()"></app-delivered>-->
+<!--</div>-->
+
+
