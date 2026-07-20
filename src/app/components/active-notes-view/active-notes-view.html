@@ -1,0 +1,47 @@
+<div class="row">
+  <div [hidden]="notes().length === 0" class="row mt-2 mb-2">
+    <div class="col-12 d-inline-flex">
+      <span class="fw-bold">
+        Active Notes
+      </span>
+      <div class="pointer mx-1" ngbTooltip="Collapse Notes" placement="right" id="btnCollapseNotes">
+        @if (!collapseNotes()) {
+          <i (click)="clickCollapseExpand(true, 'btnCollapseNotes')" class="material-icons p-0 gray">expand_less</i>
+        }
+      </div>
+      <div class="pointer mx-1" ngbTooltip="Expand Notes" placement="right" id="btnExpandNotes">
+        @if (collapseNotes()) {
+          <i (click)="clickCollapseExpand(false, 'btnExpandNotes')" class="material-icons p-0 blue">expand_more</i>
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (notes().length > 0) {
+    <div [hidden]="collapseNotes()" class="my-1">
+      @for (note of notes(); track note.id) {
+        <div class="row mb-1">
+          <div [ngClass]="{'d-none' : note.note == ''}" class="col ps-0">
+            <textarea [disabled]="true" class="form-control form-control-sm mt-1"
+                  id="txtNotes{{note.id}}" placeholder="Active Notes">{{ note.note }}
+            </textarea>
+          </div>
+          <div [ngClass]="{'d-none' : note.note == '', 'w-auto d-inline-flex' : note.note !== ''}" class="w-auto d-inline-flex">
+            <div class="pointer mx-1" ngbTooltip="Edit Note" placement="right" id="btnEditNotes{{note.id}}">
+              <i (click)="clickEditNotes(true, note.id)" class="material-icons p-0 blue">edit</i>
+            </div>
+            <div class="pointer mx-1" ngbTooltip="Save Note" placement="right" id="btnSaveNotes{{note.id}}" style="display: none">
+              <i (click)="clickSaveNotes(note, note.id)" class="material-icons p-0 blue">save</i>
+            </div>
+            <div class="pointer mx-1" ngbTooltip="Cancel" placement="right" id="btnCancelNotes{{note.id}}" style="display: none">
+              <i (click)="clickEditNotes(false, note.id, note.note)" class="material-icons p-0 gray">cancel</i>
+            </div>
+            <div class="pointer mx-1" ngbTooltip="Delete Note" placement="right" id="btnDeleteNotes{{note.id}}">
+              <i (click)="clickDeleteNotes(note.id, note)" class="material-icons p-0 red">delete_outline</i>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

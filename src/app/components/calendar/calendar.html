@@ -1,0 +1,7 @@
+<span class="p-float-label">
+  <p-calendar (onSelect)="onSelected()" [(ngModel)]="value" [disabledDates]="disabledDates" [minDate]="this.minDate"
+              [readonlyInput]="true" [showIcon]="true" aria-label="dateSelect" class="calendar"
+              dateFormat="mm/dd/yy" id="calendar-component" inputId="icon">
+  </p-calendar>
+  <label for="calendar-component">{{ title }}</label>
+</span>

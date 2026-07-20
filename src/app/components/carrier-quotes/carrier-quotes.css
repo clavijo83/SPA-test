@@ -1,0 +1,13 @@
+.vl {
+  border-left: 6px solid #007bff;
+  height: 80%;
+  border-radius: .25rem;
+}
+
+tbody.booking > tr > td {
+  vertical-align: middle !important;
+}
+
+::ng-deep #carrierQuotesDataTable > tbody > tr > td {
+  vertical-align: middle !important;
+}

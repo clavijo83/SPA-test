@@ -1,0 +1,195 @@
+<ngx-spinner name="carrierQuotes"></ngx-spinner>
+<div class="col">
+  <div class="row">
+    @if (this.truck?.loadPostedTT) {
+      <div class="col-12 ms-2 ps-2 vl mb-3">
+        <b>Book it Now</b>
+        @if (this.bookingUpdates.length > 0) {
+          <div class="pt-2 card-body font-smaller">
+            <div class="table-responsive">
+              <table class="table table-borderless">
+                <thead>
+                <tr>
+                  <th class="fw-bold" scope="col">Carrier</th>
+                  <th class="fw-bold" scope="col">MC Number</th>
+                  <th class="fw-bold" scope="col">Email</th>
+                  <th class="fw-bold" scope="col">Phone</th>
+                  <th class="fw-bold" scope="col">Driver Name</th>
+                  <th class="fw-bold" scope="col">Driver Phone</th>
+                  <th class="fw-bold" scope="col">Truck Number</th>
+                  <th class="fw-bold" scope="col">Trailer Number</th>
+                  <th class="fw-bold" scope="col">Amount</th>
+                  <th class="fw-bold" scope="col"></th>
+                </tr>
+                </thead>
+                <tbody class="booking">
+                  @for (book of this.bookingUpdates; track book.bookId) {
+                    <tr class="text-center">
+                      <td>
+                        <span>{{book.carrierName}}</span>
+                      </td>
+                      <td>
+                        <span>{{book.mcNumber}}</span>
+                      </td>
+                      <td>
+                        <span>{{book.contactEmail}}</span>
+                      </td>
+                      <td>
+                        <span>{{book.contactPhone}}</span>
+                      </td>
+                      <td>
+                        <span>{{book.driverName}}</span>
+                      </td>
+                      <td>
+                        <span>{{book.driverPhone}}</span>
+                      </td>
+                      <td>
+                        <span>{{book.truckNumber}}</span>
+                      </td>
+                      <td>
+                        <span>{{book.trailerNumber}}</span>
+                      </td>
+                      <td>
+                        <span>{{book.amount ? '$' + book.amount : '' }}</span>
+                      </td>
+                      <td>
+                        @if (book.bookItCommitted) {
+                          <span style="color: green;font-size: 14px;font-weight: 700;">Confirmed booking</span>
+                        } @else {
+                          <button id="btnConfirmBook-{{book.bookId}}" class="btn btn-sm btn-success w-100" (click)="this.confirmBooking(book.bookId)">
+                            Confirm Booking
+                          </button>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+        @if (this.bookingUpdates.length == 0) {
+          <div class="pt-2 col-12">
+            <div class="alert alert-primary text-center">
+              <span class="red">We have not received "Book It Now" requests from carriers</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="col-12 ms-2 ps-2 vl mb-3">
+        <b>Carriers Capacity</b>
+        @if (this.carriersCapacity.length > 0) {
+          <div class="pt-2 card-body font-smaller">
+            <div class="table-responsive">
+              <table class="table table-borderless">
+                <thead>
+                <tr>
+                  <th class="fw-bold" scope="col">Carrier</th>
+                  <th class="fw-bold" scope="col">MC Number</th>
+                  <th class="fw-bold" scope="col">Email</th>
+                  <th class="fw-bold" scope="col">Phone</th>
+                  <th class="fw-bold" scope="col" ngbTooltip="Availability based on load delivery time and latest driver tracking data">ETA</th>
+                  <th class="fw-bold" scope="col" ngbTooltip="City the carrier available in">Location</th>
+                  <th class="fw-bold" scope="col" ngbTooltip="Deadhead (miles)">Deadhead</th>
+                  <th class="fw-bold" scope="col">Equipment</th>
+                  <th class="fw-bold" scope="col" ngbTooltip="Number of available trucks">Trucks</th>
+                  <th class="fw-bold" scope="col">Confidence %</th>
+                  <th class="fw-bold" scope="col"></th>
+                </tr>
+                </thead>
+                <tbody class="booking">
+                  @for (cCarrier of this.carriersCapacity; track cCarrier) {
+                    <tr class="text-center">
+                      <td>
+                        <span>{{cCarrier.companyName}}</span>
+                      </td>
+                      <td>
+                        <span>{{cCarrier.mc}}</span>
+                      </td>
+                      <td>
+                        <span>{{cCarrier.contactEmail}}</span>
+                      </td>
+                      <td>
+                        <span>{{cCarrier.contactPhone}}</span>
+                      </td>
+                      <td>
+                        <span>{{cCarrier.eta}}</span>
+                      </td>
+                      <td>
+                        <span>{{cCarrier.availableCity}}, {{cCarrier.availableState}}</span>
+                      </td>
+                      <td>
+                        <span>{{cCarrier.deadHead}}</span>
+                      </td>
+                      <td>
+                        <span>{{cCarrier.equipmentType}}</span>
+                      </td>
+                      <td>
+                        <span>{{cCarrier.numberTrucksAvailable}}</span>
+                      </td>
+                      <td>
+                        <span>{{cCarrier.confidencePercentage}}</span>
+                      </td>
+                      <td>
+                        <!--                  <div *ngIf="!cCarrier.bookItCommitted">-->
+                        <!--                    <button id="btnConfirmBook-{{cCarrier.bookId}}" class="btn btn-sm btn-success w-100" (click)="this.confirmBooking(cCarrier.bookId)">Confirm Booking</button>-->
+                        <!--                  </div>-->
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+        @if (this.carriersCapacity.length == 0) {
+          <div class="pt-2 col-12">
+            <div class="alert alert-primary text-center">
+              <span class="red">No matches for the load number</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <div class="col-12 ms-2 ps-2 vl pt-2">
+      <b>Offers</b>
+      @if (this.offers.length > 0) {
+        <div class="col-sm-12 font-smaller disable-h-scroll disable-v-scroll">
+          <app-data-table
+            (editCarrierClickEvent)="clickEventHandler($event)"
+            [columns]="carrierColumns"
+            [customSort]="this.sortOrder"
+            [data]="this.offers"
+            [footerFixed]="false"
+            [gridName]="'carrierQuotes'"
+            [hover]="true"
+            [info]="false"
+            [ordering]="true"
+            [paging]="false"
+            [searching]="false">
+          </app-data-table>
+        </div>
+      }
+      @if (this.truck?.loadPostedTT && this.offers.length == 0) {
+        <div class="pt-2 col-12">
+          <div class="alert alert-primary text-center">
+            <span class="red">We have not received quotes from carriers</span>
+          </div>
+        </div>
+      }
+      <div class="col-12 my-3 row justify-content-center">
+        @if (this.validateStatusForPosting()) {
+          <button (click)="onClickRetrieveQuotes()" class="btn btn-sm btn-primary" style="width: 200px" type="button">
+            Retrieve Quotes
+          </button>
+        } @else {
+          <button class="btn btn-sm btn-secondary" disabled style="width: 200px" type="button">
+            Retrieve Quotes
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+</div>

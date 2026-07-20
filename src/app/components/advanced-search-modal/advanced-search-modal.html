@@ -1,0 +1,191 @@
+<div class="modal fade modal-advance-search" id="{{this.modalName}}" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div>
+        <ngx-spinner name="advancedFilter"></ngx-spinner>
+      </div>
+      <div class="modal-header">
+        <h5 class="modal-title" id="{{this.modalName+'label'}}">Advanced Filter</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        @if (this.trackingDropDownData && this.statusLoaded && this.carrierLoaded && this.clientLoaded) {
+          <form>
+            <!--TODO: ADD dropdownData - dropdownData must be of type DropDown-->
+            <div class="container">
+              @if (this.ts.boardName == 'LTL') {
+                <div class="row pb-2">
+                  <div class="col-sm-5">
+                    <ng-multiselect-dropdown
+                      [(ngModel)]="formGroupFilters.teamPodEmail"
+                      name="teamPodEmailLabel"
+                      [placeholder]="'Team Pod'"
+                      [settings]="dropdownSettings"
+                      [data]="this.teamPodEmailDropDown"
+                      (onDeSelect)="this.checkMultiSelectValues('#'+this.modalName+'teamPodEmailLabel',formGroupFilters.teamPodEmail.length);this.setClientsByTeam()"
+                      (onSelect)="this.checkMultiSelectValues('#'+this.modalName+'teamPodEmailLabel',formGroupFilters.teamPodEmail.length);this.setClientsByTeam()">
+                    </ng-multiselect-dropdown>
+                    <label class="floating" hidden id="{{this.modalName+'teamPodEmailLabel'}}">Team Pod</label>
+                  </div>
+                </div>
+              }
+              <div class="row pb-2">
+                <div class="col-sm-5">
+                  <ng-multiselect-dropdown
+                    [placeholder]="'Client'"
+                    [settings]="dropdownSettings"
+                    [data]="this.clientDropDown"
+                    [(ngModel)]="formGroupFilters.clients"
+                    name="clients"
+                    (onDeSelect)="this.checkMultiSelectValues('#'+this.modalName+'ClientDpLabel',formGroupFilters.clients.length)"
+                    (onSelect)="this.checkMultiSelectValues('#'+this.modalName+'ClientDpLabel',formGroupFilters.clients.length)">
+                  </ng-multiselect-dropdown>
+                  <label class="floating" hidden id="{{this.modalName+'ClientDpLabel'}}">Client</label>
+                </div>
+                <div class="col-sm-7 d-inline-flex">
+                  <label class="col-form-label-sm pr-1 mb-0">PU:</label>
+                  <input [(ngModel)]="formGroupFilters.fromDate" type="date" name="fromDate"
+                         class="form-control form-control-sm" max="{{this.global.formattedMaxDate()}}"
+                         aria-label="fromDate">
+                  <label class="mx-2 pt-2 mb-0">to</label>
+                  <input [(ngModel)]="formGroupFilters.toDate" type="date" name="toDate"
+                         class="form-control form-control-sm" max="{{this.global.formattedMaxDate()}}"
+                         aria-label="toDate">
+                </div>
+              </div>
+              <div class="row pb-2">
+                <div class="col-sm-5">
+                  <ng-multiselect-dropdown
+                    [(ngModel)]="formGroupFilters.carriers"
+                    name="carrier"
+                    [placeholder]="'Carrier'"
+                    [settings]="dropdownSettings"
+                    [data]="this.carrierDropDown">
+                  </ng-multiselect-dropdown>
+                  <label class="floating" hidden id="{{this.modalName+'CarrierDpLabel'}}">Carrier</label>
+                </div>
+                <div class="col-sm-7 d-inline-flex">
+                  <label class="col-form-label-sm pr-1 mb-0">DD:</label>
+                  <input [(ngModel)]="formGroupFilters.deliveryFromDate" type="date" name="deliveryFromDate"
+                         class="form-control form-control-sm" max="{{this.global.formattedMaxDate()}}"
+                         aria-label="fromDate">
+                  <label class="mx-2 pt-2 mb-0">to</label>
+                  <input [(ngModel)]="formGroupFilters.deliveryToDate" type="date" name="deliveryToDate"
+                         class="form-control form-control-sm" max="{{this.global.formattedMaxDate()}}"
+                         aria-label="toDate">
+                </div>
+              </div>
+              <div class="row pb-2">
+                <div class="col-sm-5">
+                  <ng-multiselect-dropdown
+                    [(ngModel)]="formGroupFilters.shippers"
+                    name="shippers"
+                    [placeholder]="'Shipper'"
+                    [settings]="dropdownSettings"
+                    [data]="this.shipperDropDown"
+                    (onDeSelect)="this.checkMultiSelectValues('#'+this.modalName+'ShipperDpLabel',formGroupFilters.shippers.length)"
+                    (onSelect)="this.checkMultiSelectValues('#'+this.modalName+'ShipperDpLabel',formGroupFilters.shippers.length)">
+                  </ng-multiselect-dropdown>
+                  <label class="floating" hidden id="{{this.modalName+'ShipperDpLabel'}}">Shipper</label>
+                </div>
+                <div class="col-sm-4">
+                  <ng-multiselect-dropdown
+                    [(ngModel)]="formGroupFilters.shipperCities"
+                    name="shipperCities"
+                    [placeholder]="'Shipper City'"
+                    [settings]="dropdownSettings"
+                    [data]="this.shipperCityDropDown"
+                    (onDeSelect)="this.checkMultiSelectValues('#'+this.modalName+'ShipperCityDpLabel',formGroupFilters.shipperCities.length)"
+                    (onSelect)="this.checkMultiSelectValues('#'+this.modalName+'ShipperCityDpLabel',formGroupFilters.shipperCities.length)">
+                  </ng-multiselect-dropdown>
+                  <label class="floating" hidden id="{{this.modalName+'ShipperCityDpLabel'}}">Shipper City</label>
+                </div>
+                <div class="col-sm-3">
+                  <ng-multiselect-dropdown
+                    [(ngModel)]="formGroupFilters.shipperStates"
+                    name="shipperState"
+                    [placeholder]="'Shipper State'"
+                    [settings]="dropdownSettings"
+                    [data]="this.shipperStateDropDown"
+                    (onDeSelect)="this.checkMultiSelectValues('#'+this.modalName+'ShipperStateDpLabel',formGroupFilters.shipperStates.length)"
+                    (onSelect)="this.checkMultiSelectValues('#'+this.modalName+'ShipperStateDpLabel',formGroupFilters.shipperStates.length)">
+                  </ng-multiselect-dropdown>
+                  <label class="floating" hidden id="{{this.modalName+'ShipperStateDpLabel'}}">Shipper State</label>
+                </div>
+              </div>
+              <div class="row pb-2">
+                <div class="col-sm-5">
+                  <ng-multiselect-dropdown
+                    [(ngModel)]="formGroupFilters.consignees"
+                    name="consignee"
+                    [placeholder]="'Consignee'"
+                    [settings]="dropdownSettings"
+                    [data]="this.consigneeDropDown"
+                    (onDeSelect)="this.checkMultiSelectValues('#'+this.modalName+'ConsigneeDpLabel',formGroupFilters.consignees.length)"
+                    (onSelect)="this.checkMultiSelectValues('#'+this.modalName+'ConsigneeDpLabel',formGroupFilters.consignees.length)">
+                  </ng-multiselect-dropdown>
+                  <label class="floating" hidden id="{{this.modalName+'ConsigneeDpLabel'}}">Consignee</label>
+                </div>
+                <div class="col-sm-4">
+                  <ng-multiselect-dropdown
+                    [(ngModel)]="formGroupFilters.consigneeCities"
+                    name="consigneeCities"
+                    [placeholder]="'Consignee City'"
+                    [settings]="dropdownSettings"
+                    [data]="this.consigneeCityDropDown"
+                    (onDeSelect)="this.checkMultiSelectValues('#'+this.modalName+'ConsigneeCityDpLabel',formGroupFilters.consigneeCities.length)"
+                    (onSelect)="this.checkMultiSelectValues('#'+this.modalName+'ConsigneeCityDpLabel',formGroupFilters.consigneeCities.length)">
+                  </ng-multiselect-dropdown>
+                  <label class="floating" hidden id="{{this.modalName+'ConsigneeCityDpLabel'}}">Consignee City</label>
+                </div>
+                <div class="col-sm-3">
+                  <ng-multiselect-dropdown
+                    [(ngModel)]="formGroupFilters.consigneeStates"
+                    name="consigneeStates"
+                    [placeholder]="'Consignee State'"
+                    [settings]="dropdownSettings"
+                    [data]="this.consigneeStateDropDown"
+                    (onDeSelect)="this.checkMultiSelectValues('#'+this.modalName+'ConsigneeStateDpLabel',formGroupFilters.consigneeStates.length)"
+                    (onSelect)="this.checkMultiSelectValues('#'+this.modalName+'ConsigneeStateDpLabel',formGroupFilters.consigneeStates.length)">
+                  </ng-multiselect-dropdown>
+                  <label class="floating" hidden id="{{this.modalName+'ConsigneeStateDpLabel'}}">Consignee</label>
+                </div>
+              </div>
+              <div class="row pb-2">
+                <!--HIDE BILL TO DROP DOWN FOR NOW - TO BE ADDED LATER-->
+                <!--    <div class="col-sm-5">
+                      <ng-multiselect-dropdown
+                        [(ngModel)]="formGroupFilters.billTypes"
+                        name="billTypes"
+                        [placeholder]="'Bill Type'"
+                        [settings]="dropdownSettings"
+                        [data]="this.billTypeDropDown">
+                      </ng-multiselect-dropdown>
+                    </div>-->
+                <div class="col-sm-5">
+                  <ng-multiselect-dropdown
+                    [(ngModel)]="formGroupFilters.statuses"
+                    name="statuses"
+                    [placeholder]="'Status'"
+                    [settings]="dropdownSettings"
+                    [data]="this.statusDropdown"
+                    (onDeSelect)="this.checkMultiSelectValues('#'+this.modalName+'StatusDpLabel',formGroupFilters.statuses.length)"
+                    (onSelect)="this.checkMultiSelectValues('#'+this.modalName+'StatusDpLabel',formGroupFilters.statuses.length)">
+                  </ng-multiselect-dropdown>
+                  <label class="floating" hidden id="{{this.modalName+'StatusDpLabel'}}">Status</label>
+                </div>
+              </div>
+              <!--HIDE LP DROP DOWN FOR NOW - TO BE ADDED LATER-->
+            </div>
+          </form>
+        }
+      </div>
+      <div class="modal-footer">
+        <button id="close-filter-modal" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button (click)="clearAllFilters()" type="button" class="btn btn-secondary">Reset</button>
+        <button (click)="filterResults()" data-bs-dismiss="modal" type="button" class="btn btn-primary">Filter Results
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

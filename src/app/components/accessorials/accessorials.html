@@ -1,0 +1,217 @@
+<form (keypress)="'return keyCode != 13;'" [formGroup]="accessorialForm" [id]="'accessorialForm'+ accId">
+
+  <!-- Span component name -->
+  <div class="row mb-3">
+    <div class="col-12 d-inline-flex ml-2">
+       <span class="fw-bold">
+         Accessorials
+       </span>
+    </div>
+  </div>
+  <!-- End span -->
+
+  <div *ngFor="let a of accessorials.controls; let i=index" class="pb-2" formArrayName="accessorials">
+    <div [formGroupName]="i" id="rowItem{{i}}">
+      <div class="row mx-0 vl">
+        <div class="col-12 px-1 d-inline-flex">
+          <!-- Dropdown  -->
+          <div class="col px-1" ngbTooltip="Accessorial Type">
+            <select
+              (change)="onChange($event,'accessorialTypeId',i);"
+              [attr.disabled]="disabled() ? 'disabled' : null"
+              [disabled]="disabled() || accessorials.at(i).get('truckFeesId')?.value && accessorials.at(i).get('accessorialTypeId')?.value == '9'"
+              [required]="utilityservice.isrequired[i]"
+              class="form-select form-select-sm custom-select"
+              formControlName="accessorialTypeId"
+              id="{{'accessorialTypeId' + i }}">
+              <option value="">Accessorial Type</option>
+              <option *ngFor="let e of accessorialTypesList" [selected]="e.value == a.value.accessorialTypeId"
+                      [value]="e.value">{{ e.item }}
+              </option>
+            </select>
+            <div class="invalid-tooltip">Accessorial type is missing.</div>
+          </div>
+          <!-- End dropdown -->
+
+          <div *ngIf="showFeeIncurredField(i)" class="col-2 px-1" ngbTooltip="Ocurred at">
+            <select
+              (change)="onChange($event,'feeIncurredAt',i);"
+              [attr.disabled]="disabled() ? 'disabled' : null"
+              [required]="accessorials.at(i).get('accessorialTypeId')?.value == '2'"
+              class="form-select form-select-sm custom-select"
+              formControlName="feeIncurredAt"
+              id="{{'feeIncurredAt' + i }}">
+              <option value="">Ocurred at</option>
+              <option *ngFor="let e of feeIncurredAtList" [selected]="e.value == a.value.feeIncurredAt"
+                      [value]="e.value">{{ e.item }}
+              </option>
+            </select>
+          </div>
+
+          <div *ngIf="showFeeIncurredField(i) && numOfStops().length > 1" class="col-1 px-1"
+               ngbTooltip="Stop #">
+            <select (change)="onChange($event,'stopNum',i);"
+                    [attr.disabled]="disabled() ? 'disabled' : null"
+                    class="form-select form-select-sm custom-select"
+                    formControlName="stopNum"
+                    id="{{'stopNum' + i }}">
+              <option value="0">Stop #</option>
+              <option *ngFor="let stopNum of numOfStops()"
+                      [selected]="stopNum.toString() == a.value.stopNum.toString()"
+                      [value]="stopNum">{{ stopNum }}
+              </option>
+            </select>
+          </div>
+
+          <div *ngIf="showFeeTimesField(i)" class="col-1 px-1">
+            <div class="form-label-group m-0" ngbTooltip="Time In">
+              <input (change)="onChange($event,'feeStartTime',i);" [attr.disabled]="disabled() ? 'disabled' : null"
+                     [value]="accessorials.at(i).get('feeStartTime')?.value"
+                     aria-label="feeStartTime"
+                     class="form-control form-control form-control-sm"
+                     formControlName="feeStartTime"
+                     id="{{'feeStartTime' + i }}"
+                     placeholder="Time In" type="datetime-local">
+              <label for="{{'feeStartTime' + i }}">Time In</label>
+            </div>
+          </div>
+
+          <div *ngIf="showFeeTimesField(i)" class="col-1 px-1">
+            <div class="form-label-group m-0" ngbTooltip="Time Out">
+              <input (change)="onChange($event,'feeEndTime',i);" [attr.disabled]="disabled() ? 'disabled' : null"
+                     [value]="accessorials.at(i).get('feeEndTime')?.value"
+                     aria-label="feeEndTime"
+                     class="form-control form-control form-control-sm"
+                     formControlName="feeEndTime"
+                     id="{{'feeEndTime' + i }}"
+                     placeholder="Time Out" type="datetime-local">
+              <label for="{{'feeEndTime' + i }}">Time Out</label>
+            </div>
+          </div>
+
+          <!-- Buy Amount -->
+          <div class="col px-1">
+            <div class="form-label-group m-0">
+              <input (focusout)="checkNegative(i, 'amount', $event);"
+                     (input)="onChange($event,'amount',i);"
+                     (keypress)="checkTwoDecimals($event)"
+                     (keyup)="checkNegative(i, 'amount', $event);"
+                     [attr.disabled]="disabled() ? 'disabled' : null"
+                     [min]="accessorials.at(i).get('accessorialTypeId')?.value?.toString()  == '12' ? '-999999999' : '0'"
+                     [required]="utilityservice.isrequired[i]"
+                     attr.aria-label="Buy Amount {{carCurrencyType()}}*"
+                     class="form-control form-control-sm d-inline-flex"
+                     formControlName="amount"
+                     id="{{'amount' + i }}"
+                     placeholder="Buy Amount*"
+                     type="number">
+              <label for="{{'amount' + i }}">Buy Amount {{ carCurrencyType() }}*</label>
+              <div class="invalid-tooltip">Buy Amount is missing.</div>
+            </div>
+          </div>
+          <!-- End Buy Amount -->
+
+          <!-- Sell Amount -->
+          <div class="col px-1">
+            <div class="form-label-group m-0">
+              <input (focusout)="checkNegative(i, 'sellAmount', $event);"
+                     (input)="onChange($event,'sellAmount',i);"
+                     (keypress)="checkTwoDecimals($event)"
+                     (keyup)="checkNegative(i, 'sellAmount', $event);"
+                     [attr.disabled]="disabled() ? 'disabled' : null"
+                     [min]="accessorials.at(i).get('accessorialTypeId')?.value?.toString() == '12' ? '-999999999' : '0'"
+                     [required]="utilityservice.isrequired[i]"
+                     attr.aria-label="Sell Amount {{currencyType()}}*"
+                     class="form-control form-control-sm d-inline-flex"
+                     formControlName="sellAmount"
+                     id="{{'sellAmount' + i }}"
+                     placeholder="Sell Amount*"
+                     type="number">
+              <label for="{{'sellAmount' + i }}">Sell Amount {{ currencyType() }}*</label>
+              <div class="invalid-tooltip">Sell Amount is missing.</div>
+            </div>
+          </div>
+          <!-- End Sell Amount -->
+
+          <!-- Quote Dropdown  -->
+          <div *ngIf="accessorials.at(i).get('truckFeesId')?.value == null && accessorials.at(i).get('accessorialTypeId')?.value == '9'"
+               class="col px-1">
+            <select (change)="onChange($event,'truckQuoteId',i);"
+                    [attr.disabled]="disabled() ? 'disabled' : null"
+                    class="form-select form-select-sm custom-select"
+                    formControlName="truckQuoteId"
+                    id="{{'truckQuoteId' + i }}">
+              <option [selected]="accessorials.at(i).get('truckQuoteId')?.value == null" [value]="null">Select
+                Quote
+              </option>
+              <option *ngIf="quotes()"
+                      [selected]="accessorials.at(i).get('truckQuoteId')?.value == quotes().quoteID"
+                      [value]="quotes().quoteID">{{ 'Quote Id: ' + quotes().quoteID + (quotes().carrierName && quotes().carrierName != '' ? ' - Carrier: ' + quotes().carrierName + ' ' + quotes().mcNumber : ' - No Carrier') }}
+              </option>
+            </select>
+            <div class="invalid-tooltip">Quote is missing.</div>
+          </div>
+
+          <div *ngIf="accessorials.at(i).get('truckFeesId')?.value && accessorials.at(i).get('quoteIdEmpty')?.value == false && accessorials.at(i).get('accessorialTypeId')?.value == '9'"
+               class="col px-1">
+            <select [attr.disabled]="disabled() ? 'disabled' : null"
+                    class="form-select form-select-sm custom-select"
+                    formControlName="truckQuoteId">
+              <option *ngFor="let q of quotesNotUsed()"
+                      [selected]="accessorials.at(i).get('truckQuoteId')?.value == q.quoteID"
+                      [value]="q.quoteID">{{ 'Quote Id: ' + q.quoteID + (q.carrierName && q.carrierName != '' ? ' - Carrier: ' + q.carrierName + ' ' + q.mcNumber : ' - No Carrier') }}
+              </option>
+            </select>
+          </div>
+
+          <div *ngIf="accessorials.at(i).get('truckFeesId')?.value && accessorials.at(i).get('quoteIdEmpty')?.value && accessorials.at(i).get('accessorialTypeId')?.value == '9'"
+               class="col px-1">
+            <select (change)="onChange($event,'truckQuoteId',i);"
+                    [attr.disabled]="disabled() ? 'disabled' : null"
+                    [required]="utilityservice.isrequired[i]"
+                    class="form-select form-select-sm custom-select"
+                    formControlName="truckQuoteId">
+              <option [selected]="accessorials.at(i).get('truckQuoteId')?.value == null" [value]="null">Select
+                Quote
+              </option>
+              <option *ngIf="quotes()"
+                      [selected]="accessorials.at(i).get('truckQuoteId')?.value == quotes().quoteID"
+                      [value]="quotes().quoteID">{{ 'Quote Id: ' + quotes().quoteID + (quotes().carrierName && quotes().carrierName != '' ? ' - Carrier: ' + quotes().carrierName + ' ' + quotes().mcNumber : ' - No Carrier') }}
+              </option>
+            </select>
+            <div class="invalid-tooltip">Quote is missing.</div>
+          </div>
+          <!-- End Quote dropdown -->
+
+          <!-- Remove item -->
+          <div class="px-1" ngbTooltip="Delete Charge" placement="bottom">
+            <button (click)="removeItem(i);onChange($event,'',i); "
+                    [attr.disabled]="disabled() ? 'disabled' : null"
+                    class="btn btn-sm btn-danger pb-0 px-1" id="{{'btnRemoveFee' + i }}">
+              <i class="material-icons text-white" id="{{'btnRemoveFeeIcon' + i }}">clear</i>
+            </button>
+          </div>
+          <!-- End Remove item -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="p-1">
+    <div class="row form-inline">
+      <div class="col-sm-12 d-inline-flex">
+        <div class="col pr-0 pb-1">
+          <!-- Add button -->
+          <button (click)="addAccessorials();" [attr.disabled]="disabled() ? 'disabled' : null"
+                  [ngClass]="{'mt-1': accId == ''}" class="btn btn-success btn-sm float-end">
+            <i class="material-icons p-0 text-white" id="btnIconAdd2" style="margin-top: 2px; vertical-align: middle;">add_circle_outline</i>
+            <span style="vertical-align: middle;">&nbsp;Add Accessorial</span>
+          </button>
+          <!--End Add button -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+</form>
+
