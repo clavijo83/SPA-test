@@ -1,0 +1,585 @@
+<ngx-spinner name="trackingDetailsSpinner"></ngx-spinner>
+
+<ngx-spinner name="trackingDetails">
+  <h1 style="color: white;">Loading Shipment Information</h1>
+</ngx-spinner>
+
+<ngx-spinner name="savingTrackingDetails">
+  <h1 style="color: white;">Saving Tracking Information...</h1>
+</ngx-spinner>
+
+@if (loadTruckDetails()) {
+  <div class="container-fluid">
+    <div class="row p-3">
+      <div [ngClass]="{'col-sm-10 offset-sm-2': !global.isCollapsed(), 'col': global.isCollapsed() }">
+        <div class="pb-5">
+          <div class="row align-items-center blueHeaderContainer mx-0">
+            @if (truck) {
+              <div class="col-5">
+                @if (truck.state !== 'DELIVERED') {
+                  <button (click)="onBtnEditShipmentClick()" class="btn btn-sm btn-success mx-1 float-start">
+                    <i class="material-icons ps-1 assignment-return-size float-start">edit</i>
+                    Edit Truckload
+                  </button>
+                }
+
+                @if (truck.state !== 'DELETED') {
+                  <button (click)="duplicateLoadOnClick()" class="btn btn-sm btn-success mx-1 float-start">
+                    <i class="material-icons pl-1 assignment-return-size float-start">save_as</i>
+                    Duplicate Shipment
+                  </button>
+                }
+
+                @if ((truck.state == 'BOOKED' || truck.state == 'PREBOOKED' || truck.state == 'PENDING')) {
+                  <button (click)="onBtnCreateAsLTL()" class="btn btn-sm btn-primary mx-1 float-start">
+                    <i class="material-icons pl-1 assignment-return-size float-start">edit_road</i>
+                    Convert to LTL
+                  </button>
+                }
+
+                <button [hidden]="true" class="d-none" data-bs-target="#createAsLTLModal" data-bs-toggle="modal" id="createAsLTLModalButton">
+                </button>
+              </div>
+
+              <div class="col align-content-center">
+                <div class="text-white d-inline-block fs-6">
+                  Created: {{truck.shipments?.[0]?.shipmentDetail?.createdOn | date : 'MM/dd/yyyy'}}
+                  By: {{truck.shipments?.[0]?.user?.email}}
+                  <app-email-modal [btnClassType]="''"
+                                   [BOLNumber]="truck.truckID ? truck.truckID.toString() : ''"
+                                   [truckBOLs]="shipmentIDs"
+                                   [btnLabel]="''" [disableBtn]="false"
+                                   [emailBody]="statusEmailBody()" [emailIconLight]="true"
+                                   [emailIcon]="true" [emailModalLabel]="'New Message - Status Alert'"
+                                   [emailModalName]="'ShipmentInfoCreatedByEmailModal'"
+                                   [emailSubject]="'Status Alert: '+ (truck.shipments?.[0]?.client?.clientCode ? truck.shipments?.[0]?.client?.clientCode + ' - ' : '') + (truckID ? 'Truck ID: ' + truckID : '')"
+                                   [fromEmailAddress]="'truckload@il2000.com'"
+                                   (eventEmailSent)="onMailSent()"
+                                   [reloadAfterSend]="false"
+                                   [htmlEmailBody]="''" [isHtml]="false"
+                                   [toEmailAddress]="truck.shipments ? (truck.shipments[0].user?.email ?? '') : ''"
+                                   class="d-inline-block shipper-email text-center text-dark">
+                  </app-email-modal>
+                </div>
+              </div>
+
+              <div class="col-1">
+                <span class="float-end fw-bold">
+                  {{ truck?.state?.toUpperCase() ?? '' }}
+                </span>
+              </div>
+            }
+          </div>
+
+          <app-truck-info-cards
+            (changeUpdate)="changeMade()"
+            (mailSent)="getUserId()"
+            (saveClientQuote)="saveChangesClientQuote()"
+            [disabled]="disableControls"
+            [showEdit]="showEdit"
+            [poMoniker]="poMoniker ?? ''"
+            [inputTruck]="truck"
+            [clientEmail]= "'truckload@il2000.com'">
+          </app-truck-info-cards>
+
+          <!-- DETAILS SECTION  -->
+          <div class="row px-2">
+            <div class="col-sm-12 px-0">
+              <div class="accordion pb-3">
+                <div class="icon-pointer card">
+
+                  <div (click)="expandDetails = !expandDetails" aria-expanded="false" class="card-header"
+                       data-bs-target="#bookingDetails" data-bs-toggle="collapse" id="bookingHeader">
+                    <div class="text-center fw-bold text-dark pt-1">
+                      <b>DETAILS</b>
+                      @if (!expandDetails) {
+                        <i class="material-icons float-end expand-icon pointer-event-none">expand_more</i>
+                      } @else {
+                        <i class="material-icons float-end expand-icon pointer-event-none">expand_less</i>
+                      }
+                    </div>
+                  </div>
+                  <div class="collapse" data-parent="#accordion" id="bookingDetails">
+                    @if (truck) {
+                      <div class="customBorder m-3">
+                        <div class="row pt-2" style="text-align: center;">
+                          <div class="col-sm-4">
+                            <div>
+                              <b>Terms</b>:
+                              {{ truck.shipments?.[0]?.shipmentDetail?.terms ?? '' }}
+                            </div>
+                          </div>
+                          <div class="col-sm-4">
+                            <div>
+                              <b>Billing</b>:
+                              {{ truck.shipments?.[0]?.billTo?.name | uppercase }}
+                            </div>
+                          </div>
+                          <div class="col-sm-4">
+                            <div>
+                              <b>Address</b>:
+                              {{truck.shipments?.[0]?.billTo?.address | uppercase }}
+                            </div>
+                            <div>
+                              {{ truck.shipments?.[0]?.billTo?.city && truck.shipments?.[0]?.billTo?.state ?
+                              truck.shipments?.[0]?.billTo?.city?.toUpperCase() + ', ' + truck.shipments?.[0]?.billTo?.state?.toUpperCase() + ' ' : ''}}
+                              {{truck.shipments?.[0]?.billTo?.zip ? truck.shipments?.[0]?.billTo?.zip : ''}}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    }
+
+                    <div class="customBorder m-3">
+                      <!--Purchase Order Section-->
+                      <div class="card-body px-1">
+                        <div class="table-responsive">
+                          <table class="table table-borderless">
+                            <thead>
+                            <tr>
+                              <th></th>
+                              <th class="fw-bold" scope="col">HU</th>
+                              <th class="fw-bold" scope="col">Pieces</th>
+                              <th class="fw-bold" scope="col">Weight</th>
+                              <th class="fw-bold" scope="col">Total Weight</th>
+                              <th class="fw-bold" scope="col">Dimensions</th>
+                              <th class="fw-bold" scope="col">HM</th>
+                              <th class="fw-bold" scope="col">Commodity Description</th>
+                              <th class="fw-bold" scope="col">NMFC#</th>
+                              <th class="fw-bold" scope="col">Class</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                              @for (lineItem of getAllLineItems(); track lineItem) {
+                                <tr class="text-center">
+                                  <td></td>
+                                  <td>
+                                    <span>{{lineItem?.handlingUnits}}</span>
+                                  </td>
+                                  <td>
+                                    <span>{{lineItem?.pieces}}</span>
+                                  </td>
+                                  <td>
+                                    <span>{{lineItem?.unitWeight ? lineItem?.unitWeight : 0}}</span>
+                                  </td>
+                                  <td>
+                                    <span>{{lineItem?.totalWeight ? lineItem?.totalWeight : 0}}</span>
+                                  </td>
+                                  <td>
+                                    <span>{{lineItem?.length ? (lineItem?.length + '" x ') : ''}}{{lineItem?.width ? (lineItem?.width + '" x ') : ''}}{{lineItem?.height ? (lineItem?.height + '"') : ''}}</span>
+                                  </td>
+                                  <td>
+                                    <span>{{lineItem?.hazmat ? 'Yes' : 'No'}}</span>
+                                  </td>
+                                  <td>
+                                    <span>{{lineItem?.productDescription}}</span>
+                                  </td>
+                                  <td>
+                                    <span>{{lineItem?.nmfc}}</span>
+                                  </td>
+                                  <td>
+                                    <span>{{lineItem?.freightClass}}</span>
+                                  </td>
+                                </tr>
+                              }
+                            </tbody>
+                            <tfoot>
+                            <tr class="text-center">
+                              <td class="fw-bold">TOTALS</td>
+                              <td class="fw-bold">{{calculateTotal('hu')}}</td>
+                              <td class="fw-bold">{{calculateTotal('pieces')}}</td>
+                              <td class="fw-bold">{{calculateTotal('weight')}}</td>
+                              <td class="fw-bold">{{calculateTotal('total weight')}}</td>
+                              <td class="fw-bold">-</td>
+                              <td class="fw-bold">-</td>
+                              <td class="fw-bold">-</td>
+                              <td class="fw-bold">-</td>
+                            </tr>
+                            </tfoot>
+                          </table>
+                        </div>
+
+                        <!--BILLED TO & REFERENCE SECTIONS-->
+                        <div class="row pt-3">
+                          <!--REFERENCE SECTION  -->
+                          <div class="col-sm-5">
+                            <div class="card h-100">
+                              <div class="card-body">
+                                <h6 class="card-title fw-bold">REFERENCE FIELDS</h6>
+                                @if (truck) {
+                                  <address class="card-text shippingDetailsText">
+                                    @for (reference of truck?.shipments?.[0]?.referenceFields; track reference) {
+                                      <div class="row">
+                                        <div class="col">
+                                          <label class="label col-form-label d-inline fw-bold reference-label">
+                                            {{reference?.description}}
+                                          </label>
+                                          {{reference?.value}}
+                                        </div>
+                                      </div>
+                                    }
+                                  </address>
+                                }
+                              </div>
+                            </div>
+                          </div>
+
+                          <!--ACCESSORIALS-->
+                          <div class="col-sm-3">
+                            <div class="card h-100">
+                              <div class="card-body">
+                                <h6 class="card-title fw-bold">ACCESSORIALS</h6>
+                                @if (truck) {
+                                  <div>
+                                    @for (accessorial of truck?.shipments?.[0]?.accessorials; track accessorial) {
+                                      <span>{{accessorial.accessorialName}}<br></span>
+                                    }
+                                  </div>
+                                }
+                              </div>
+                            </div>
+                          </div>
+
+                          <!--SPECIAL INSTRUCTIONS-->
+                          <div class="col-sm-4">
+                            <div class="card h-100">
+                              <div class="card-body">
+                                <h6 class="card-title fw-bold">SPECIAL INSTRUCTIONS</h6>
+                                @for (shipment of truck?.shipments; track shipment.shipmentDetail.shipmentID;let a = $index) {
+                                  <div class="fw-bold" style="vertical-align: middle;">
+                                    STOP #{{a + 1}} - {{shipment.shipmentDetail.shipmentID}}
+                                  </div>
+                                  @if (truck) {
+                                    <address class="card-text">
+                                      <div>{{shipment.shipmentDetail.specialInstructions}}</div>
+                                    </address>
+                                  }
+                                }
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CAPACITY PROVIDERS - CARRIER QUOTES -->
+          @if (truck?.loadPostedTT) {
+            <div class="row px-2">
+              <div class="col-sm-12 px-0">
+                <div class="accordion pb-3">
+                  <div class="icon-pointer card">
+
+                    <div (click)="expandCarrier = !expandCarrier" aria-expanded="false" class="card-header"
+                         data-bs-target="#carrierDetails" data-bs-toggle="collapse" id="carrierHeader">
+                      <div class="text-center fw-bold text-dark pt-1">
+                        <b>CAPACITY PROVIDERS - CARRIER QUOTES</b>
+                        @if (!expandCarrier) {
+                          <i class="material-icons float-end expand-icon pointer-event-none">expand_more</i>
+                        } @else {
+                          <i class="material-icons float-end expand-icon pointer-event-none">expand_less</i>
+                        }
+                      </div>
+                    </div>
+                    <div class="collapse" data-parent="#accordion" id="carrierDetails">
+                      @if (validateStatusForPosting() && validateStatusForProNumber()) {
+                        <div class="col-12 my-2 px-2">
+                          <button (click)="openOfferQuotesModal(true)" class="btn btn-sm w-100 btn-success">
+                            <i class="material-icons pb-1 assignment-return-size me-1" style="vertical-align: middle">add</i>
+                            Create Quote
+                          </button>
+                        </div>
+                      }
+                      <div class="customBorder m-3">
+                        <app-carrier-quotes [truck]="truck"
+                                            (bookItNowEvent)="onReceiveTTEvent($event)"
+                                            (editQuoteEvent)="openOfferQuotesModal(false, $event)">
+                        </app-carrier-quotes>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- RATES SECTION-->
+          <div class="row px-2">
+            <div class="col-sm-12 px-0">
+              <div class="accordion pb-3">
+                <div class="icon-pointer card">
+
+                  <div (click)="expandRates = !expandRates" aria-expanded="false" class="card-header"
+                       data-bs-target="#ratesDetails" data-bs-toggle="collapse" id="ratesHeader">
+                    <div class="text-center fw-bold text-dark pt-1">
+                      <b>QUOTES AND RATES</b>
+                      @if (!expandRates) {
+                        <i class="material-icons float-end expand-icon pointer-event-none">expand_more</i>
+                      } @else {
+                        <i class="material-icons float-end expand-icon pointer-event-none">expand_less</i>
+                      }
+                    </div>
+                  </div>
+                  <div class="collapse" data-parent="#accordion" id="ratesDetails">
+
+                    <!--Accessorials-->
+                    <div class="customBorder m-3">
+                      @if (truck?.truckFees) {
+                        <app-accessorials
+                          [disabled]="disableControls"
+                          [truckFees]="truck?.truckFees ?? []"
+                          [numOfStops]="getNumOfStops"
+                          [quotes]="quoteSelected"
+                          [quotesNotUsed]="quotesNotUsed"
+                          [currencyType]="truck?.shipments?.[0]?.client?.cutAbbreviation ?? 'USD'"
+                          [carCurrencyType]="setCarrierCurrency()"
+                          (truckNotUsedEvent)="getTruckNotUsedEvent($event)"
+                          (getTruckFees)="getTruckFees($event)">
+                        </app-accessorials>
+                      }
+                    </div>
+                    <!--End Accessorials-->
+
+                    <!-- Manual Quotes -->
+                    <div class="customBorder m-3">
+                      @if (truck) {
+                        <app-manual-quotes class="pe-2"
+                                           [truck]="truck"
+                                           [disabled]="disableControls"
+                                           [trackingDetails]="true"
+                                           (newCarrierEvent)="newCarrierEvent = $event"
+                                           (selectCarrierEvent)="onSelectCarrier();changeMade()"
+                                           (changeEvent)="onSelectCarrier();changeMade()"
+                                           (carrierExceptionEvent)="createCarrierOnboardedNote($event)"
+                                           (removeQuoteEvent)="removeOnboardNote($event)"
+                                           [showCheckInsuranceAmount]="showCheckInsuranceAmount"
+                                           [currencyType]="truck.shipments?.[0]?.client?.cutAbbreviation ?? 'USD'"
+                                           [carCurrencyType]="setCarrierCurrency()"
+                                           (loadComplete)="quotesLoadedComplete()"
+                                           (quoteDeselected)="onSelectedQuoteEvent($event)"
+                                           (selectedQuoteRemoved)="onQuoteRemovedEvent($event)"
+                                           (emailSent)="onMailSent()"
+                                           [manualQuotes]="tlQuotes">
+                        </app-manual-quotes>
+                      }
+                    </div>
+
+                    <!-- DAT RATES AND CARRIER HISTORY RATES -->
+                    @if ((truck?.shipments?.length ?? 0) > 0) {
+                      <div class="customBorder m-3">
+                        <app-rates-grid
+                          (ratesSelectedEvent)="onRatesSelected(true)"
+                          [consigneeAddress]="getLastStop() ? getLastStop().streetAddress : ''"
+                          [consigneeCity]="getLastStop() ? getLastStop().city : ''"
+                          [consigneeState]="getLastStop() ? getLastStop().state : ''"
+                          [createShipmentBtn]="false"
+                          [disableEmailBtn]="false"
+                          [downloadBtn]="false"
+                          [emailBtn]="false"
+                          [fetchRatesBtn]="!((truck?.shipments?.length ?? 0) > 0 && truck?.shipments?.[0]?.targetRates)"
+                          [fromZip]="truck?.shipments?.[0]?.shipper?.zip ?? ''"
+                          [hideGrid]="false"
+                          [historyRatesBtn]="!!((truck?.shipments?.length ?? 0) > 0 && truck?.shipments?.[0]?.targetRates)"
+                          [isShipmentPage]="false"
+                          [isTruckloadPage]="true"
+                          [rates]="getTruckloadRates"
+                          [shipmentType]="'Truckload'"
+                          [clientCode]="truck?.shipments?.[0]?.client?.clientCode ?? ''"
+                          [mileage]="truck?.mileage ?? 0"
+                          [equipment]="truck?.equipmentType ?? null"
+                          [lineItems]="rateRequestLineItems"
+                          [currencyType]="truck?.shipments?.[0]?.client?.cutAbbreviation ?? ''"
+                          [carCurrencyType]="truck?.shipments?.[0]?.carrierDetail?.carcutAbbreviation ?? ''"
+                          [rateType]="null"
+                          [shipperAddress]="truck?.shipments?.[0]?.shipper?.streetAddress ?? ''"
+                          [shipperCity]="truck?.shipments?.[0]?.shipper?.city ?? ''"
+                          [shipperState]="truck?.shipments?.[0]?.shipper?.state ?? ''"
+                          [targetBuy]="truck?.shipments?.[0]?.targetRates?.targetBuy ?? ''"
+                          [targetSell]="truck?.shipments?.[0]?.targetRates?.targetSell ?? ''"
+                          [toZip]="getLastStop() ? getLastStop().zip : ''">
+                        </app-rates-grid>
+                        @if ((truckFees | json) != '[]') {
+                          <button class="btn btn-primary btn-sm w-100 fw-bold" data-bs-target="#costbreakdown" data-bs-toggle="modal" type="button">
+                            View Charge Breakdown
+                          </button>
+                        }
+                      </div>
+                    }
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MAP SECTION-->
+          @if (truckerToolsActive && truck?.mapUrl) {
+            <div class="row px-2">
+              <div class="col-sm-12 px-0">
+                <div class="accordion pb-3">
+                  <div class="icon-pointer card">
+                    <div (click)="expandMap = !expandMap" aria-expanded="false" class="card-header"
+                         data-bs-target="#mapDetails" data-bs-toggle="collapse">
+                      <div class="text-center fw-bold text-dark pt-1">
+                        <b>MAP VIEW</b>
+                        @if (!expandMap) {
+                          <i class="material-icons float-end expand-icon pointer-event-none">expand_more</i>
+                        } @else {
+                          <i class="material-icons float-end expand-icon pointer-event-none">expand_less</i>
+                        }
+                      </div>
+                    </div>
+                    <div class="collapse" data-parent="#accordion" id="mapDetails">
+                      <div class="card-body">
+                        <div style="margin-left:390px">
+                          <iframe id="mapiframe" style="width: 95%;"></iframe>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<div aria-hidden="true" class="modal fade" id="carrierMonitoringModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <span class="fw-bold ps-1 modal-title" style="font-size: large">
+          Carrier profile - {{carrierName}}
+        </span>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body justify-content-center">
+        @if (carrierMonitoringData) {
+          <app-carrier-management [Data]="carrierMonitoringData" [isModal]="true">
+          </app-carrier-management>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (isInternalUser && changesMade) {
+  <footer class="pt-0 pb-1 fixed-bottom overflow-hidden main-footer-bkg" style="bottom: 1.75rem;">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-5 offset-sm-2">
+          <button (click)="saveChanges()" class="btn btn-success btn-sm w-100" ngbTooltip="Save Changes" type="button">
+            Save Changes
+          </button>
+        </div>
+        <div class="col-sm-5">
+          <button class="btn btn-danger btn-sm w-100" onclick="location.reload();" type="button">
+            Revert Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  </footer>
+}
+
+<div aria-hidden="true" class="modal fade" id="costbreakdown" tabindex="-1" style="margin-top: 5%;">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <span class="fw-bold ps-1 modal-title" style="font-size: large">
+          View Charge Breakdown
+        </span>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center px-4 pt-0">
+        <table class="table table-bordered">
+          <thead>
+          <tr>
+            <th scope="col">Accessorial Type</th>
+            <th scope="col">Carrier Charge</th>
+            <th scope="col">Customer Charge</th>
+          </tr>
+          </thead>
+          <tbody>
+            @if (truck?.truckFees) {
+              @for (a of truck?.truckFees; track a) {
+                <tr>
+                  <th scope="row"> {{ accessoriesTypes[a.accessorialTypeId ?? 0]}}</th>
+                  <td>{{a.amount && a.amount != 0 ? dollarUS.format(a.amount) + ' ' + truck?.shipments?.[0]?.carrierDetail?.carcutAbbreviation : "-"}}</td>
+                  <td>{{a.sellAmount && a.sellAmount != 0 ? dollarUS.format(a.sellAmount) + ' ' + truck?.shipments?.[0]?.client?.cutAbbreviation : "-"}}</td>
+                </tr>
+              }
+              <tr>
+                <th scope="row">Total</th>
+                <td>{{dollarUS.format(carrierCharge)}} {{truck?.shipments?.[0]?.carrierDetail?.carcutAbbreviation}}</td>
+                <td>{{dollarUS.format(customerCharge)}} {{truck?.shipments?.[0]?.client?.cutAbbreviation}}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div aria-hidden="true" class="modal fade" id="offerQuotesModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        @if (truck) {
+          <span class="fw-bold ps-1 modal-title" style="font-size: medium">
+            Load {{truck.proLoadNumber}} - {{newOfferQuote ? 'New Quote' : 'Quote ID:' + loadOfferId}}
+          </span>
+        }
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body justify-content-center">
+        @if (truck && truck.loadPostedTT) {
+          <app-offer-quotes-modal (offersEvent)="onReceiveTTEvent($event, true)"
+                                  [newQuote]="newOfferQuote"
+                                  [loadOfferId]="loadOfferId"
+                                  [truckLoad]="truck"
+                                  [offerQuote]="offerQuote">
+          </app-offer-quotes-modal>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<div aria-hidden="true" class="modal fade" id="createAsLTLModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <span class="fw-bold ps-1 modal-title" style="font-size: large">
+          Changing Truckload Shipment to LTL
+        </span>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center px-4 pt-0">
+        <p class="swal2-title">
+          Are you sure you want to change this Truckload shipment to LTL shipment(s)?<br>
+          <br><br>
+        </p>
+        <b>Please note</b><br>
+        <p style="color:red">The shipment's status will be set to PREBOOKED.<br>
+          You will need to quote the Shipment as LTL.<br></p>
+        <br><br>
+        <h2>This action cannot be undone.</h2>
+      </div>
+      <div class="modal-footer text-center justify-content-center px-4 pt-0">
+        <button (click)="confirmCreateAsLTL()" class="btn btn-danger">Yes, Change this to LTL Shipment(s)</button>
+      </div>
+    </div>
+  </div>
+</div>

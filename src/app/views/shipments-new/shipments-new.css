@@ -1,0 +1,190 @@
+.spr {
+  padding-right: 16rem;
+}
+
+.spot-rate-modal-w {
+  width: 80% !important;
+}
+
+.spot-rate-text-ctrl {
+  width: 800px;
+}
+
+.container-fluid-w {
+  max-width: 1500px;
+}
+
+.blue {
+  color: #007bff;
+}
+
+.shipment-type-toggle {
+  margin-top: 50px;
+  margin-left: 8px;
+}
+
+.client-info-lbl {
+  margin-left: 9px;
+}
+
+.shipment-lbl {
+  margin-left: 2px;
+}
+
+.margin-20-left {
+  margin-left: 20px;
+}
+
+.mabd-col {
+  max-width: 160px !important
+}
+
+.shipper-ctrl {
+  min-width: 200px;
+  max-width: 400px;
+}
+
+.shipper-zip-ctrl {
+  min-width: 65px;
+  max-width: 100px;
+}
+
+.shipper-city-ctrl {
+  min-width: 100px;
+  max-width: 100px;
+}
+
+.shipper-state-ctrl {
+  min-width: 65px;
+  max-width: 65px;
+}
+
+.label {
+  color: black;
+}
+
+.add-circle-icon {
+  color: #9B9B9B;
+}
+
+.shipment-total-footer {
+  background: white;
+  /*min-width: 500px;*/
+  /*max-width: 1100px;*/
+  height: 50px;
+}
+
+.btn-group-row {
+  max-width: 1100px;
+}
+
+.nav-item {
+  cursor: pointer;
+}
+
+.multiStop-add-btn-col {
+  max-width: 38px;
+}
+
+.multiStop-remove-btn {
+  max-height: 38px;
+}
+
+.multiStop-col {
+  max-width: 350px;
+}
+
+.multiStop-type {
+  padding-bottom: .1rem;
+  padding-top: .1rem;
+}
+
+.elevate-btn {
+  height: 38px;
+  max-height: 38px;
+}
+
+.hide {
+  visibility: hidden;
+}
+
+.show {
+  visibility: visible;
+}
+
+.multiStopVL {
+  border-left: 6px solid #007bff;
+  margin-bottom: 5px;
+}
+
+.rotate-90 {
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+
+.alignMiddle {
+  vertical-align: middle;
+}
+
+.revertToNormal {
+  all: revert !important;
+}
+
+.fw-bold {
+  font-weight: 500 !important;
+}
+
+.customBorder {
+  border: 1px solid #d2d4d6;
+  border-radius: 5px;
+  padding: 1rem;
+  margin-top: .75rem;
+}
+
+.text-dark {
+  font-size: .75rem;
+  color: #797979;
+}
+
+@media screen and (max-width: 1415px) {
+  #deliveryAppointment {
+    margin-left: 0 !important;
+  }
+  #deliveryAppointmentContainer {
+    margin-top:  25px;
+  }
+  #pickupAppointment {
+    margin-right: 50px;
+  }
+}
+
+.form-control.is-valid, .was-validated .form-control:valid {
+  padding-right: 0 !important;
+}
+
+.whiteGloveAlert {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 5;
+  max-width: 100%;
+  padding: 0.25rem 0.5rem;
+  margin-top: 0.1rem;
+  font-size: .875rem;
+  line-height: 1.5;
+  color: #fff;
+  background-color: rgba(220,53,69,.9);
+  border-radius: 0.25rem;
+}
+
+.adisabled {
+  cursor: not-allowed !important;
+  /*opacity: .75 !important;*/
+}
+
+.adisabled:hover { text-decoration: none }
+.adisabled:focus { text-decoration: none }
+.adisabled:active { text-decoration: none }

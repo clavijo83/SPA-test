@@ -1,0 +1,1813 @@
+<form id="newShipmentForm" class="needs-validation" novalidate [formGroup]="newShipmentForm" (ngSubmit)="'false'">
+  <div class="container-fluid">
+    <div class="row mb-3 p-3">
+
+      @if (this.disabledEditAsClone) {
+        <div class="col fw-bold">Create new shipment</div>
+      }
+
+      <div id="newShipmentFormContainer" class="col-sm-10 offset-sm-2"
+           [ngClass]="{'col-sm-10 offset-sm-2': !this.global.isCollapsed() && !this.disabledEditAsClone, 'col-sm-12': this.global.isCollapsed() && !this.disabledEditAsClone || this.disabledEditAsClone }">
+
+        <div class="row blueHeaderContainer">
+
+          <div class="col align-content-center">
+              <button (click)="clickShipmentType('LTL')" style="min-width: 7rem"
+                      class="btn btn-sm btn-primary mx-1 float-start fs-6 text-white"
+                      [ngClass]="{'adisabled': this.truckID || this.shipmentID, 'active': shipmentType === 'LTL', 'opacity-50': shipmentType === 'Truckload'}">
+               LTL
+              </button>
+              <button (click)="clickShipmentType('Truckload')" style="min-width: 7rem"
+                      [ngClass]="{'adisabled': this.truckID || this.shipmentID, 'active': shipmentType === 'Truckload', 'opacity-50': shipmentType === 'LTL'}"
+                      class="btn btn-sm btn-primary mx-1 float-start fs-6 text-white">
+                Truckload
+              </button>
+          </div>
+          <div class="col-2 align-content-center">
+            <span class="float-end mx-2">
+              {{ truckID || shipmentID ? 'Edit Shipment' : 'New Shipment' }}
+            </span>
+          </div>
+        </div>
+
+        @if (this.showCorrectedBolWarining) {
+          <div class="row pb-2 pl-2">
+            <div class="col-2"></div>
+            <div class="col-8 text-center">
+              <span class="red text-uppercase">This shipment is {{this.shipment?.shipmentDetail?.shipmentStatus}}.  Any edits will be reflected as a Corrected BOL.</span>
+            </div>
+            <div class="col-2"></div>
+          </div>
+        }
+
+        <!-- Client information-->
+        <div class="row py-2" id="needs-validation">
+          <app-client-dropdown (clientChangeEvent)="onClientChange()"
+                               [currentClient]="this.currentClient"
+                               [currentGroupName]="this.currentGroupName"
+                               [currentGroup]="this.currentGroupID"
+                               (groupEvent)="groupEventHandler($event)"
+                               [disabled]="disableEdit"
+                               (clientPlantSelected)="isClientPlantSelected()">
+          </app-client-dropdown>
+        </div>
+
+        <div class="row customBorder">
+          <div class="col-12 pb-2">
+            <div class="col fw-bold shipment-lbl">Shipment</div>
+          </div>
+
+          <!-- shipping information -->
+          <div class="col-12 pb-2" [formGroupName]="'shipmentForm'">
+
+            <div class="row">
+              <div class="col-sm-12 pb-2 d-flex align-items-center justify-content-between">
+                <input [hidden]="true" type="text" id="negotiationType" [formControlName]="'negotiationType'">
+
+                <div class="form-label-group" >
+                  <input id="shipmentDate"
+                         [attr.disabled]="disableEdit || this.shipmentType == 'Truckload Edit' ? 'disabled' : null"
+                         [formControlName]="'shipmentDate'"
+                         (change)="updateAppointmentRequired()"
+                         type="date"
+                         class="form-control form-control-sm"
+                         min="{{this.shipmentType === 'LTL' ? this.minDate : '' }}"
+                         max="{{this.global.formattedMaxDate()}}"
+                         aria-label="dateSelect"
+                         (focusout)="onChangeShipmentDate($event);onChangeShipmentTimes();validateShipmentDate();utcDateValidation();">
+                  <label for="shipmentDate">Ship Date</label>
+                </div>
+
+                <div class="pr-1 ml-4">
+                  <div class="form-check">
+                    <input [attr.disabled]="disableEdit ? 'disabled' : null" [formControlName]="'appointmentRequired'"
+                           class="form-check-input" id="isAppointmentRequired" type="checkbox"
+                           (change)="setAppointmentRequired('appointmentRequired')"/>
+                    <label class="form-check-label text-dark" for="isAppointmentRequired">
+                      Pickup Appointment Required
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input [attr.disabled]="disableEdit ? 'disabled' : null" [formControlName]="'deliveryAppointmentRequired'"
+                           class="form-check-input" id="deliveryAppointmentRequired" type="checkbox"
+                           (change)="setAppointmentRequired('deliveryAppointmentRequired')"/>
+                    <label class="form-check-label text-dark" for="deliveryAppointmentRequired">
+                      Delivery Appointment Required
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-check mr-4">
+                  <input [attr.disabled]="disableEdit ? 'disabled' : null" [formControlName]="'appointmentSet'"
+                         class="form-check-input" id="isAppointmentSet" type="checkbox" (change)="setAppointmentSet(-1)"/>
+                  <label class="form-check-label text-dark" for="isAppointmentSet">
+                    Appointment Set
+                  </label>
+                </div>
+
+                <div class="form-label-group mr-2" >
+                  <input [required]="shipmentType === 'Truckload' || this.newShipmentForm.controls['shipmentForm'].get('appointmentRequired')?.value == true"
+                         [formControlName]="'pickupAppointmentStart'"
+                         id="pickupAppointmentStart"
+                         [attr.disabled]="disableEdit ? 'disabled' : null"
+                         class="form-control form-control-sm"
+                         type="time"
+                         aria-label="dateSelect"
+                         (change)="this.pickupAppointmentStartSet = true"
+                         (focusout)="onChangeShipmentTimes()"/>
+                  <div class="invalid-tooltip">Pickup time appointment start is missing.</div>
+                  <label for="pickupAppointmentStart" id="labelforpickup" class="fw-bold" style="white-space: nowrap;top: -25px">Pickup Window {{this.clientTimeZone}}</label>
+                </div>
+
+                <div class="form-label-group"  id="pickupAppointment">
+                  <input [required]="this.newShipmentForm.controls['shipmentForm'].get('appointmentRequired')?.value == true"
+                         [formControlName]="'pickupAppointmentStop'"
+                         id="pickupAppointmentStop"
+                         [attr.disabled]="disableEdit ? 'disabled' : null"
+                         class="form-control form-control-sm"
+                         type="time"
+                         aria-label="dateSelect"
+                         (change)="this.pickupAppointmentStopSet = true"
+                         (focusout)="onChangeShipmentTimes();utcDateValidation()"/>
+                  <div class="invalid-tooltip">Pickup time appointment stop is missing.</div>
+                </div>
+
+                <div id="deliveryAppointmentContainer" style="display: contents">
+                  <div class="form-label-group ml-4 mr-2"  id="deliveryAppointment">
+
+                    <input [required]="this.newShipmentForm.controls['shipmentForm'].get('deliveryAppointmentRequired')?.value == true"
+                           [formControlName]="'deliveryAppointmentStart'"
+                           id="deliveryAppointmentStart"
+                           [attr.disabled]="disableEdit ? 'disabled' : null"
+                           class="form-control form-control-sm"
+                           type="date"
+                           aria-label="dateSelect"
+                           min="{{this.newShipmentForm.controls['shipmentForm'].get('shipmentDate')?.value}}"
+                           max="{{this.global.formattedMaxDate()}}"
+                           (change)="this.deliveryAppointmentStartSet = true"
+                           (focusout)="onChangeShipmentDeliveryDate($event);onChangeShipmentTimes();utcDateValidation()">
+                    <div class="invalid-tooltip">Delivery date appointment is missing.</div>
+                    <label for="deliveryAppointmentStart" id="labelfordelivery" class="fw-bold" style="white-space: nowrap;top: -25px">Delivery Window {{this.consigneeTimeZone}}</label>
+                  </div>
+
+                  <div class="form-label-group" >
+                    <input [required]="this.newShipmentForm.controls['shipmentForm'].get('deliveryAppointmentRequired')?.value == true"
+                           [formControlName]="'deliveryAppointmentTimeStart'"
+                           id="deliveryAppointmentTimeStart"
+                           [attr.disabled]="disableEdit ? 'disabled' : null"
+                           class="form-control form-control-sm"
+                           type="time"
+                           aria-label="dateSelect"
+                           (change)="this.deliveryAppointmentStartSet = true"
+                           (focusout)="onChangeShipmentTimes();utcDateValidation();"/>
+                    <div class="invalid-tooltip">Delivery Time appointment start is missing.</div>
+                  </div>
+
+                  <div class="form-label-group ml-2" >
+                    <input [required]="this.newShipmentForm.controls['shipmentForm'].get('deliveryAppointmentRequired')?.value == true"
+                           [formControlName]="'deliveryAppointmentStop'"
+                           id="deliveryAppointmentStop"
+                           [attr.disabled]="disableEdit ? 'disabled' : null"
+                           class="form-control form-control-sm"
+                           type="time"
+                           aria-label="dateSelect"
+                           (change)="this.deliveryAppointmentStopSet = true"
+                           (focusout)="onChangeShipmentTimes();utcDateValidation();"/>
+                    <div class="invalid-tooltip">Delivery time appointment stop is missing.</div>
+                  </div>
+                  @if (shipmentType === 'Truckload') {
+                    <div class="form-label-group ml-2" >
+                      <input [formControlName]="'receivingHourStart'"
+                             id="receivingHourStart"
+                             [attr.disabled]="disableEdit ? 'disabled' : null"
+                             class="form-control form-control-sm"
+                             type="time"
+                             aria-label="dateSelect"
+                             (change)="this.pickupAppointmentStartSet = true"
+                             (focusout)="onChangeShipmentTimes()"/>
+                      <div class="invalid-tooltip">Receiving Hour Start is missing.</div>
+                      <label for="receivingHourStart" id="LblreceivingHourStart" class="fw-bold" style="white-space: nowrap;top: -25px">Receiving Hour Start {{this.consigneeTimeZone}}</label>
+                    </div>
+                    <div class="form-label-group ml-2" >
+                      <input [formControlName]="'receivingHourStop'"
+                             id="receivingHourStop"
+                             [attr.disabled]="disableEdit ? 'disabled' : null"
+                             class="form-control form-control-sm"
+                             type="time"
+                             aria-label="dateSelect"
+                             (change)="this.pickupAppointmentStartSet = true"
+                             (focusout)="onChangeShipmentTimes()"/>
+                      <div class="invalid-tooltip">Receiving Hour Stop is missing.</div>
+                      <label for="receivingHourStop" id="LblreceivingHourStop" class="fw-bold" style="white-space: nowrap;top: -25px">Receiving Hour Stop {{this.consigneeTimeZone}}</label>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <div class="row pb-2 justify-content-around">
+              @if (this.clientPlantAllowMABDInput) {
+                <div [ngClass]="{'col-sm-2': shipmentType === 'LTL', 'col-sm-3': shipmentType === 'Truckload'}">
+                  <div class="form-label-group">
+                    <input id="mabdDate"
+                           [attr.disabled]="disableEdit || this.shipmentType == 'Truckload Edit' ? 'disabled' : null"
+                           [formControlName]="'MABDDate'" type="date" class="form-control form-control-sm"
+                           min="{{this.minDate}}"
+                           aria-label="dateSelect">
+                    <label for="mabdDate">MABD</label>
+                  </div>
+                </div>
+              }
+
+              <!-- show field if not shipment truckload -->
+              <div [ngClass]="{'col-lg-2': shipmentType === 'LTL', 'col-lg-3': shipmentType === 'Truckload'}" id="modesContainer" >
+                <app-type-ahead-drop-down [selectedValue]="this.newShipmentForm.controls['shipmentForm'].get('modes')?.value"
+                                          [editable]="false"
+                                          [name]="'modes'"
+                                          [tagLine]="'Mode'"
+                                          [data]="modes"
+                                          [placeHolder]="'Modes*'"
+                                          [isRequired]="true"
+                                          (modelValueOnChange)="setControlValue($event, 'modes'); checkModeItem($event)">
+                </app-type-ahead-drop-down>
+              </div>
+
+              @if (this.shipmentType != 'Truckload') {
+                <div [ngClass]="{'col-sm-2': shipmentType === 'LTL', 'col-sm-3': shipmentType === 'Truckload'}" id="typeContainer">
+                  <app-type-ahead-drop-down [disabled]="disableEdit || this.shipmentType == 'Truckload Edit'"
+                                            [selectedValue]="this.newShipmentForm.controls['shipmentForm'].get('type')?.value"
+                                            [editable]="false"
+                                            [name]="'type'"
+                                            [tagLine]="'Type'"
+                                            [data]="type"
+                                            [placeHolder]="'Type'"
+                                            [isRequired]="this.requiredForBOL"
+                                            (modelValueOnChange)="setControlValue($event, 'type');this.clearMultiStop(null)">
+                  </app-type-ahead-drop-down>
+                </div>
+              } @else {
+                <div [ngClass]="{'col-lg-2': shipmentType === 'LTL', 'col-lg-3': shipmentType === 'Truckload'}">
+                  <app-type-ahead-drop-down [disabled]="disableEdit || shipmentType === 'Truckload Edit'"
+                                            [selectedValue]="this.newShipmentForm.controls['shipmentForm'].get('equipment')?.value"
+                                            [editable]="false"
+                                            [name]="'equipment'"
+                                            [tagLine]="'Equipment'"
+                                            [data]="equipment"
+                                            [placeHolder]="'Equipment*'"
+                                            [isRequired]="true"
+                                            (modelValueOnChange)="setControlValue($event, 'equipment');this.onSelectEquipment($event)">
+                  </app-type-ahead-drop-down>
+                </div>
+              }
+
+              @if (shipmentType === 'LTL') {
+                <div class="col-2" id="priorityContainer">
+                  <app-type-ahead-drop-down [disabled]="disableEdit || disabledPriority"
+                                            [selectedValue]="this.newShipmentForm.controls['shipmentForm'].get('priority')?.value"
+                                            [editable]="false"
+                                            [name]="'priority'"
+                                            [tagLine]="'Priority'"
+                                            [data]="priority"
+                                            [placeHolder]="'Priority'"
+                                            [isRequired]="this.requiredForBOL"
+                                            (modelValueOnChange)="setControlValue($event, 'priority');">
+                  </app-type-ahead-drop-down>
+                </div>
+              }
+
+              <div class="col-3" id="billingContainer">
+                <app-type-ahead-drop-down [disabled]="disableEdit || disableBlanket"
+                                          [selectedValue]="this.newShipmentForm.controls['shipmentForm'].get('shipmentBillTo')?.value"
+                                          [editable]="false"
+                                          [name]="'shipmentBillTo'"
+                                          [tagLine]="'Billing Terms'"
+                                          [data]="this.billToDropdown"
+                                          [placeHolder]="'Billing Terms*'"
+                                          [isRequired]="true"
+                                          (modelValueOnChange)="setControlValue($event, 'shipmentBillTo');setShipmentBillTo();">
+                </app-type-ahead-drop-down>
+              </div>
+              <div class="col-3">
+                <div class="form-label-group m-0">
+                  <input [attr.disabled]="disableEdit ? 'disabled' : null" [formControlName]="'contact'"
+                         type="text" class="form-control form-control-sm" id="contact"
+                         placeholder="Contact"
+                         aria-label="contact">
+                  <label for="contact">Contact</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 d-flex pt-2">
+            <!-- REFERENCE FIELDS -->
+            <div class="col-sm-6" style="padding-right: .5rem">
+
+              @if (shipmentType === 'LTL') {
+                <div class="pl-2 pb-3 d-inline-flex">
+                  <div class="form-check">
+                    <input [attr.disabled]="disableEdit ? 'disabled' : null" class="form-check-input" type="checkbox"
+                           [formControlName]="'isReturn'" id="isReturn">
+                    <label class="form-check-label" for="isReturn">
+                      <span class="text-dark"> Mark Shipment as Return</span>
+                    </label>
+                  </div>
+                  <i class="material-icons pl-1" style="color:red;">flag</i>
+                </div>
+              }
+
+              <div class="pb-1">
+                <div class="form-label-group">
+                  <input [attr.disabled]="disableEdit ? 'disabled' : null" [formControlName]="'poNumber'"
+                         type="text" class="form-control form-control-sm" id="poNumber"
+                         placeholder="{{poMoniker}}"
+                         [attr.aria-label]="poMoniker">
+                  <label for="poNumber">{{poMoniker}}</label>
+                </div>
+              </div>
+
+              <div class="pb-2">
+                @if (this.shipmentID) {
+                  @if (this.shipment?.referenceFields) {
+                    <app-reference-field [existingClientFields]="this.shipment?.referenceFields ?? []"
+                                         [existingOpenReferenceFields]="this.shipment?.openReferenceFields ?? []"
+                                         [disabled]="disableEdit"
+                                         [groupID]="this.currentGroupID"
+                                         [shipmentID]="this.shipmentID"
+                                         [showExceptionReasonEvent]="this.shoLccExceptionReason"
+                                         (showExceptionRequired)="showExceptionRequired($event)"
+                                         [checkForLeasCostCarrier]="this.checkForLeasCostCarrier">
+                    </app-reference-field>
+                  }
+                } @else {
+                  <app-reference-field
+                    [disabled]="disableEdit"
+                    [existingOpenReferenceFields]="this.shipment?.openReferenceFields ?? []"
+                    [existingClientFields]="this.shipment?.referenceFields ?? []"
+                    [groupID]="this.currentGroupID"
+                    [shipmentID]="this.shipmentID"
+                    [showExceptionReasonEvent]="this.shoLccExceptionReason"
+                    (showExceptionRequired)="showExceptionRequired($event)"
+                    [checkForLeasCostCarrier]="this.checkForLeasCostCarrier">
+                  </app-reference-field>
+                }
+              </div>
+            </div>
+
+            <!--Special Instructions-->
+            <div class="col-sm-6" style="padding-left: .5rem">
+              <div class="pb-2">
+                <app-type-ahead-drop-down
+                  [disabled]="disableEdit"
+                  [editable]="false"
+                  [name]="'specialInstruction'"
+                  [tagLine]="'Special Instructions'"
+                  [data]="this.noteList"
+                  [placeHolder]="'Special Instructions'"
+                  [isRequired]="false"
+                  (modelValueOnChange)="getSpecialInstruction($event, false)">
+                </app-type-ahead-drop-down>
+              </div>
+              <div class="pb-2">
+                  <textarea [attr.disabled]="disableEdit ? 'disabled' : null" type="textarea"
+                            [formControlName]="'specialInstructionsText'" class="form-control form-control-sm mt-1"
+                            id="specialInstructionsText" rows="3" placeholder="Type Something">
+                </textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- shipping information for Shipper and Consignee -->
+        <div [formGroupName]="'shipperConsigneeForm'" class="mt-2">
+
+          <div class="row">
+
+            <!-- Shipper -->
+            <div class="col customBorder mx-0">
+              <!-- Begin Shipper -->
+              <div class="row pb-2">
+                <div class="col fw-bold ml-1">{{this.shipmentType == 'Truckload' ? 'Origin' : 'Shipper'}}</div>
+              </div>
+              <div class="row pb-2">
+                <div class="col">
+                  <app-type-ahead-drop-down
+                    [editable]="true"
+                    [disabled]="disableEdit || this.shipmentType == 'Truckload Edit'"
+                    [isRequired]="false"
+                    [focusFirst]="false"
+                    [name]="'shipperName'"
+                    [tagLine]="'Shipper Name'"
+                    [selectedValue]="this.newShipmentForm.controls['shipperConsigneeForm'].get('shipperName')?.value"
+                    (modelValueOnChange)="setControlValue($event,'shipperName');setShipperPlants();getZip(this.newShipmentForm.controls['shipperConsigneeForm'].get('shipperZip')?.value , this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeZip')?.value);"
+                    (keydown)="onTypePlant('shipperName')"
+                    [data]="shipperName"
+                    [placeHolder]="'Name'"
+                    class="shipper-ctrl">
+                  </app-type-ahead-drop-down>
+                </div>
+              </div>
+              <div class="row pb-2">
+                <div class="col">
+                  <!-- Available Plants -->
+                  <app-type-ahead-drop-down
+                    #shipperPlant
+                    [editable]="true"
+                    [disabled]="this.shipmentType == 'Truckload Edit' || disableEdit"
+                    [isRequired]="false"
+                    [focusFirst]="false"
+                    [name]="'shipperPlant'"
+                    [tagLine]="'Shipper Plant'"
+                    [selectedValue]="shipperPlantLocation.length!=0 ? shipperPlantLocation[0] : this.newShipmentForm.controls['shipperConsigneeForm'].get('shipperPlant')?.value"
+                    (modelValueOnChange)="setControlValue($event,'shipperPlant');setShipperInformation();"
+                    [data]="shipperPlantLocation"
+                    [placeHolder]="'Plant'"
+                    class="shipper-ctrl">
+                  </app-type-ahead-drop-down>
+                </div>
+              </div>
+              <div class="row">
+                <!--ID -->
+                <div class="col">
+                  <input [formControlName]="'shipperID'" type="hidden" class="form-control form-control-sm shipper-ctrl"
+                         id="shipperID"
+                         aria-label="shipperID">
+                </div>
+              </div>
+              <div class="row pb-2">
+                <!--Address1 -->
+                <div class="col">
+                  <div class="form-label-group m-0">
+                    <input [attr.disabled]="disableEdit || this.shipmentType == 'Truckload Edit' ? 'disabled' : null"
+                           [formControlName]="'shipperAddress1'"
+                           required type="text" class="form-control form-control-sm" id="shipperAddress1"
+                           placeholder="Address 1*"
+                           aria-label="shipperAddress1">
+                    <div class="invalid-tooltip">Shipper address is missing.</div>
+                    <label for="shipperAddress1">Address 1*</label>
+                  </div>
+                </div>
+              </div>
+              <div class="row pb-2">
+                <!--Address2 -->
+                <div class="col">
+                  <div class="form-label-group m-0">
+                    <input [attr.disabled]="disableEdit || this.shipmentType == 'Truckload Edit' ? 'disabled' : null"
+                           [formControlName]="'shipperAddress2'"
+                           type="text" class="form-control form-control-sm" id="shipperAddress2"
+                           placeholder="Address 2"
+                           aria-label="shipperAddress2">
+                    <label for="shipperAddress2">Address 2</label>
+                  </div>
+                </div>
+              </div>
+              <div class="row pb-2 flex-nowrap">
+                <!-- Country -->
+                <div class="col pr-1" ngbTooltip="Select Country when zip code is not from the U.S.A.">
+                  <select [attr.disabled]="disableEdit || this.shipmentType == 'Truckload Edit' ? 'disabled' : null"
+                          [formControlName]="'shipperCountry'" required
+                          (change)="setCityStateByZip(this.newShipmentForm.controls['shipperConsigneeForm'].get('shipperZip')?.value, 'shipper', this.newShipmentForm.controls['shipperConsigneeForm'].get('shipperCountry')?.value)"
+                          class="form-select form-select-sm custom-select" id="shipperCountry">
+                    @if (shipmentID == null) {
+                      <option selected disabled value="">Country*</option>
+                    }
+                    @for (country of this.countryList; track country) {
+                      <option value="{{country}}">{{country}}</option>
+                    }
+                  </select>
+                  <div class="invalid-tooltip">Country is missing.</div>
+                </div>
+                <!--Zip -->
+                <div class="col pl-0">
+                  <div class="form-label-group m-0">
+                    <input [attr.disabled]="disableEdit || this.shipmentType == 'Truckload Edit' ? 'disabled' : null"
+                           [formControlName]="'shipperZip'" required
+                           type="text" class="form-control form-control-sm" id="shipperZip"
+                           placeholder="Zip*"
+                           (keyup)="uppercaseZipcode('shipperZip')"
+                           (change)="getTimeZone(this.newShipmentForm.controls['shipperConsigneeForm'].get('shipperZip')?.value , this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeZip')?.value);"
+                           (focusout)="setCityStateByZip(this.newShipmentForm.controls['shipperConsigneeForm'].get('shipperZip')?.value, 'shipper', this.newShipmentForm.controls['shipperConsigneeForm'].get('shipperCountry')?.value)"
+                           aria-label="shipperZip">
+                    <div class="invalid-tooltip">Shipper zip is missing.</div>
+                    <label for="shipperZip">Zip*</label>
+                  </div>
+                </div>
+              </div>
+              <div class="row pb-2 flex-nowrap">
+                <!--city and State-->
+                <div class="col-sm-8 pr-0">
+                  <div class="form-label-group m-0 mr-1">
+                    <input [attr.disabled]="disableEdit || this.shipmentType == 'Truckload Edit' ? 'disabled' : null"
+                           [formControlName]="'shipperCity'" required
+                           type="text" class="form-control form-control-sm" id="shipperCity"
+                           placeholder="City*"
+                           aria-label="shipperCity">
+                    <div class="invalid-tooltip">Shipper city is missing.</div>
+                    <label for="shipperCity">City*</label>
+                  </div>
+                </div>
+                <div class="col-sm-4 pl-0">
+                  <select [attr.disabled]="disableEdit || this.shipmentType == 'Truckload Edit' ? 'disabled' : null" [formControlName]="'shipperState'" required
+                          (ngModelChange)="this.notes.getNotes('shipperState', this.newShipmentForm.controls['shipperConsigneeForm'].get('shipperState')?.value)"
+                          class="form-select form-select-sm custom-select" id="shipperState">
+                    @if (shipmentID == null) {
+                      <option selected disabled value="">State*</option>
+                    }
+                    @for (state of this.stateList; track state) {
+                      <option value="{{state}}">{{state}}</option>
+                    }
+                  </select>
+                  <div class="invalid-tooltip">Shipper state is missing.</div>
+                </div>
+              </div>
+              <div class="row pb-2">
+                <div class="col-sm-3">
+                  <div class="form-label-group m-0">
+                    <input [attr.disabled]="disableEdit || this.shipmentType == 'Truckload Edit' ? 'disabled' : null"
+                           [formControlName]="'shipperContact'"
+                           class="form-control form-control-sm" id="shipperContact"
+                           placeholder="Contact"
+                           aria-label="shipperContact">
+                    <label for="shipperContact">Contact</label>
+                  </div>
+                </div>
+              </div>
+              <div class="row pb-2 flex-nowrap">
+                <!--Email and Phone -->
+                <div class="col-sm-6 pr-0">
+                  <div class="form-label-group m-0 mr-1">
+                    <input [attr.disabled]="disableEdit || this.shipmentType == 'Truckload Edit' ? 'disabled' : null"
+                           [formControlName]="'shipperEmail'"
+                           type="email" class="form-control form-control-sm" id="shipperEmail"
+                           placeholder="Email"
+                           aria-label="shipperEmail">
+                    <label for="shipperEmail">Email</label>
+                  </div>
+                </div>
+                <div class="col-sm-6 pl-0">
+                  <div class="form-label-group m-0">
+                    <input [attr.disabled]="disableEdit || this.shipmentType == 'Truckload Edit' ? 'disabled' : null"
+                           [formControlName]="'shipperPhone'"
+                           type="text" class="form-control form-control-sm" id="shipperPhone"
+                           placeholder="Phone"
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
+                           aria-label="shipperPhone">
+                    <label for="shipperPhone">Phone</label>
+                  </div>
+                </div>
+              </div>
+              <!--Pickup Accessorials -->
+              <div class="row pb-2">
+                <div class="col-sm-12">
+                  <ng-multiselect-dropdown
+                    formControlName="shipperPickupAcc"
+                    [disabled]="this.disableEdit || this.shipmentType == 'Truckload Edit'"
+                    [formControl]="convertToFormControl(newShipmentForm.controls['shipperConsigneeForm'].get('shipperPickupAcc'))"
+                    [placeholder]="'Pickup Accessorials'"
+                    [settings]="dropdownSettings"
+                    [data]="pickupAccessorials"
+                    (onSelect)="addFee($event, 'pickup');this.checkMultiSelectValues('#shipperPickupAcc', newShipmentForm.controls['shipperConsigneeForm'].get('shipperPickupAcc')?.value.length)"
+                    (onDeSelect)="removeFee($event, 'pickup');this.checkMultiSelectValues('#shipperPickupAcc', newShipmentForm.controls['shipperConsigneeForm'].get('shipperPickupAcc')?.value.length)">
+                  </ng-multiselect-dropdown>
+                  <label id="shipperPickupAcc" hidden class="selected-item-label">Pickup Accessorials</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Consignee -->
+            <div class="col customBorder mx-2">
+              <div class="row pb-2">
+                <div class="col fw-bold ml-1">{{this.shipmentType == 'Truckload' ? 'Destination' : 'Consignee'}}</div>
+              </div>
+              <div class="row pb-2">
+                <div class="col">
+                  <!-- Available Names  -->
+                  <app-type-ahead-drop-down
+                    [editable]="true"
+                    [isRequired]="false"
+                    [disabled]="disableEdit"
+                    [focusFirst]="false"
+                    [name]="'consigneeName'"
+                    [tagLine]="'Consignee Name'"
+                    [selectedValue]="this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeName')?.value"
+                    (modelValueOnChange)="setControlValue($event,'consigneeName');setConsigneePlants();getZip(this.newShipmentForm.controls['shipperConsigneeForm'].get('shipperZip')?.value , this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeZip')?.value);utcDateValidation();"
+                    (keydown)="onTypePlant('consigneeName')"
+                    [data]="consigneeName"
+                    [placeHolder]="'Name'"
+                    class="shipper-ctrl">
+                  </app-type-ahead-drop-down>
+                </div>
+              </div>
+              <!--Plant -->
+              <div class="row pb-2">
+                <div class="col">
+                  <app-type-ahead-drop-down
+                    #consigneePlant
+                    [editable]="true"
+                    [isRequired]="false"
+                    [focusFirst]="false"
+                    [disabled]="disableEdit"
+                    [name]="'consigneePlant'"
+                    [tagLine]="'Consignee Plant'"
+                    [selectedValue]="consigneePlantName.length!=0 ? consigneePlantName[0] : this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneePlant')?.value"
+                    (modelValueOnChange)="setControlValue($event,'consigneePlant');setConsigneeInformation();"
+                    [data]="consigneePlantName"
+                    [placeHolder]="'Plant'"
+                    class="shipper-ctrl">
+                  </app-type-ahead-drop-down>
+                </div>
+              </div>
+              <!--ID -->
+              <div class="row">
+                <div class="col">
+                  <input [formControlName]="'consigneeID'" type="hidden"
+                         class="form-control form-control-sm shipper-ctrl"
+                         id="consigneeID" aria-label="consigneeID">
+                </div>
+              </div>
+
+              <!--Address1 -->
+              <div class="row pb-2">
+                <div class="col">
+                  <div class="form-label-group m-0">
+                    <input [attr.disabled]="disableEdit ? 'disabled' : null"
+                           [formControlName]="'consigneeAddress1'"
+                           required type="text" class="form-control form-control-sm"
+                           id="consigneeAddress1"
+                           placeholder="Address 1*" aria-label="consigneeAddress1">
+                    <div class="invalid-tooltip">Consignee address is missing.</div>
+                    <label for="consigneeAddress1">Address 1*</label>
+                  </div>
+                </div>
+              </div>
+              <!--Address2 -->
+              <div class="row pb-2">
+                <div class="col">
+                  <div class="form-label-group m-0">
+                    <input [attr.disabled]="disableEdit ? 'disabled' : null"
+                           [formControlName]="'consigneeAddress2'"
+                           type="text" class="form-control form-control-sm"
+                           id="consigneeAddress2"
+                           placeholder="Address 2" aria-label="consigneeAddress2">
+                    <label for="consigneeAddress2">Address 2</label>
+                  </div>
+                </div>
+              </div>
+              <!--Zip -->
+              <div class="row pb-2 flex-nowrap">
+                <!-- Country -->
+                <div class="col pr-1" ngbTooltip="Select Country when zip code is not from the U.S.A.">
+                  <select [attr.disabled]="disableEdit || this.shipmentType == 'Truckload Edit' ? 'disabled' : null"
+                          [formControlName]="'consigneeCountry'" required
+                          (change)="setCityStateByZip(this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeZip')?.value, 'consignee', this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeCountry')?.value)"
+                          class="form-select form-select-sm custom-select" id="consigneeCountry">
+                    @if (shipmentID == null) {
+                      <option selected disabled value="">Country*</option>
+                    }
+                    @for (country of this.countryList; track country) {
+                      <option value="{{country}}">{{country}}</option>
+                    }
+                  </select>
+                  <div class="invalid-tooltip">Consignee Country is missing.</div>
+                </div>
+                <div class="col pl-0">
+                  <div class="form-label-group m-0">
+                    <input [attr.disabled]="disableEdit ? 'disabled' : null" [formControlName]="'consigneeZip'" required
+                           type="text" class="form-control form-control-sm" id="consigneeZip"
+                           placeholder="Zip*"
+                           (keyup)="uppercaseZipcode('consigneeZip')"
+                           (change)="getTimeZone(this.newShipmentForm.controls['shipperConsigneeForm'].get('shipperZip')?.value , this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeZip')?.value);"
+                           (focusout)="setCityStateByZip(this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeZip')?.value, 'consignee', this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeCountry')?.value)"
+                           aria-label="consigneeZip">
+                    <div class="invalid-tooltip">Consignee zip is missing.</div>
+                    <label for="consigneeZip">Zip*</label>
+                  </div>
+                </div>
+              </div>
+              <!--City and State -->
+              <div class="row pb-2 flex-nowrap">
+                <div class="col-sm-8 pr-0">
+                  <div class="form-label-group m-0 mr-1">
+                    <input [attr.disabled]="disableEdit ? 'disabled' : null" [formControlName]="'consigneeCity'"
+                           required type="text" class="form-control form-control-sm " id="consigneeCity"
+                           placeholder="City*"
+                           aria-label="consigneeCity">
+                    <div class="invalid-tooltip">Consignee city is missing.</div>
+                    <label for="consigneeCity">City*</label>
+                  </div>
+                </div>
+                <div class="col-sm-4 pl-0">
+                  <select [attr.disabled]="disableEdit || this.shipmentType == 'Truckload Edit' ? 'disabled' : null" [formControlName]="'consigneeState'" required
+                          (ngModelChange)="this.notes.getNotes('consigneeState', this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeState')?.value)"
+                          class="form-select form-select-sm custom-select" id="consigneeState">
+                    @if (shipmentID == null) {
+                      <option selected disabled value="">State*</option>
+                    }
+                    @for (state of this.stateList; track state) {
+                      <option value="{{state}}">{{state}}</option>
+                    }
+                  </select>
+                  <div class="invalid-tooltip">Shipper state is missing.</div>
+                </div>
+              </div>
+              <div class="row pb-2">
+                <div class="col">
+                  <div class="form-label-group m-0">
+                    <input [attr.disabled]="disableEdit ? 'disabled' : null" [formControlName]="'consigneeContact'"
+                           class="form-control form-control-sm" id="consigneeContact"
+                           placeholder="Contact"
+                           aria-label="consigneeContact">
+                    <label for="consigneeContact">Contact</label>
+                  </div>
+                </div>
+              </div>
+              <!--Email and Phone -->
+              <div class="row pb-2 flex-nowrap">
+                <div class="col-sm-6 pr-0">
+                  <div class="form-label-group m-0 mr-1">
+                    <input [attr.disabled]="disableEdit ? 'disabled' : null" [formControlName]="'consigneeEmail'"
+                           type="email" class="form-control form-control-sm" id="consigneeEmail"
+                           placeholder="Email"
+                           aria-label="consigneeEmail">
+                    <label for="consigneeEmail">Email</label>
+                  </div>
+                </div>
+                <div class="col-sm-6 pl-0">
+                  <div class="form-label-group m-0">
+                    <input [attr.disabled]="disableEdit ? 'disabled' : null" [formControlName]="'consigneePhone'"
+                           type="text" class="form-control form-control-sm"
+                           id="consigneePhone"
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
+                           placeholder="Phone" aria-label="consigneePhone">
+                    <label for="consigneePhone">Phone</label>
+                  </div>
+                </div>
+              </div>
+              <!--Delivery Accessorials -->
+              <div class="row pb-2">
+                <div class="col-sm-12">
+                  <ng-multiselect-dropdown
+                    formControlName="consigneeDeliveryAcc"
+                    [disabled]="this.disableEdit"
+                    [formControl]="convertToFormControl(newShipmentForm.controls['shipperConsigneeForm'].get('consigneeDeliveryAcc'))"
+                    [placeholder]="'Delivery Accessorials'"
+                    [settings]="dropdownSettings"
+                    [data]="deliveryAccessorials"
+                    (onSelect)="addFee($event, 'delivery');this.checkMultiSelectValues('#consigneeDeliveryAcc', newShipmentForm.controls['shipperConsigneeForm'].get('consigneeDeliveryAcc')?.value.length)"
+                    (onDeSelect)="removeFee($event, 'delivery');this.checkMultiSelectValues('#consigneeDeliveryAcc', newShipmentForm.controls['shipperConsigneeForm'].get('consigneeDeliveryAcc')?.value.length)">
+                  </ng-multiselect-dropdown>
+                  <label hidden id="consigneeDeliveryAcc">Delivery Accessorials</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Begin Bill To -->
+            @if (isBillToRequired()) {
+              <div class="col ml-3 customBorder mx-0">
+                <div class="row pb-2">
+                  <div class="col fw-bold">Billing Terms</div>
+                </div>
+                <div class="row pb-2">
+                  <div class="col">
+                    <app-type-ahead-drop-down
+                      [editable]="true"
+                      [disabled]="disableEdit || disableBillingTerm"
+                      (modelValueOnChange)="setControlValue($event,'billToName');setBillToInformation();"
+                      [name]="'billToName'"
+                      [tagLine]="'Bill To name'"
+                      [selectedValue]="this.newShipmentForm.controls['shipperConsigneeForm'].get('billToName')?.value"
+                      [data]="billToName"
+                      [placeHolder]="'Name*'"
+                      [isRequired]="isBillToRequired()"
+                      class="shipper-ctrl">
+                    </app-type-ahead-drop-down>
+                  </div>
+                </div>
+                <div class="row">
+                  <!--ID-->
+                  <div class="col">
+                    <input [formControlName]="'billtoID'" type="hidden" class="form-control form-control-sm shipper-ctrl" id="billtoID" aria-label="billtoID">
+                  </div>
+                </div>
+                <div class="row pb-2">
+                  <!--Care Of -->
+                  <div class="col">
+                    <input [attr.disabled]="disableEdit || disableBillingTerm ? 'disabled' : null" [formControlName]="'billToCareOf'"
+                           type="text" class="form-control form-control-sm shipper-ctrl" id="billToCareOf"
+                           placeholder="Care Of"
+                           aria-label="billToCareOf">
+                  </div>
+                </div>
+                <div class="row pb-2">
+                  <!--Address1 -->
+                  <div class="col">
+                    <div class="form-label-group m-0">
+                      <input [attr.disabled]="disableEdit || disableBillingTerm ? 'disabled' : null"
+                             [formControlName]="'billToAddress1'"
+                             type="text"
+                             class="form-control form-control-sm"
+                             id="billToAddress1"
+                             placeholder="Address 1*"
+                             aria-label="billToAddress1"
+                             [required]="isBillToRequired()">
+                      <div class="invalid-tooltip">Address 1 is missing.</div>
+                      <label for="billToAddress1">Address 1*</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="row pb-2">
+                  <!--Address2 -->
+                  <div class="col">
+                    <div class="form-label-group m-0">
+                      <input [attr.disabled]="disableEdit || disableBillingTerm ? 'disabled' : null" [formControlName]="'billToAddress2'"
+                             type="text" class="form-control form-control-sm" id="billToAddress2"
+                             placeholder="Address 2"
+                             aria-label="billToAddress2">
+                      <label for="billToAddress2">Address 2</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="row pb-2">
+                  <!--Zip -->
+                  <div class="col d-inline-flex">
+                    <div class="form-label-group m-0">
+                      <input [attr.disabled]="disableEdit || disableBillingTerm ? 'disabled' : null"
+                             [formControlName]="'billToZip'"
+                             type="text"
+                             class="form-control form-control-sm"
+                             id="billToZip"
+                             placeholder="Zip*"
+                             (focusout)="setCityStateByZip(this.newShipmentForm.controls['shipperConsigneeForm'].get('billToZip')?.value, 'billto', 'USA')"
+                             aria-label="billToZip"
+                             [required]="isBillToRequired()">
+                      <div class="invalid-tooltip">Zip is missing.</div>
+                      <label for="billToZip">Zip*</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="row pb-2 flex-nowrap">
+                  <!--city and State-->
+                  <div class="col-sm-8 pr-0">
+                    <div class="form-label-group m-0 mr-1">
+                      <input [attr.disabled]="disableEdit || disableBillingTerm? 'disabled' : null"
+                             [formControlName]="'billToCity'"
+                             type="text"
+                             class="form-control form-control-sm"
+                             id="billToCity"
+                             placeholder="City*"
+                             aria-label="billToCity"
+                             [required]="isBillToRequired()">
+                      <div class="invalid-tooltip">City is missing</div>
+                      <label for="billToCity">City*</label>
+                    </div>
+                  </div>
+                  <div class="col-sm-4 pl-0">
+                    <div class="form-label-group m-0">
+                      <input [attr.disabled]="disableEdit || disableBillingTerm ? 'disabled' : null"
+                             [formControlName]="'billToState'"
+                             type="text"
+                             class="form-control form-control-sm"
+                             id="billToState"
+                             placeholder="State*"
+                             aria-label="billToState"
+                             [required]="isBillToRequired()">
+                      <div class="invalid-tooltip">State is missing</div>
+                      <label for="billToState">State*</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="row pb-2 flex-nowrap">
+                  <!--Email and Phone -->
+                  <div class="col-sm-6 pr-0">
+                    <div class="form-label-group m-0 mr-1">
+                      <input [attr.disabled]="disableEdit ? 'disabled' : null" [formControlName]="'billToEmail'"
+                             type="email" class="form-control form-control-sm" id="billToEmail"
+                             placeholder="Email"
+                             aria-label="billToEmail">
+                      <label for="billToEmail">Email</label>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 pl-0">
+                    <div class="form-label-group m-0">
+                      <input [attr.disabled]="disableEdit ? 'disabled' : null" [formControlName]="'billToPhone'"
+                             type="text" class="form-control form-control-sm" id="billToPhone"
+                             placeholder="Phone"
+                             oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
+                             aria-label="billToPhone">
+                      <label for="billToPhone">Phone</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+          <!-- End Shipper, Consignee and Bill To -->
+
+          <!-- White Glove Section -->
+          @if (deliveryAssessorialListSection) {
+            <div class="col pt-3 customBorder" [style.display]="this.shipmentType === 'LTL' ? 'block' : 'none'">
+              <div class="row mt-2">
+                <div class="pb-1 col-3">
+                  <div class="form-label-group m-0">
+                    <input pattern="(?!^\d+$)^.+$"
+                           oninvalid="setCustomValidity('Please enter on alphabets only. ')"
+                           maxlength= 50
+                           [formControlName]="'consigneeRecipientName'"
+                           (change)="onChangeRecipientName()"
+                           class="form-control form-control-sm"
+                           id="consigneeRecipientName"
+                           placeholder="Recipient name"
+                           aria-label="consigneeRecipientName">
+                    <label for="consigneeRecipientName">Recipient Name</label>
+                    @if (recipientNamecheck) {
+                      <div class="whiteGloveAlert" >Recipient Name is invalid</div>
+                    }
+                  </div>
+                </div>
+                <div class="pb-1 col-2">
+                  <div class="form-label-group m-0">
+                    <input [formControlName]="'consigneeRecipientTelephone'"
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
+                           (change)="onKeypressEvent($event);onChangeRecipientTelephone()"
+                           class="form-control form-control-sm"
+                           id="consigneeRecipientTelephone"
+                           placeholder="Recipient telephone"
+                           aria-label="consigneeRecipientTelephone"
+                           maxlength=50>
+                    <label for="consigneeRecipientTelephone">Telephone</label>
+                    @if (telephoneCheck) {
+                      <div class="whiteGloveAlert">Telephone is invalid</div>
+                    }
+                  </div>
+                </div>
+                <div class="pb-1 col-3">
+                  <div class="form-label-group m-0">
+                    <input [formControlName]="'consigneeRecipientEmail'"
+                           maxlength="100"
+                           class="form-control form-control-sm"
+                           (change)="onChangeRecipientEmail()"
+                           id="consigneeRecipientEmail"
+                           placeholder="Recipient name"
+                           type="email"
+                           aria-label="consigneeRecipientEmail"
+                           pattern="[a-zA-Z0-9.-_]{1,}@[a-zA-Z0-9.-]{2,}[.]{1}[a-zA-Z]{2,}">
+                    <label for="consigneeRecipientEmail">Email</label>
+                    @if (emailCheck) {
+                      <div class="whiteGloveAlert">Email is invalid</div>
+                    }
+                  </div>
+                </div>
+                <div class="col-sm-2 mt-1">
+                  <div class="form-label-group">
+                    <input type="datetime-local" (change)="setdeliveryWindowEnd($event);" [formControlName]="'deliveryWindowStart'" id="deliveryWindowStart"
+                           min="{{this.formattedShipDate}}" [attr.disabled]="disableEdit ? 'disabled' : null"
+                           class="form-control form-control-sm" aria-label="dateSelect"
+                           max="{{this.global.formattedMaxDate()}}"/>
+                    @if (deliveryWindowStartcheck) {
+                      <div class="whiteGloveAlert">Delivery window is invalid</div>
+                    }
+                    <label for="deliveryWindowStart" class="fw-bold" style="white-space: nowrap;top: -25px">Delivery window from</label>
+                  </div>
+                </div>
+                <div class="col-sm-2 mt-1">
+                  <div class="form-label-group">
+                    <input type="datetime-local" [formControlName]="'deliveryWindowEnd'" id="deliveryWindowEnd"
+                           min="{{this.deliveryWindowEnd}}" [attr.disabled]="disableEdit ? 'disabled' : null"
+                           class="form-control form-control-sm" aria-label="dateSelect"
+                           max="{{this.global.formattedMaxDate()}}"
+                           (change)="deliveryWindowEndCheck();"/>
+                    @if (deliveryWindowEndcheck) {
+                      <div class="whiteGloveAlert">Delivery window is invalid</div>
+                    }
+                    <label for="deliveryWindowEnd" class="fw-bold" style="white-space: nowrap;top: -25px">Delivery window to</label>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="pb-1 col-2">
+                  <app-type-ahead-drop-down (modelValueOnChange)="setControlValue($event,'consigneeTier');"
+                                            [name]="'consigneeTier'"
+                                            [tagLine]="'Tier'"
+                                            [isRequired]=false
+                                            [selectedValue]="this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeTier')?.value"
+                                            [data]="this.crtier" [placeHolder]="'Select Tier'"
+                                            class="shipper-ctrl">
+                  </app-type-ahead-drop-down>
+                  <!-- <div *ngIf="consigneeTierChick">
+                    <div class="whiteGloveAlert">Select Tier</div>
+                  </div> -->
+                </div>
+                <div class="pb-1 col-2">
+                  <app-type-ahead-drop-down
+                    (modelValueOnChange)="setControlValue($event,'consigneeFloor');"
+                    [disabled]="whiteglovetier"
+                    [editable]="whiteglovetier"
+                    [isRequired]=false
+                    [selectedValue]="this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeRecipientFloor')?.value"
+                    [name]="'consigneeRecipientFloor'"
+                    [tagLine]="'Floor'"
+                    [data]="this.consigneeRecipientFloor"
+                    [placeHolder]="'Floor'"
+                    class="shipper-ctrl">
+                  </app-type-ahead-drop-down>
+                  <!-- <div *ngIf="floorCheck">
+                    <div class="whiteGloveAlert">Floor is invalid</div>
+              </div> -->
+                </div>
+                <div class="pb-1 col-2">
+                  <app-type-ahead-drop-down
+                    (modelValueOnChange)="setControlValue($event,'consigneeElevator');"
+                    [disabled]="whiteglovetier || whiteGloveFloorTier"
+                    [editable]="whiteglovetier || whiteGloveFloorTier"
+                    [isRequired]=false
+                    [selectedValue]="this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeRecipientElevator')?.value"
+                    [name]="'consigneeRecipientElevator'"
+                    [tagLine]="'Elevator'"
+                    [data]="this.consigneeRecipientElevator"
+                    [placeHolder]="'Elevator'"
+                    class="shipper-ctrl">
+                  </app-type-ahead-drop-down>
+                  <!-- <div *ngIf="consigneeRecipientElevatorCheck">
+                    <div class="whiteGloveAlert">Select Elevator</div>
+                  </div> -->
+                </div>
+                <div class="pb-1 col-6">
+                  <div class="form-label-group m-0">
+                    <textarea [formControlName]="'consigneeRecipientDeliveryInstructions'"
+                              class="form-control form-control-sm"
+                              id="consigneeRecipientDeliveryInstructions"
+                              (change)="onChangeDeliveryInstructions()"
+                              placeholder="Delivery instructions"
+                              aria-label="consigneeRecipientDeliveryInstructions"
+                              maxlength="500" rows="1">
+                    </textarea>
+                    @if (deliveryInstructions) {
+                      <div class="whiteGloveAlert">Delivery Instructions invalid</div>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- tracking contacts -->
+          <div class="row customBorder">
+            <div class="row">
+              <div class="col-12 px-1">
+                @if (this.shipment || this.truck) {
+                  <app-tracking-contacts
+                    [trackingContactsMail]="setEditTrackingContacts()"
+                    (trackingContactsEvent)="getTrackingContactsEvent($event)"
+                    [shipTrackID]="this.shipmentType === 'LTL' ? null : -1"
+                    [shipmentType]="this.shipmentType"
+                    [disabled]="disabledTrackingContacts()">
+                  </app-tracking-contacts>
+                }
+                @if (this.shipment == null && this.truck == null) {
+                  <app-tracking-contacts
+                    (trackingContactsEvent)="getTrackingContactsEvent($event)"
+                    [shipTrackID]="this.shipmentType === 'LTL' ? null : -1"
+                    [shipmentType]="this.shipmentType">
+                  </app-tracking-contacts>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!--MULTI STOP SECTION-->
+          @if (shipmentType == 'Truckload') {
+            <div class="row customBorder">
+
+              @if (this.showMultiStopFields) {
+                <div class="row">
+                  <div class="fw-bold px-0" >Stops -
+                    <span class="color: red">Drag stops to reorder them</span>
+                  </div>
+                </div>
+
+                <div (cdkDropListDropped)="drop($event)" [cdkDropListData]="multiStop.controls" cdkDropList>
+                  @for (stop of multiStop.controls; track stop;let s = $index;) {
+                    <div [formArrayName]="'multiStop'" class="pb-2" cdkDrag>
+                      <div [formGroupName]="s">
+                        <!--MULTI STOP-->
+                        <div class="row customBorder">
+                          <div id="multiStopHeader" class="row px-1 mb-2">
+                            <div class="col">
+                              <i class="material-icons dodger-blue rotate-90 alignMiddle">drag_indicator</i><span
+                              class="alignMiddle fw-bold">Stop #{{s + 1}} - {{this.multiStop.at(s).get('multiStopShipmentId')?.value}}</span>
+                            </div>
+                            <div class="justify-content-end pr-1" style="max-width: 5%" ngbTooltip="Remove Stop" placement="bottom">
+                              <button class="btn-sm btn btn-danger btn-sm multiStop-remove-btn p-0"
+                                      (click)="removeMultiStop(s)" type="button">
+                                <i class="material-icons text-white p-1" id="btnItemRemove">clear</i>
+                              </button>
+                            </div>
+                          </div>
+                          <div class="row px-1 mb-2">
+                            <div class="col-2">
+                              <app-type-ahead-drop-down [disabled]="disableEdit"
+                                                        [isRequired]="false"
+                                                        [selectedValue]="this.multiStop.at(s).get('multiStopType')?.value"
+                                                        (modelValueOnChange)="setControlValue($event,'multiStopType', s);"
+                                                        [name]="'multiStopType'+s"
+                                                        [tagLine]="'Stop type'"
+                                                        [data]="multiStopType"
+                                                        [placeHolder]="'Stop Type'">
+                              </app-type-ahead-drop-down>
+                            </div>
+                            <div class="col-2">
+                              <app-type-ahead-drop-down [disabled]="disableEdit"
+                                                        [editable]="true"
+                                                        [isRequired]="false"
+                                                        [selectedValue]="this.multiStop.at(s).get('multiStopName')?.value"
+                                                        [name]="'multiStopName'+s"
+                                                        [tagLine]="'Name'"
+                                                        (modelValueOnChange)="setControlValue($event,'multiStopName',s);this.multiStop.at(s).get('multiStopType')?.value === 'Pick Up' ? setMultiStopPlant(s, this.shipperDropdown) : setMultiStopPlant(s, this.consigneeDropdown); setMultiStopTimezoneInfo(s)"
+                                                        [data]="this.multiStop.at(s).get('multiStopType')?.value === 'Pick Up' ? shipperName : consigneeName"
+                                                        [placeHolder]="'Name'"
+                                                        class="shipper-ctrl">
+                              </app-type-ahead-drop-down>
+                            </div>
+                            <div class="col-2">
+                              <!-- Available Plants  -->
+                              <app-type-ahead-drop-down [disabled]="disableEdit"
+                                                        [isRequired]="false"
+                                                        [selectedValue]="this.multiStop.at(s).get('multiStopPlant')?.value"
+                                                        [name]="'multiStopPlant'+s"
+                                                        [tagLine]="'Plant'"
+                                                        (modelValueOnChange)="setControlValue($event,'multiStopPlant', s);this.multiStop.at(s).get('multiStopType')?.value === 'Pick Up' ? setMultiStopPlant(s, this.shipperDropdown) : setMultiStopPlant(s, this.consigneeDropdown); setMultiStopTimezoneInfo(s)"
+                                                        [data]="this.multiStop.at(s).get('multiStopType')?.value === 'Pick Up' ? getMultiStopPlantDropDownValues(s, this.shipperDropdown) : getMultiStopPlantDropDownValues(s, this.consigneeDropdown)"
+                                                        [placeHolder]="'Plant'"
+                                                        class="shipper-ctrl">
+                              </app-type-ahead-drop-down>
+                            </div>
+                            <div class="col-3">
+                              <!--Address1 -->
+                              <div class="form-label-group m-0">
+                                <input [attr.disabled]="disableEdit ? 'disabled' : null" formControlName="multiStopAddress1"
+                                       type="text"
+                                       class="form-control form-control-sm" id="{{'multiStopAddress1'+s}}"
+                                       placeholder="Address 1">
+                                <div class="invalid-tooltip">Shipper address is missing.</div>
+                                <label for="{{'multiStopAddress1'+s}}">Address 1</label>
+                              </div>
+                            </div>
+                            <div class="col-3">
+                              <!--Address2 -->
+                              <div class="form-label-group m-0">
+                                <input [attr.disabled]="disableEdit ? 'disabled' : null" formControlName="multiStopAddress2"
+                                       type="text"
+                                       class="form-control form-control-sm" id="{{'multiStopAddress2'+s}}"
+                                       placeholder="Address 2">
+                                <label for="{{'multiStopAddress2'+s}}">Address 2</label>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row px-1 mb-2">
+                            <!-- Country -->
+                            <div class="col-2 pr-1" ngbTooltip="Select Country when zip code is not from the U.S.A.">
+                              <select [attr.disabled]="disableEdit ? 'disabled' : null"
+                                      [formControlName]="'multiStopCountry'" required
+                                      (change)="setCityStateByZip(this.multiStop.at(s).get('multiStopZip')?.value, 'stop', this.multiStop.at(s).get('multiStopCountry')?.value, s);"
+                                      class="form-select form-select-sm custom-select" id="{{'multiStopCountry'+s}}">
+                                @if (shipmentID == null) {
+                                  <option selected disabled value="">Country*</option>
+                                }
+                                @for (country of this.countryList; track country) {
+                                  <option value="{{country}}">{{country}}</option>
+                                }
+                              </select>
+                              <div class="invalid-tooltip">Country is missing.</div>
+                            </div>
+                            <!--Zip -->
+                            <div class="col-2 d-inline-flex">
+                              <div class="form-label-group m-0 w-100">
+                                <input [attr.disabled]="disableEdit ? 'disabled' : null" formControlName="multiStopZip"
+                                       type="text"
+                                       class="form-control form-control-sm" id="{{'multiStopZip'+s}}"
+                                       placeholder="Zip"
+                                       (change)="setMultiStopTimezoneInfo(s);"
+                                       (focusout)="setCityStateByZip(this.multiStop.at(s).get('multiStopZip')?.value, 'stop', this.multiStop.at(s).get('multiStopCountry')?.value, s);">
+                                <div class="invalid-tooltip">Shipper zip is missing.</div>
+                                <label for="{{'multiStopZip'+s}}">Zip</label>
+                              </div>
+                            </div>
+                            <!--city and State-->
+                            <div class="col-3">
+                              <div class="form-label-group">
+                                <input [attr.disabled]="disableEdit ? 'disabled' : null" formControlName="multiStopCity"
+                                       type="text"
+                                       class="form-control form-control-sm" id="{{'multiStopCity'+s}}"
+                                       placeholder="City">
+                                <div class="invalid-tooltip">Shipper city is missing.</div>
+                                <label for="{{'multiStopCity'+s}}">City</label>
+                              </div>
+                            </div>
+                            <div class="col-2">
+                              <div class="form-label-group">
+                                <input [attr.disabled]="disableEdit ? 'disabled' : null" formControlName="multiStopState"
+                                       type="text"
+                                       class="form-control form-control-sm" id="{{'multiStopState'+s}}"
+                                       placeholder="State">
+                                <div class="invalid-tooltip">Shipper state is missing.</div>
+                                <label for="{{'multiStopState'+s}}">State</label>
+                              </div>
+                            </div>
+                            <!--Email -->
+                            <div class="col-3">
+                              <div class="form-label-group">
+                                <input [attr.disabled]="disableEdit ? 'disabled' : null" formControlName="multiStopEmail"
+                                       type="email" class="form-control form-control-sm"
+                                       id="{{'multiStopEmail'+s}}"
+                                       placeholder="Email">
+                                <label for="{{'multiStopEmail'+s}}">Email</label>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row px-1 mb-2">
+                            <div class="col-3">
+                              <div class="form-label-group">
+                                <input [attr.disabled]="disableEdit ? 'disabled' : null" formControlName="multiStopPhone"
+                                       type="text" class="form-control form-control-sm"
+                                       id="{{'multiStopPhone'+s}}"
+                                       placeholder="Phone"
+                                       oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+                                <label for="{{'multiStopPhone'+s}}">Phone</label>
+                              </div>
+                            </div>
+                            <div class="col-3">
+                              <div class="form-label-group">
+                                <input [attr.disabled]="disableEdit ? 'disabled' : null" formControlName="multiStopPoNumber"
+                                       type="text" class="form-control form-control-sm"
+                                       id="{{'multiStopPoNumber'+s}}"
+                                       placeholder="PO">
+                                <label for="{{'multiStopPoNumber'+s}}">PO Number</label>
+                              </div>
+                            </div>
+                            <div class="col-3">
+                              <div class="form-label-group">
+                                <input [attr.disabled]="disableEdit ? 'disabled' : null" formControlName="multiStopSoNumber"
+                                       type="text" class="form-control form-control-sm"
+                                       id="{{'multiStopSoNumber'+s}}"
+                                       placeholder="SO">
+                                <label for="{{'multiStopSoNumber'+s}}">SO Number</label>
+                              </div>
+                            </div>
+                            <!--Pickup Accessorials -->
+                            <div class="col-3">
+                              <div class="m-0">
+                                <ng-multiselect-dropdown
+                                  formControlName="multiStopAcc"
+                                  [formControl]="convertToFormControl(this.multiStop.at(s).get('multiStopAcc'))"
+                                  [placeholder]="this.multiStop.at(s).get('multiStopType')?.value === 'Pick Up' ? 'Pickup Accessorials' : 'Delivery Accessorials'"
+                                  [settings]="dropdownSettings"
+                                  [data]="this.multiStop.at(s).get('multiStopType')?.value === 'Pick Up' ? this.pickupDropdown : this.deliveryDropdown"
+                                  (onSelect)="addFee($event, 'none', s.toString());this.checkMultiSelectValues('#multiStopAccLbl'+s,this.multiStop.at(s).get('multiStopAcc')?.value.length)"
+                                  (onDeSelect)="removeFee($event, 'none', s.toString());this.checkMultiSelectValues('#multiStopAccLbl'+s,this.multiStop.at(s).get('multiStopAcc')?.value.length)">
+                                </ng-multiselect-dropdown>
+                                <label hidden id="{{'multiStopAccLbl'+s}}">
+                                  {{this.multiStop.at(s).get('multiStopType')?.value === 'Pick Up' ? 'Pickup' : 'Delivery' }} Accessorials
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row px-1 mb-2">
+                            <div class="col-sm-3">
+                              <div class="form-label-group">
+                                <input formControlName="multiStopPickupAppointmentStart"
+                                       id="multiStopPickupAppointmentStart{{s}}"
+                                       min="{{this.formattedShipDate}}"
+                                       max="{{this.global.formattedMaxDateTime()}}"
+                                       (focusout)="onChangeStopDates('multiStopPickupAppointmentStart', s)"
+                                       [attr.disabled]="disableEdit ? 'disabled' : null"
+                                       class="form-control form-control-sm" type="datetime-local" aria-label="dateSelect"/>
+                                <div class="invalid-tooltip">Pickup date appointment start is missing.</div>
+                                <label for="multiStopPickupAppointmentStart{{s}}">Pickup Date Appointment Start {{this.multiStopTimezoneLabel[s]}}</label>
+                              </div>
+                            </div>
+                            <div class="col-sm-3">
+                              <div class="form-label-group">
+                                <input formControlName="multiStopPickupAppointmentStop"
+                                       id="multiStopPickupAppointmentStop{{s}}"
+                                       min="{{this.formattedShipDate}}"
+                                       max="{{this.global.formattedMaxDateTime()}}"
+                                       (focusout)="onChangeStopDates('multiStopPickupAppointmentStop', s)"
+                                       [attr.disabled]="disableEdit ? 'disabled' : null"
+                                       class="form-control form-control-sm" type="datetime-local" aria-label="dateSelect"/>
+                                <div class="invalid-tooltip">Pickup date appointment stop is missing.</div>
+                                <label for="multiStopPickupAppointmentStop{{s}}">Pickup Date Appointment Stop {{this.multiStopTimezoneLabel[s]}}</label>
+                              </div>
+                            </div>
+                            <div class="col-sm-3">
+                              <div class="form-label-group">
+                                <input formControlName="multiStopDeliveryAppointmentStart"
+                                       id="multiStopDeliveryAppointmentStart{{s}}"
+                                       min="{{this.formattedShipDate}}"
+                                       max="{{this.global.formattedMaxDateTime()}}"
+                                       (focusout)="onChangeStopDates('multiStopDeliveryAppointmentStart', s)"
+                                       [attr.disabled]="disableEdit ? 'disabled' : null"
+                                       class="form-control form-control-sm" type="datetime-local" aria-label="dateSelect"/>
+                                <div class="invalid-tooltip">Delivery date appointment start is missing.</div>
+                                <label for="multiStopDeliveryAppointmentStart{{s}}">Delivery Date Appointment Start {{this.multiStopTimezoneLabel[s]}}</label>
+                              </div>
+                            </div>
+                            <div class="col-sm-3">
+                              <div class="form-label-group">
+                                <input formControlName="multiStopDeliveryAppointmentStop"
+                                       id="multiStopDeliveryAppointmentStop{{s}}"
+                                       min="{{this.formattedShipDate}}"
+                                       max="{{this.global.formattedMaxDateTime()}}"
+                                       (focusout)="onChangeStopDates('multiStopDeliveryAppointmentStop', s)"
+                                       [attr.disabled]="disableEdit ? 'disabled' : null"
+                                       class="form-control form-control-sm" type="datetime-local" aria-label="dateSelect"/>
+                                <div class="invalid-tooltip">Delivery date appointment stop is missing.</div>
+                                <label for="multiStopDeliveryAppointmentStop{{s}}">Delivery Date Appointment Stop {{this.multiStopTimezoneLabel[s]}}</label>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!--Special Instructions-->
+                          <div class="row px-1 mb-2">
+                            <div class="col-sm-6">
+                              <div class="pb-2">
+                                <app-type-ahead-drop-down [disabled]="disableEdit"
+                                                          [isRequired]="false"
+                                                          (modelValueOnChange)="getSpecialInstructionStop(s, $event)"
+                                                          [name]="'multiStopSpecialInstruction'+s"
+                                                          [tagLine]="'Special Instructions'"
+                                                          [data]="this.noteList"
+                                                          [placeHolder]="'Special Instructions'"
+                                                          [editable]="false">
+                                </app-type-ahead-drop-down>
+                              </div>
+                              <div>
+                              <textarea [attr.disabled]="disableEdit ? 'disabled' : null"
+                                        type="textarea"
+                                        formControlName="multiStopSpecialInstructionsText"
+                                        class="form-control form-control-sm mt-1"
+                                        id="multiStopSpecialInstructionsText{{s}}"
+                                        rows="3"
+                                        placeholder="Type Something">
+                              </textarea>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- tracking contacts -->
+                          <div class="mx-1 customBorder">
+                            <div class="row">
+                              <div class="col-12 px-1">
+                                @if (this.truck) {
+                                  <app-tracking-contacts
+                                    [trackingContactsMail]="setEditTrackingContacts(s, true)"
+                                    (trackingContactsEvent)="getTrackingContactsEvent($event, s, true)"
+                                    [shipTrackID]="s"
+                                    [shipmentType]="this.shipmentType"
+                                    [disabled]="disabledTrackingContacts()">
+                                  </app-tracking-contacts>
+                                }
+                                @if (this.truck == null) {
+                                  <app-tracking-contacts
+                                    (trackingContactsEvent)="getTrackingContactsEvent($event, s, true)"
+                                    [shipTrackID]="s"
+                                    [shipmentType]="this.shipmentType"
+                                    [disabled]="false">
+                                  </app-tracking-contacts>
+                                }
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="mx-1 customBorder px-4">
+                            <app-freight-form
+                              [stopId]="'stop-'+s+'-'"
+                              [showTotals]="false"
+                              [disabled]="disableEdit" class="pr-2"
+                              [productList]="this.productList"
+                              [lineItems]="this.truckID ? (this.truck?.shipments && this.truck?.shipments!.length > 1 ? this.stopsLineItems[s]?.lineItems : null) : this.lineItems"
+                              [shipmentsEdit]="this.truckID ? false : !!this.shipmentID"
+                              [shipmentType]="this.shipmentType"
+                              [clientHideSuggestedClass]="this.clientHideSuggestedClass"
+                              (onUncheckedLineItems)="addSpecialInstruction($event)"
+                              (onAddNewFreight)="addSpecialInstruction($event)"
+                              (getLineItems)="getLineItemsByStop(s, $event)">
+                            </app-freight-form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+
+              <div class="col-3">
+                <button class="btn btn-success btn-sm" (click)="addMultiStop()" type="button" ngbTooltip="Add Stop">
+                  <i class="material-icons text-white mt-1 mr-1 px-1" id="btnItemAdd" style="vertical-align: middle;">add_circle_outline</i>
+                  <span style="vertical-align: middle;">Add additional stops</span>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="row customBorder">
+          <!-- Freight section of page, also known as line items -->
+          <app-freight-form
+            #freightForm
+            [disabled]="disableEdit" class="pr-2"
+            [productList]="this.productList"
+            [lineItems]="this.lineItems"
+            [shipmentsEdit]="this.truckID ? false : !!this.shipmentID"
+            [shipmentType]="this.shipmentType"
+            [multiStopRequired]="this.multiStopRequired"
+            [stops]="this.multiStop.value"
+            [shipmentSubType]="this.newShipmentForm.controls['shipmentForm'].get('type')?.value"
+            [clientHideSuggestedClass]="this.clientHideSuggestedClass"
+            (onUncheckedLineItems)="addSpecialInstruction($event)"
+            (onAddNewFreight)="addSpecialInstruction($event)"
+            [showTotals]="this.shipmentType === 'LTL'"
+            (getLineItems)="getLineItems($event)">
+          </app-freight-form>
+
+          @if (this.shipmentType !== 'LTL') {
+            <app-freight-totals></app-freight-totals>
+          }
+        </div>
+
+        <div class="row customBorder">
+          <app-active-notes-view></app-active-notes-view>
+          <!-- Notes section of page -->
+          @if (isInternalManagement && this.shipmentID == null) {
+            <div class="row pb-3 pe-0">
+              <div class="col px-0">
+                <textarea [disabled]="disableEdit"
+                          type="textarea"
+                          [formControlName]="'internalNotesText'"
+                          class="form-control form-control-sm mt-1"
+                          id="internalNotesText"
+                          rows="3"
+                          placeholder="Internal Note">
+                </textarea>
+              </div>
+              <div class="col pe-0">
+                <textarea [disabled]="disableEdit"
+                          type="textarea"
+                          [formControlName]="'externalNotesText'"
+                          class="form-control form-control-sm mt-1"
+                          id="externalNotesText"
+                          rows="3"
+                          placeholder="External Note">
+                </textarea>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Fetch Rates Section -->
+        <div class="row customBorder">
+          @if (shipmentType === 'LTL') {
+            <div class="row pl-2 pt-2">
+              <div class="col-2">
+                <div class="form-check">
+                  <input [attr.disabled]="disableEdit ? 'disabled' : null" class="form-check-input" type="checkbox"
+                         (change)="onChangeChkInsurance()" id="chkAdditionalInsurance">
+                  <label class="form-check-label fw-bold" for="chkAdditionalInsurance">
+                    <span>Show Additional Insurance</span>
+                  </label>
+                </div>
+              </div>
+              <div class="col-2">
+                @if (displayAdditionalInsurance()) {
+                  <div class="form-label-group">
+                    <input [attr.disabled]="disableEdit ? 'disabled' : null" [formControlName]="'additionalInsurance'"
+                           type="number" class="form-control form-control-sm" id="additionalInsurance"
+                           placeholder="Additional Insurance" [max]="250000" (keyup)="validateInsuranceAmount()" >
+                    <div class="invalid-tooltip">Max amount $250,000</div>
+                    <label for="additionalInsurance">Additional Insurance</label>
+                  </div>
+                }
+              </div>
+              <div class="col"></div>
+            </div>
+          }
+          <div class="col-12 pl-2 pr-0 mt-2" id="ratesGrids">
+            <app-rates-grid
+              (ratesToSave)="customRatesMethod($event)"
+              (fieldsRequired)="ratesFieldsRequired($event)"
+              [disabled]="disableEdit"
+              (ratesSelectedEvent)="onRatesSelected()"
+              (formValidationEvent)="scrollToError()"
+              [hidden]="hideRatesComponent"
+              [fetchRatesBtn]="true"
+              [emailBtn]="false"
+              [createShipmentBtn]="false"
+              [downloadBtn]="false"
+              [preSelectedRates]="this.preSelectedRate"
+              [otherCustomRates]="this.rates"
+              [hideGrid]="true"
+              [validRates]="this.newShipmentForm.valid"
+              [shipmentType]="this.shipmentType"
+              [billToName]="this.newShipmentForm.controls['shipperConsigneeForm'].get('billToName')?.value"
+              [hasOther]="true"
+              [customizations]="this.customizations"
+              [clientPlantID]="this.clientPlantID"
+              [fromZip]="this.newShipmentForm.controls['shipperConsigneeForm'].get('shipperZip')?.value  ? this.newShipmentForm.controls['shipperConsigneeForm'].get('shipperZip')?.value : ''"
+              [toZip]="this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeZip')?.value ? this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeZip')?.value : ''"
+              [fees]="this.activeFees"
+              [lineItems]="this.rateRequestLineItems"
+              [stopLineItems]="this.stopsLineItems"
+              [carrierList]="this.carrierList"
+              [shipDate]="this.newShipmentForm.controls['shipmentForm'].get('shipmentDate')?.value ? this.newShipmentForm.controls['shipmentForm'].get('shipmentDate')?.value : ''"
+              [doubleChecked]="[false,false,false]"
+              [isQuickRate]="false"
+              [clientPlantPPA]="this.clientPlantPPA"
+              [clientPlantPPAAdjustment]="this.clientPlantPPAAdjustment"
+              [shipperAddress]="this.newShipmentForm.controls['shipperConsigneeForm'].get('shipperAddress1')?.value  ? this.newShipmentForm.controls['shipperConsigneeForm'].get('shipperAddress1')?.value : ''"
+              [shipperCity]="this.newShipmentForm.controls['shipperConsigneeForm'].get('shipperCity')?.value  ? this.newShipmentForm.controls['shipperConsigneeForm'].get('shipperCity')?.value : ''"
+              [shipperState]="this.newShipmentForm.controls['shipperConsigneeForm'].get('shipperState')?.value  ? this.newShipmentForm.controls['shipperConsigneeForm'].get('shipperState')?.value : ''"
+              [consigneeAddress]="this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeAddress1')?.value  ? this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeAddress1')?.value : ''"
+              [consigneeCity]="this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeCity')?.value  ? this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeCity')?.value : ''"
+              [consigneeState]="this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeState')?.value  ? this.newShipmentForm.controls['shipperConsigneeForm'].get('consigneeState')?.value : ''"
+              [terms]="this.newShipmentForm.controls['shipmentForm'].get('shipmentBillTo')?.value ? this.newShipmentForm.controls['shipmentForm'].get('shipmentBillTo')?.value : ''"
+              [totalLinearFeet]="this.shipmentType === 'LTL' ? (this.freight?.linearFeet ?? 0) : (this.freightTotals?.linearFeet ?? 0)"
+              [isFromQuickRates]="this.isFromQuickRates"
+              [clientCode]="this.shipmentID != null && this.shipment ? this.shipment.client?.clientCode : (this.groupInfo.clientCode ? this.groupInfo.clientCode : '')"
+              [showNonDirectPoints]="showNonDirectPoints"
+              [mileage]="this.shipmentType === 'LTL' ? (this.freight?.mileage ?? 0) : (this.freightTotals?.mileage ?? 0)"
+              [equipment]="this.newShipmentForm.controls['shipmentForm'].get('equipment')?.value"
+              [rateType]="this.shipmentID != null && this.rateSelected ? this.rateSelected.serviceLevel : null"
+              [serviceLevel]="this.newShipmentForm.controls['shipmentForm'].get('type')?.value ? this.newShipmentForm.controls['shipmentForm'].get('type')?.value : ''"
+              [preSelectedCarrierID]="this.preSelectedCarrierID"
+              [preSelectedCarrierName]="this.preSelectedCarrierName"
+              [manualQuotes]="this.shipment?.manualQuotes ?? []"
+              [additionalInsurance]="this.newShipmentForm.get('additionalInsurance')?.value ? this.newShipmentForm.get('additionalInsurance')?.value : null | number"
+              [truckFees]="this.truckFees"
+              [currencyType]="this.setClientCurrency()"
+              [carCurrencyType]="this.setClientCurrency('carrier')"
+              (updateGetRatesData)="getRatesData($event)"
+              (updateRetriveSelectedRatesEvent)="retrieveSelectedRates($event)">
+            </app-rates-grid>
+          </div>
+          <div class="card-footer dodger-blue shipment-total-footer">
+            <div class="row pb-3">
+              <div class="col float-start">
+                <label class="fw-bold float-start">Total Shipment</label>
+              </div>
+              <div class="col">
+                <label
+                  class="label fw-bold float-end ml-0">{{ this.getTotalShipment() | currency}}</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        @if (this.shipmentType == 'LTL' && this.shipment) {
+          <app-rate-info
+            [selectedRate]="this.shipment.selectedRate ?? null">
+          </app-rate-info>
+        }
+
+        <!-- Manually Entered Truckload Quotes -->
+        <div class="row pt-3">
+          <div class="col-sm-12 px-0">
+            <div class="accordion pb-3">
+              <div class="icon-pointer card">
+
+                @if (this.shipmentType === 'Truckload') {
+                  <div (click)="onClickHeader(quotesDetails, 'quotes')" aria-expanded="false" class="card-header"
+                       data-bs-target="#quotesDetails" data-bs-toggle="collapse">
+                    <div class="text-center fw-bold text-uppercase text-dark pt-1">
+                      <b>Quotes</b>
+                      @if (!quotesDetails) {
+                        <i class="material-icons float-end pointer-event-none">expand_more</i>
+                      } @else {
+                        <i class="material-icons float-end pointer-event-none">expand_less</i>
+                      }
+                    </div>
+                  </div>
+                }
+                <div class="collapse" data-parent="#accordion" id="quotesDetails" [style.display]="this.shipmentType === 'Truckload' ? 'block' : 'none'">
+                  <div class="customBorder m-3">
+                    <app-manual-quotes [style.display]="this.shipmentType === 'Truckload' ? 'block' : 'none'"
+                                       [disabled]="disableEdit" class="pr-2"
+                                       (formClickEvent)="refreshCarrierList()"
+                                       (carrierExceptionEvent)="createCarrierOnboardedNote($event)"
+                                       (changeEvent)="validateCarrrierOnboard();isValidShipment()"
+                                       (removeQuoteEvent)="removeOnboardNote($event)"
+                                       (selectCarrierEvent)="validateCarrrierOnboard();isValidShipment()"
+                                       [currencyType]="this.setClientCurrency()"
+                                       [carCurrencyType]="this.setClientCurrency('carrier')"
+                                       [showCheckInsuranceAmount]="this.showCheckInsuranceAmount"
+                                       (quoteDeselected)="onSelectedQuoteEvent($event)"
+                                       (selectedQuoteRemoved)="onQuoteRemovedEvent($event)"
+                                       [manualQuotes]="this.tlQuotes">
+                    </app-manual-quotes>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--Accessorials-->
+        @if (this.shipmentType !== 'LTL') {
+          <div class="row">
+            <div class="col-sm-12 px-0">
+              <div class="accordion pb-3">
+                <div class="icon-pointer card">
+
+                  <div (click)="onClickHeader(quotesDetails, 'quotes')" aria-expanded="false" class="card-header"
+                       data-bs-target="#accessorialsDetails" data-bs-toggle="collapse">
+                    <div class="text-center fw-bold text-uppercase text-dark pt-1">
+                      <b>Accessorials</b>
+                      @if (!accessorialsDetails) {
+                        <i class="material-icons float-end pointer-event-none">expand_more</i>
+                      } @else {
+                        <i class="material-icons float-end pointer-event-none">expand_less</i>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="collapse" data-parent="#accordion" id="accessorialsDetails">
+
+                    <div class="customBorder m-3">
+                      @if (!this.truckID) {
+                        <app-accessorials
+                          [numOfStops]="getNumOfStops"
+                          (getTruckFees)="getTruckFees($event)">
+                        </app-accessorials>
+                      }
+
+                      @if (this.truckID && this.shipment) {
+                        <app-accessorials
+                          [truckFees]="this.truckFees"
+                          [numOfStops]="getNumOfStops"
+                          [quotes]="this.quoteSelected"
+                          [quotesNotUsed]="this.quotesNotUsed"
+                          [currencyType]="this.setClientCurrency()"
+                          [carCurrencyType]="this.setCarrierCurrency()"
+                          (truckNotUsedEvent)="getTruckNotUsedEvent($event)"
+                          (getTruckFees)="getTruckFees($event)">
+                        </app-accessorials>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (this.showCorrectedBolWarining) {
+          <div class="row pb-4 pl-2">
+            <div class="col-2"></div>
+            <div class="col-8 text-center">
+              <span class="red text-uppercase">This shipment is {{this.shipment?.shipmentDetail?.shipmentStatus}}.  Any edits will be reflected as a Corrected BOL.</span>
+            </div>
+            <div class="col-2"></div>
+          </div>
+        }
+
+        <div class="row form-inline pb-3 mt-5">
+
+          @if (shipmentType == 'LTL') {
+            <div class="col">
+              <button [disabled]="disableEdit"
+                      type="button"
+                      class="btn btn-sm w-100 fw-bold mb-2 btn-success"
+                      (click)="createBOL(false)">
+                Save Shipment
+              </button>
+            </div>
+          }
+
+          @if (shipmentType != 'Truckload Edit' && shipmentType != 'LTL' && this.truck?.truckID == null) {
+            <div class="col">
+              <button [disabled]="disableEdit" type="button"
+                      class="btn btn-sm w-100 fw-bold mb-2  btn-success" (click)="createBolWithRates(false, 'PREBOOKED')">
+                Save as Prebooked
+              </button>
+            </div>
+
+            <div class="col">
+              <button [disabled]="disableEdit" type="button"
+                      class="btn btn-sm w-100 fw-bold mb-2  btn-success" (click)="createBolWithRates(false, 'PENDING')">
+                Save as Pending
+              </button>
+            </div>
+          }
+
+          @if (shipmentType != 'Truckload Edit' && shipmentType != 'LTL' && this.truck?.truckID != null) {
+            <div class="col">
+              <button [disabled]="disableEdit || !this.timezonesLoaded" type="button"
+                      class="btn btn-sm w-100 fw-bold mb-2  btn-success" (click)="createBolWithRates(false, this.truck?.state ?? '')">
+                Save Truckload
+                @if (!this.timezonesLoaded) {
+                  <ng-container> [Disabled While Data Loads]</ng-container>
+                }
+              </button>
+            </div>
+          }
+
+          @if (shipmentType != 'Truckload Edit' && shipmentType != 'LTL' && this.truck?.truckID == null) {
+            <div class="col">
+              <button [disabled]="disableEdit" type="button"
+                      class="btn btn-sm w-100 fw-bold mb-2 btn-success"
+                      (click)="createBolWithRates(false, 'FINDING_QUOTES')">
+                Save as Request for Quote
+              </button>
+            </div>
+          }
+
+          @if (this.shipmentType !== 'Truckload' && this.shipmentType !== 'Truckload Edit') {
+            <div class="col">
+              <button [disabled]="this.isValidShipment() || disableEdit" type="button"
+                      class="btn btn-sm w-100 fw-bold justify-content-center mb-2  btn-success" data-bs-toggle="modal"
+                      data-bs-target="#spotRateModal">
+                Request Spot T/L
+              </button>
+            </div>
+          }
+
+          @if (shipmentType != 'Truckload Edit' && shipmentType != 'Truckload') {
+            <div class="col">
+              <button [disabled]="this.isValidShipment('truckloadPending') || disableEdit || this.utilityservice.btnRate" type="button"
+                      class="btn btn-sm w-100 fw-bold mb-2 btn-success" (click)="clickCreateBOL();">
+                {{ this.isSmallParcelRate ? 'Create Shipment' : 'Create BOL'}}
+              </button>
+            </div>
+          }
+
+          @if (shipmentType == 'Truckload Edit') {
+            <div class="col">
+              <button [disabled]="disableEdit" type="button"
+                      class="btn btn-sm w-100 fw-bold mb-2  btn-success" (click)="createBOL(false)">
+                Save Shipment
+              </button>
+            </div>
+          }
+
+          @if (this.shipmentID != null && !this.disabledEditAsClone && this.truckID == null) {
+            <div class="col">
+              <button (click)="onClickDeleteShipment()" [disabled]="disableEdit" type="button"
+                      class="btn btn-sm w-100 fw-bold mb-2 btn-danger">
+                Delete Shipment
+              </button>
+            </div>
+          }
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Success Modal -->
+  <div id="spotRateSuccessModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog fade show" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Success</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Email Sent</p>
+        </div>
+        <div class="modal-footer">
+          <button id="spotRateCloseSuccess" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ngx-spinner name="spotRateModal"></ngx-spinner>
+  <button id="spotRateMessageSent" hidden type="button"
+          class="btn btn-light btn-sm w-100 fw-bold m-2" data-bs-toggle="modal"
+          data-bs-target="#SpotRateSuccessModal">
+    Success
+  </button>
+  <div class="modal fade bd-info-modal-lg" id="spotRateModal" tabindex="-1" role="dialog"
+       aria-labelledby="spotRateModal"
+       aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered justify-content-center" role="document">
+      <div class="modal-content spot-rate-modal-w">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" id="spotRateModalLabel">Request Spot or Truckload Rates</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group form-inline mb-1">
+            <label for="spotRateMessage" class="col-form-label-sm pr-1">Message:</label>
+            <textarea formControlName="spotRateMessage" id="spotRateMessage"
+                      class="form-control form-control-sm spot-rate-text-ctrl" rows="6">
+              </textarea>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button id="spotRateClose" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="sendSpotRateMessage()">Submit
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+<ngx-spinner name="spinnerShipmentForm"></ngx-spinner>

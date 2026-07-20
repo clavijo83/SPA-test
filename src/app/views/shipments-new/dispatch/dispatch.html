@@ -1,0 +1,183 @@
+<ngx-spinner name="dispatchSpinner"></ngx-spinner>
+<form (ngSubmit)="this.dispatchShipment()" [formGroup]="dispatchForm">
+  <div class="container-fluid">
+    <div class="row mb-3 p-3">
+
+      <div [ngClass]="{'col-sm-10 offset-sm-2': !this.global.isCollapsed(), 'col-sm-12': this.global.isCollapsed()}">
+
+        <div class="row py-2">
+          <label class="label fw-bold">Schedule Pickup</label>
+        </div>
+
+        <div class="row p-2">
+          <div class="row">
+            <div class="col-md-6 col-12 px-1">
+              <app-calendar (onSelect)="isAfterThree();"
+                            [disabledDates]="invalidDates"
+                            [minDate]="this.minDate"
+                            formControlName="pickupDate">
+              </app-calendar>
+            </div>
+            <div class="col-md-6 col-12">
+              <app-custom-time-picker (change)="timeLimit()"
+                                      (onBtnClick)="onMedianClick()"
+                                      [initEndHour]="this.endHour"
+                                      [initEndMinute]="this.endMin"
+                                      [initStartHour]="this.startHour"
+                                      [initStartMinute]="this.startMin"
+                                      [minStep]="15">
+              </app-custom-time-picker>
+            </div>
+            <div class="col-md-12 col-sm-6 col-12 px-1" id="pickupInfoContainer">
+              <span class="label blue">
+                Pick-up requests after 3:00pm may be subject to rescheduling the following business day.
+              </span>
+            </div>
+          </div>
+        </div>
+        @if (this.invalidEndTime) {
+          <div class="row form-inline pb-2">
+            <div class="col-sm-9 form-inline">
+              <label class="label red px-2">Invalid time window.</label>
+            </div>
+          </div>
+        }
+        <div class="row py-2">
+          <label class="label fw-bold">Contact</label>
+        </div>
+        <div class="row pb-2">
+          <div class="col-sm-6">
+            <input class="form-control form-control-sm" formControlName="contactName" placeholder="Name" type="text">
+          </div>
+          <div class="col-sm-3">
+            <input class="form-control form-control-sm" formControlName="contactEmail" placeholder="Email" type="text">
+          </div>
+          <div class="col-sm-3">
+            <input class="form-control form-control-sm" formControlName="contactPhone" placeholder="Phone" type="text">
+          </div>
+        </div>
+        <div class="row pb-3">
+          <div class="col-sm-9">
+            <textarea class="form-control form-control-sm" formControlName="specialInstructions" placeholder="Special Instructions"
+                      rows="5" type="text">
+            </textarea>
+          </div>
+          <div class="col-sm-3 pt-1 ps-2">
+            @if (this.carrierInfo) {
+              <div class="card border-0">
+                <h6 class="card-title text-size mb-0">{{ this.carrierInfo?.carrierName }}</h6>
+                <address class="card-text text-uppercase">
+                  <a href="tel:{{this.carrierInfo?.phone}}">
+                    {{ this.carrierInfo?.phone ? (this.carrierInfo?.phone | mask:'(000) 000-0000') : '' }}
+                  </a>
+                  <br>
+                  {{ this.carrierInfo?.address1 }}
+                  <br>
+                  {{ this.carrierInfo?.city }}, {{ this.carrierInfo?.state }} {{ this.carrierInfo?.postalCode }}
+                </address>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="row py-2">
+          <label class="label fw-bold">Bill of lading</label>
+        </div>
+        <div class="row p-2 mb-2">
+          <div class="ratio ratio-16x9">
+            <iframe class="ratio" name="bolOnPageLoad"></iframe>
+          </div>
+        </div>
+        <div class="row pb-2" id="dispatchButtonContainer">
+          <div class="col-sm-6">
+            <button (click)="dispatchShipment()" [disabled]="!formValid()" class="btn btn-sm w-100 fw-bold btn-primary" id="valid-submit" type="button">
+              Schedule Pickup
+            </button>
+          </div>
+          <div class="col">
+            <button (click)="generateBOL(true, false)" class="btn btn-sm w-100 fw-bold btn-primary" type="button">
+              Print
+            </button>
+          </div>
+          <div class="col d-inline-flex" style="z-index: 1040;">
+            <app-type-ahead-drop-down (modelValueOnChange)="setControlValue($event, 'typeDocument');setTypeDocument()"
+                                      [data]="this.dropdownDocuments"
+                                      [editable]="false"
+                                      [isRequired]="true"
+                                      [name]="'typeDocument'"
+                                      [placeHolder]="'Documents*'"
+                                      [selectedValue]="this.dispatchForm.get('typeDocument')?.value"
+                                      [tagLine]="'Documents'"
+                                      class="w-100">
+            </app-type-ahead-drop-down>
+          </div>
+          <div class="col">
+            <app-email-modal
+              [attachments]="this.BolAttachment"
+              [btnClassType]="'Light'"
+              [btnLabel]="'Email BOL'"
+              [clientCode]="this.clientCode"
+              [disableBtn]="this.isEmailBOLDisabled"
+              [emailBody]="this.emailBodyMessage()"
+              [emailModalLabel]="'New Message - BOL'"
+              [emailSubject]="'BOL - ' + this.shipmentID"
+              [isHtml]="false"
+              [toEmailAddress]="this.shipperEmail">
+            </app-email-modal>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<!-- BOL Modal -->
+<div aria-hidden="true" class="modal fade" id="bolModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-xl pt-5">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h5 class="modal-title align-self-center" id="bolModalLabel">
+          {{ this.dispatchForm.get('typeDocument')?.value }}
+        </h5>
+        <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+      </div>
+      <div class="modal-body">
+        <div class="col-sm-12">
+          <div class="ratio ratio-16x9">
+            <iframe class="ratio" name="bol"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div aria-hidden="true" class="modal fade" id="unauthorizedModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered pt-5">
+    <div class="modal-content align-self-center">
+      <div class="modal-header align-self-center py-2">
+        <h5 class="modal-title align-self-center" id="exampleModalLongTitle" style="color: darkblue">
+          UNAUTHORIZED DISPATCH
+        </h5>
+      </div>
+      <div class="modal-body align-self-center"
+           style="justify-content: center; align-content: center; text-align: center;">
+        Same-Day pick-ups requested after 3:00pm are unauthorized by the carrier.
+        <br><br>
+        <b style="color:dodgerblue">
+          Please contact the carrier directly to schedule pickup or reschedule for a future date.
+        </b>
+        <br>
+        {{ this.carrierInfo.carrierName }}
+        <br>
+        <a href="tel:{{this.carrierInfo.carrierPhone}}">{{ this.carrierInfo.carrierPhone }}</a>
+      </div>
+      <div class="modal-footer align-self-center">
+        <button (click)="closeModal();" class="btn btn-primary" data-bs-backdrop="false" data-bs-dismiss="modal" type="button">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

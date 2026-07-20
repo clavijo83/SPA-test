@@ -1,0 +1,183 @@
+.card-horizontal.status-bar {
+  display: flex;
+  width: 4%;
+  border-radius: 0.125rem !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.green {
+  background: #28A745;
+}
+
+.red {
+  background: #DC3545;
+}
+
+.blue {
+  color: #007bff;
+}
+
+.card-size {
+  min-height: 145px;
+}
+
+.text-size {
+  font-size: 14px;
+}
+
+.btn-sm {
+  height: 36px;
+}
+
+.carrier-info-card {
+  background: #f8f9fa;
+}
+
+.center {
+  display: flex;
+  min-width: 1080px;
+  max-width: 1080px;
+  padding-right: 6rem;
+  overflow: hidden;
+  justify-content: center;
+}
+
+.label-a {
+  color: #999999;
+}
+
+.hide-display {
+  visibility: hidden;
+  display: none;
+}
+
+.rounded-btn-cancel {
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: inline-block;
+}
+
+.rounded-col-cancel {
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+}
+
+
+.rounded-col {
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+}
+
+.round-btn {
+  height: 50px;
+  width: 50px;
+  border-radius: 100%;
+  display: inline-block;
+}
+
+
+.label {
+  color: #999999;
+  text-align: left;
+  width: 25%;
+  height: 24px;
+}
+
+.assignment-return-size {
+  font-size: 18px;
+  margin-top: 2px; margin-right: 5px;
+}
+
+.city-ctrl {
+  min-width: 50px;
+}
+
+.footer-bkg-tran {
+  background: transparent;
+}
+
+.footer-edit-button {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  min-width: 100%;
+  overflow: visible !important;
+}
+
+.flex-flow-unset {
+  flex-flow: unset;
+}
+
+.booking-details {
+  max-width: 300px;
+  min-width: 250px;
+  border: none;
+}
+
+.table[id=charge] td, .table th {
+  padding: .75rem .75rem 0;
+  vertical-align: top;
+  border-top: none;
+}
+
+.reference-label {
+  color: black;
+  min-width: 150px;
+}
+
+.shippingDetailsText {
+  text-transform: UpperCase;
+}
+
+.shippingDetailsText span[id=emailText] {
+  text-transform: none;
+}
+
+.blink_me {
+  animation: blinker 1s linear infinite;
+}
+
+.check-carrier {
+  color: white;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+.quoteRow {
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 10px;
+}
+
+.quoteCheckBox {
+  width: 36px;
+  height: 36px;
+}
+
+#sticky-footer-main {
+  z-index: 2;
+}
+
+.customBorder {
+  border: 1px solid #d2d4d6;
+  border-radius: 5px;
+  padding: 1rem;
+  margin-top: .75rem;
+}
+
+:host::ng-deep ng-multiselect-dropdown div.multiselect-dropdown div.disabled span.dropdown-btn {
+  background-color: #dfe5eb !important;
+  opacity: 1 !important;
+}
+
+.text-dark {
+  font-size: .75rem;
+  color: #797979;
+}
