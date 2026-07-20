@@ -1,0 +1,27 @@
+.blue {
+  color: #007bff;
+}
+
+.custom-padding-left {
+  padding-left: .7rem;
+}
+
+.pl-padding-top {
+  padding-top: 1.5rem !important;
+}
+
+.margin-top-30 {
+  margin-top: 30px !important;
+}
+
+.product-list-button {
+  color: #114db8;
+  font-size: 25px;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+
+body {
+  background-color: #f7f9fa;
+}

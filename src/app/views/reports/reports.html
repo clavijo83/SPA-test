@@ -1,0 +1,157 @@
+<div [ngClass]="{'d-block': this.global.recordStatus() === 'recordsSearch', 'd-none': this.global.recordStatus() !== 'recordsSearch'}"
+     class="d-none">
+  <div class="container-fluid">
+    <div class="row p-3">
+      <div [ngClass]="{'col-sm-10 offset-sm-2': !this.global.isCollapsed(), 'col': this.global.isCollapsed()}">
+
+        <div class="row blueHeaderContainer">
+          <div class="col-12">
+            <p class="float-start mb-0">
+              <span class="material-icons p-1">manage_search</span>
+            </p>
+            <span class="float-start ml-2 mt-1">Records search</span>
+          </div>
+        </div>
+
+        <div [ngClass]="{'mt-2' : this.existingOpenReferenceFields }" class="row">
+          <div class="col-4 px-0">
+            <div class="form-label-group m-0">
+              <select required [(ngModel)]="this.clientCode" class="form-select form-select-sm custom-select" id="clientCode">
+                @if (this.clientCode == '') {
+                  <option selected value="">Client</option>
+                } @else {
+                  <option value="">Client</option>
+                }
+                @for (client of this.clientDropdownValues; track client.value) {
+                  <option value="{{client.value}}">{{client.name}}</option>
+                }
+              </select>
+            </div>
+          </div>
+          <div class="col-4 pl-2">
+            <div class="form-label-group m-0">
+              <input [(ngModel)]="this.poNumber"
+                     class="form-control form-control-sm form-inline"
+                     id="poNumber"
+                     type="text">
+              <label for="poNumber">PO Number</label>
+            </div>
+          </div>
+          <div class="col-4 px-0">
+            <div class="form-label-group m-0">
+              <input [(ngModel)]="this.soNumber"
+                     class="form-control form-control-sm form-inline"
+                     id="soNumber"
+                     type="text">
+              <label for="soNumber">SO Number</label>
+            </div>
+          </div>
+        </div>
+
+        @for (openRef of this.existingOpenReferenceFields; track openRef.rftID; let i = $index;) {
+          <div class="row mt-3">
+            <div class="col-6 px-0">
+              <app-type-ahead-drop-down
+                (modelValueOnChange)="updateExistingOpenReference($event,'description', i)"
+                [data]="this.referenceDropdownList()"
+                (focusout)="focusOutReferenceName($event, i)"
+                [isRequired]="!!this.existingOpenReferenceFields[i].value"
+                [name]="'existingRefDropDown'+i"
+                [placeHolder]="'Reference Field'"
+                [selectedValue]="getOpenRefByID(openRef.rftID).rftDescription"
+                [tagLine]="'Reference Field'">
+              </app-type-ahead-drop-down>
+            </div>
+            <div class="col-4 pl-2">
+              <div class="form-label-group m-0">
+                <input (change)="updateExistingOpenReference($event,'value', i)" [(ngModel)]="this.existingOpenReferenceFields[i].value"
+                       [type]="toDatePicker(this.existingOpenReferenceFields[i].rftDescription)" [attr.max]="this.existingOpenReferenceFields[i].rftDescription == 'MABD' ? this.global.formattedMaxDate : null"
+                       class="form-control form-control-sm form-inline"
+                       id="openReferenceValue{{i}}">
+                <label for="openReferenceValue{{i}}">Ref #</label>
+              </div>
+            </div>
+            <div class="col px-0">
+              <button (click)="removeReferences(i)" class="btn btn-sm btn-danger btn-height mb-1 ml-2"
+                      type="button">
+                <i class="material-icons text-white">clear</i>
+              </button>
+            </div>
+          </div>
+        }
+
+        <div [ngClass]="{'mt-3' : this.existingOpenReferenceFields }" class="row">
+          <div class="col-6 px-0">
+            <app-type-ahead-drop-down
+              (modelValueOnChange)="setReferenceName($event)"
+              [data]="this.referenceDropdownList()"
+              (focusout)="focusOutReferenceName($event)"
+              [editable]="false"
+              [isRequired]="!!this.newRefValue"
+              [name]="'newRefDropDown'"
+              [placeHolder]="'Reference Field'"
+              [selectedValue]="this.newRefName"
+              [tagLine]="'Reference Field'">
+            </app-type-ahead-drop-down>
+          </div>
+          <div class="col-4 pl-2">
+            <div class="form-label-group m-0">
+              <input [(ngModel)]="this.newRefValue"
+                     [type]="toDatePicker(this.newRefName)" [attr.max]="this.newRefName == 'MABD' ? this.global.formattedMaxDate : null"
+                     class="form-control form-control-sm form-inline"
+                     id="{{'newRefvalue'}}"
+                     type="tel" value="value">
+              <label for="{{'newRefvalue'}}">Ref #</label>
+            </div>
+          </div>
+          <div class="col px-0">
+            <button [disabled]="!(this.newRefValue && this.newRefName)" (click)="addReferences()" class="btn btn-sm btn-primary btn-height mb-1 ml-2" type="button">
+              <i class="material-icons text-white">add</i>
+            </button>
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col px-0" ngbTooltip="To search for records select a client and type the PO number or SO number. Or you can select a reference field and type the value to search for."
+               placement="right-bottom">
+            <button [disabled]="!((poNumber || soNumber && clientCode != '') || (this.newRefValue && this.newRefName) || existingOpenReferenceFields.length > 0)"
+                    (click)="onClickSearch()" class="btn btn-sm btn-success w-100" type="button">
+              Search
+            </button>
+          </div>
+          <div class="col pl-2">
+            <button (click)="onClickClear()" class="btn btn-sm btn-danger w-100" type="button">
+              clear
+            </button>
+          </div>
+          <div class="col-10 px-0"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div [ngClass]="{'d-block': this.global.recordStatus() === 'recordsIncomplete', 'd-none': this.global.recordStatus() !== 'recordsIncomplete'}"
+     class="d-none">
+  <app-reports-imcomplete (navRecordsIncompleteCount)="recordsIncompleteTabCount($event)"></app-reports-imcomplete>
+</div>
+
+<div [ngClass]="{'d-block': this.global.recordStatus() === 'recordsPending', 'd-none': this.global.recordStatus() !== 'recordsPending'}"
+     class="d-none">
+  <app-reports-pending (navRecordsPendingCount)="recordsPendingTabCount($event)"></app-reports-pending>
+</div>
+
+<div [ngClass]="{'d-block': this.global.recordStatus() === 'recordsComplete', 'd-none': this.global.recordStatus() !== 'recordsComplete'}"
+     class="d-none">
+  <app-reports-complete (navRecordsCompleteCount)="recordsCompleteTabCount($event)"></app-reports-complete>
+</div>
+
+<div [ngClass]="{'d-block': this.global.recordStatus() === 'recordsAll', 'd-none': this.global.recordStatus() !== 'recordsAll'}"
+     class="d-none">
+  <app-reports-search></app-reports-search>
+</div>
+
+<ngx-spinner name="recordsSpinner"></ngx-spinner>
+<router-outlet></router-outlet>
+

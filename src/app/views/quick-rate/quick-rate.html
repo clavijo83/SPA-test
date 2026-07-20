@@ -1,0 +1,242 @@
+<form [formGroup]="ratesForm" class="needs-validation" id="quickRateForm" novalidate>
+  <div class="container-fluid">
+    <div class="row p-3">
+      <div [ngClass]="{'col-sm-10 offset-sm-2': !this.global.isCollapsed(), 'col': this.global.isCollapsed()}">
+
+        <div class="row blueHeaderContainer">
+          <div class="col-12">
+            <p class="float-start mb-0">
+              <span class="material-icons p-1">timer</span>
+            </p>
+            <span class="float-start ml-2 mt-1">Quick rates</span>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-6">
+            <div class="blueHeaderContainer">
+              <div class="col-12">
+                <span class="float-start px-3 mt-1">Client info</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6">
+            <div class="blueHeaderContainer">
+              <div class="col-12">
+                <span class="float-start px-3 mt-1">Origin / Destination Zipcodes</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6">
+            <app-client-dropdown (change)="showRetrieveAndClearBtn()" [isQuickRatePage]="true"
+                                 (groupEvent)="groupEventHandler($event)">
+            </app-client-dropdown>
+          </div>
+
+          <div class="col-6">
+            <div class="row">
+              <div class="col-6">
+                <div class="form-label-group">
+                  <input aria-label="originZip" class="form-control form-inline form-control-sm mr-2"
+                         formControlName="originZip" id="originZip"
+                         (keyup)="uppercaseZipcode('originZip')"
+                         placeholder="Origin*"
+                         required type="text">
+                  <div class="invalid-tooltip">Origin zip is missing.</div>
+                  <label for="originZip">Origin</label>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-label-group">
+                  <input (change)="showRetrieveAndClearBtn()" aria-label="DestinationZip"
+                         class="form-control form-inline form-control-sm mr-2" formControlName="destinationZip"
+                         id="destinationZip"
+                         (keyup)="uppercaseZipcode('destinationZip')"
+                         placeholder="Destination*" required type="text">
+                  <div class="invalid-tooltip">Destination zip is missing.</div>
+                  <label for="destinationZip">Destination</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6">
+            <div class="blueHeaderContainer">
+              <div class="col-12">
+                <span class="float-start px-3 mt-1">Pickup Accessorials</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6">
+            <div class="blueHeaderContainer">
+              <div class="col-12">
+                <span class="float-start px-3 mt-1">Delivery Accessorials</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 mb-4">
+            <ng-multiselect-dropdown
+              (onDeSelect)="removeFee($event, 'Shipper');checkMultiSelectValues('#qrPickupAccLabel', ratesForm.get('pickupAcc')?.value.length)"
+              (onSelect)="addFee($event, 'Shipper');checkMultiSelectValues('#qrPickupAccLabel', ratesForm.get('pickupAcc')?.value.length)"
+              [placeholder]="'Pickup Accessorials'"
+              [settings]="dropdownSettings"
+              [data]="pickupDropdown"
+              formControlName="pickupAcc">
+            </ng-multiselect-dropdown>
+            <label hidden id="qrPickupAccLabel">Pickup Accessorials</label>
+          </div>
+
+          <div class="col-6 mb-4">
+            <ng-multiselect-dropdown
+              (onDeSelect)="removeFee($event, 'Consignee');checkMultiSelectValues('#qrDeliveryAccLabel',ratesForm.get('deliveryAcc')?.value.length)"
+              (onSelect)="addFee($event, 'Consignee');checkMultiSelectValues('#qrDeliveryAccLabel',ratesForm.get('deliveryAcc')?.value.length)"
+              [placeholder]="'Delivery Accessorials'"
+              [settings]="dropdownSettings"
+              [data]="deliveryDropdown"
+              formControlName="deliveryAcc">
+            </ng-multiselect-dropdown>
+            <label hidden id="qrDeliveryAccLabel">Pickup Accessorials</label>
+          </div>
+
+          <div class="col-12">
+            <div class="blueHeaderContainer">
+              <div class="col-12">
+                <span class="float-start px-3 mt-1">Freight</span>
+                <button (click)="toggleProductList()" class="btn btn-primary blueHeaderContainerButton"
+                        data-bs-toggle="modal" data-bs-target="#productModal" type="button">
+                  <i class="material-icons blueHeaderContainerIcon">list</i>
+                </button>
+                <button (click)="addLineItems()" class="btn btn-success blueHeaderContainerButton float-end"
+                        id="addFreightButton" type="button">
+                  <i class="material-icons blueHeaderContainerIcon" id="bolBtn">add_circle_outline</i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row p-2 greyContainer">
+            <div class="col">
+              <div class="row">
+
+                <div class="col-12 pb-4">
+                  <app-line-item (change)="showRetrieveAndClearBtn()"
+                                 (getLineItems)="getLineItems($event)">
+                  </app-line-item>
+                </div>
+
+                <div class="col-12 pb-4">
+                  <div class="row">
+                    <div class="col-sm-4">
+                      <button (click)="onRetrieveRatesClick()" class="btn btn-success btn-sm w-100 fw-bold" type="button">
+                        Retrieve Optimized Rates
+                      </button>
+                    </div>
+                    <div class="col-sm-2">
+                      <button (click)="onClearClick()" class="btn btn-danger btn-sm w-100 fw-bold" type="button">
+                        Clear
+                      </button>
+                    </div>
+                    <div class="col-sm-4">
+                      <div class="form-label-group m-0">
+                        <input aria-label="documentKey"
+                               class="form-control form-inline form-control-sm mr-2 text-uppercase"
+                               formControlName="documentKey"
+                               id="documentKey"
+                               placeholder="Type Document Key" type="text">
+                        <div class="invalid-tooltip">Document Key is missing.</div>
+                        <label for="documentKey">Type document key</label>
+                      </div>
+                    </div>
+                    <div class="col-sm-2">
+                      <button (click)="onSearchClick()" [disabled]="disableSearchButton()" class="btn btn-sm btn-primary w-100"
+                              type="button" placement="top"
+                              ngbTooltip="Type document key or Select Client, Origin and Destination to search Quote">
+                        Search Quote
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="col-12 pb-2">
+                  <app-rates-grid
+                    [carrierList]="this.carrierList"
+                    [clientCode]="this.clientCode"
+                    [clientPlantID]="this.clientPlantID"
+                    [clientPlantPPAAdjustment]="this.clientPlantPPAAdjustment"
+                    [clientPlantPPA]="this.clientPlantPPA"
+                    [client]="this.client"
+                    [consigneeCity]="this.destinationCity"
+                    [consigneeState]="this.destinationState"
+                    [createShipmentBtn]="this.hideBtns"
+                    [customizations]="this.customizations"
+                    [doubleChecked]="[false,false,false]"
+                    [downloadBtn]="this.hideBtns"
+                    [emailBtn]="this.hideBtns"
+                    [fees]="this.activeFees"
+                    [fetchRatesBtn]="false"
+                    [fromZip]="this.ratesForm.get('originZip')?.value ? this.ratesForm.get('originZip')?.value : ''"
+                    [groupInfo]="this.groupInfo"
+                    [hasOther]="false"
+                    [hideGrid]="!this.hideBtns"
+                    [isQuickRate]="true"
+                    [lineItems]="this.rateLineItems"
+                    [mileage]="this.lineItem?.mileage ?? 0"
+                    [quoteReferenceNumber]="this.quoteReference"
+                    [shipDate]="this.shipDate"
+                    [shipperCity]="this.originCity"
+                    [shipperState]="this.originState"
+                    [toZip]="this.ratesForm.get('destinationZip')?.value ? this.ratesForm.get('destinationZip')?.value : ''"
+                    [totalLinearFeet]="this.lineItem?.linearFeet ?? 0">
+                  </app-rates-grid>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<!-- Product modal section -->
+<div aria-hidden="true" class="modal fade" id="productModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-body text-center font-small">
+        @if (productList().length > 0){
+          <app-data-table (freightClickEvent)="clickEventHandler($event)"
+                          [columns]="productColumns"
+                          [data]="productList()"
+                          [footerFixed]="false"
+                          [hover]="true"
+                          [info]="false"
+                          [isFreightForm]="true"
+                          [isProductList]="true"
+                          [ordering]="false"
+                          [paging]="true"
+                          [searching]="true">
+          </app-data-table>
+        } @else {
+          <app-data-table [columns]="productColumns"
+                          [data]="[]"
+                          [paging]="true"
+                          [searching]="true">
+          </app-data-table>
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" (click)="clearClassesToAdd()" class="btn btn-danger">Clear</button>
+        <button type="button" (click)="confirmFromProductList()" class="btn btn-success" data-bs-dismiss="modal">Add Selections</button>
+      </div>
+
+    </div>
+  </div>
+</div>

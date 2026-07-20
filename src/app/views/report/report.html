@@ -1,0 +1,161 @@
+<ngx-spinner name="reportSummaryGridSpinner"></ngx-spinner>
+<div class="container-fluid">
+  <div class="row mb-3 p-3">
+    <div [ngClass]="{'col-sm-10 offset-sm-2': !this.global.isCollapsed(), 'col': this.global.isCollapsed()}"
+         class="col-sm-10 offset-sm-2">
+      <div class="row row-cols-2">
+        <div class="col">
+          <div class="container">
+            <div class="row">
+              <div class="col" style="background-color: #007bff;">
+                <label style="color: white; margin: 5px;">Billing Term Totals (Top 10)</label>
+              </div>
+            </div>
+          </div>
+          <app-data-table #btt
+                          [advancedSearch]="false"
+                          [columns]="this.tableColumns"
+                          [customFixedHeight]="true"
+                          [data]="billingTermTotals"
+                          [footerFixed]="false"
+                          [gridName]="this.reportGridName"
+                          [hover]="false"
+                          [info]="false"
+                          [lengthChange]="true"
+                          [ordering]="false"
+                          [paging]="false"
+                          [searching]="false"
+                          [setAdvancedFilterData]="false"
+                          id="billingTermTotals">
+          </app-data-table>
+        </div>
+        <div class="col">
+          <div class="container">
+            <div class="row">
+              <div class="col" style="background-color: #007bff;">
+                <label style="color: white; margin: 5px;">Carrier Overview (Top 10)</label>
+              </div>
+            </div>
+          </div>
+          <app-data-table #cot
+                          [advancedSearch]="false"
+                          [columns]="this.tableColumns"
+                          [customFixedHeight]="true"
+                          [data]="carrierOverview"
+                          [footerFixed]="false"
+                          [gridName]="this.carrierOverviewGridName"
+                          [hover]="false"
+                          [info]="false"
+                          [lengthChange]="true"
+                          [ordering]="false"
+                          [paging]="false"
+                          [searching]="false"
+                          [setAdvancedFilterData]="false"
+                          id="carrierOverview">
+          </app-data-table>
+        </div>
+        <div class="col">
+          <div class="container">
+            <div class="row">
+              <div class="col" style="background-color: #007bff;">
+                <label style="color: white; margin: 5px;">Origin Breakdown (Top 10)</label>
+              </div>
+            </div>
+          </div>
+          <app-data-table #obt
+                          [advancedSearch]="false"
+                          [columns]="this.tableColumns"
+                          [customFixedHeight]="true"
+                          [data]="originBreakdown"
+                          [footerFixed]="false"
+                          [gridName]="this.originBreakdownGridName"
+                          [hover]="false"
+                          [info]="false"
+                          [lengthChange]="true"
+                          [ordering]="false"
+                          [paging]="false"
+                          [searching]="false"
+                          [setAdvancedFilterData]="false"
+                          id="originBreakdown">
+          </app-data-table>
+        </div>
+        <div class="col">
+          <div class="container">
+            <div class="row">
+              <div class="col" style="background-color: #007bff;">
+                <label style="color: white; margin: 5px;">Destination Breakdown (Top 10)</label>
+              </div>
+            </div>
+          </div>
+          <app-data-table #dbt
+                          [advancedSearch]="false"
+                          [columns]="this.tableColumns"
+                          [customFixedHeight]="true"
+                          [data]="destinationBreakdown"
+                          [footerFixed]="false"
+                          [gridName]="this.destinationBreakdownGridName"
+                          [hover]="false"
+                          [info]="false"
+                          [lengthChange]="true"
+                          [ordering]="false"
+                          [paging]="false"
+                          [searching]="false"
+                          [setAdvancedFilterData]="false"
+                          id="destinationBreakdown">
+          </app-data-table>
+        </div>
+        <div class="col">
+          <div class="container">
+            <div class="row">
+              <div class="col" style="background-color: #007bff;">
+                <label style="color: white; margin: 5px;">Consignee Overview (Top 10)</label>
+              </div>
+            </div>
+          </div>
+          <app-data-table #cow
+                          [advancedSearch]="false"
+                          [columns]="this.tableColumns"
+                          [customFixedHeight]="true"
+                          [data]="consigneeOverview"
+                          [footerFixed]="false"
+                          [gridName]="this.consigneeOverviewGridName"
+                          [hover]="false"
+                          [info]="false"
+                          [lengthChange]="true"
+                          [ordering]="false"
+                          [paging]="false"
+                          [searching]="false"
+                          [setAdvancedFilterData]="false"
+                          id="consigneeOverview">
+          </app-data-table>
+        </div>
+        <div class="col">
+          <div class="container">
+            <div class="row">
+              <div class="col" style="background-color: #007bff;">
+                <label style="color: white; margin: 5px;">Client Overview (Top 10)</label>
+              </div>
+            </div>
+          </div>
+          <app-data-table #clow
+                          [advancedSearch]="false"
+                          [columns]="this.tableColumns"
+                          [customFixedHeight]="true"
+                          [data]="clientOverview"
+                          [footerFixed]="false"
+                          [gridName]="this.clientOverviewGridName"
+                          [hover]="false"
+                          [info]="false"
+                          [lengthChange]="true"
+                          [ordering]="false"
+                          [paging]="false"
+                          [searching]="false"
+                          [setAdvancedFilterData]="false"
+                          id="clientOverview">
+          </app-data-table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

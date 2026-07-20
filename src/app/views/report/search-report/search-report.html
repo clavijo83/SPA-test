@@ -1,0 +1,394 @@
+<form [formGroup]="reportSearchForm" class="needs-validation" id="reportSearchForm" novalidate>
+  <ngx-spinner name="reportSearchSpinner"></ngx-spinner>
+  <div class="container-fluid">
+    <div class="row p-3">
+      <div [ngClass]="{'col-10 offset-sm-2': !this.global.isCollapsed(), 'col': this.global.isCollapsed()}"
+           class="col-10 offset-sm-2">
+
+        @if (!this.backToSearch) {
+          <div class="row blueHeaderContainer">
+            <div class="col-12">
+              <p class="float-start mb-0">
+                <span class="material-icons p-1">manage_search</span>
+              </p>
+              <span class="float-start ml-2 mt-1">Reports search</span>
+            </div>
+          </div>
+
+          <div class="row pb-3">
+            <div class="col-2 px-0">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'shipmentID'"
+                       aria-label="shipmentID" class="form-control form-control-sm" id="shipmentID"
+                       oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
+                       placeholder="Shipment ID"
+                       type="number">
+                <label for="shipmentID">Shipment ID</label>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'shipDate'"
+                       aria-label="shipDate" class="form-control form-control-sm" id="shipDate"
+                       type="date" max="{{this.global.formattedMaxDate()}}">
+                <label for="shipDate">Ship Date</label>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-label-group m-0">
+                <app-type-ahead-drop-down
+                  (modelValueOnChange)="setControlValue($event, 'clientCode')"
+                  [data]="this.clientDropdown"
+                  [editable]="false"
+                  [name]="'clientCode'"
+                  [placeHolder]="'Select Client'"
+                  [selectedValue]="this.reportSearchForm.get('clientCode')?.value"
+                  [tagLine]="'Client'">
+                </app-type-ahead-drop-down>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'proNumber'"
+                       aria-label="proNumber" class="form-control form-control-sm" id="proNumber"
+                       oninput="this.value = this.value.replace(/[^0-9a-zA-z.#_-]/g, '').replace(/(\..*)\./g, '$1');"
+                       placeholder="PRO Number"
+                       type="text">
+                <label for="proNumber">PRO Number</label>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'bolNumber'"
+                       aria-label="bolNumber" class="form-control form-control-sm" id="bolNumber"
+                       oninput="this.value = this.value.replace(/[^0-9a-zA-z.#_-]/g, '').replace(/(\..*)\./g, '$1');"
+                       placeholder="BOL Number"
+                       type="text">
+                <label for="bolNumber">BOL Number</label>
+              </div>
+            </div>
+            <div class="col-2 px-0">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'poNumber'"
+                       aria-label="poNumber" class="form-control form-control-sm" id="poNumber"
+                       oninput="this.value = this.value.replace(/[^0-9a-zA-z.#_-]/g, '').replace(/(\..*)\./g, '$1');"
+                       placeholder="PO Number"
+                       type="text">
+                <label for="poNumber">PO Number</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="row pb-3">
+            <div class="col-2 px-0">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'deliveryDate'"
+                       aria-label="deliveryDate" class="form-control form-control-sm" id="deliveryDate"
+                       type="date">
+                <label for="shipDate">Delivery Date</label>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-label-group m-0">
+                <app-type-ahead-drop-down
+                  (modelValueOnChange)="setControlValue($event, 'mode');"
+                  [data]="this.modeDropdown"
+                  [editable]="false"
+                  [name]="'mode'"
+                  [placeHolder]="'Mode'"
+                  [selectedValue]="this.reportSearchForm.get('mode')?.value"
+                  [tagLine]="'Mode'">
+                </app-type-ahead-drop-down>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-label-group m-0">
+                <app-type-ahead-drop-down
+                  (modelValueOnChange)="setControlValue($event, 'terms');"
+                  [data]="this.billToDropdown"
+                  [editable]="false"
+                  [name]="'terms'"
+                  [placeHolder]="'Terms'"
+                  [selectedValue]="this.reportSearchForm.get('terms')?.value"
+                  [tagLine]="'Terms'">
+                </app-type-ahead-drop-down>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'shipDateFrom'"
+                       aria-label="shipDateFrom" class="form-control form-control-sm" id="shipDateFrom"
+                       type="date">
+                <label for="shipDate">Ship Date From</label>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'shipDateTo'"
+                       aria-label="shipDateTo" class="form-control form-control-sm" id="shipDateTo"
+                       type="date">
+                <label for="shipDate">Ship Date To</label>
+              </div>
+            </div>
+            <div class="col-2 px-0">
+              <div class="form-label-group m-0">
+                <app-type-ahead-drop-down
+                  (modelValueOnChange)="setControlValue($event, 'carrierID');"
+                  [dataType]="'Object'"
+                  [data]="availableCarrierList"
+                  [editable]="true"
+                  [name]="'carrierID'"
+                  [placeHolder]="'Carrier'"
+                  [selectedValue]="{item: this.reportSearchForm.get('carrierName')?.value, value: this.reportSearchForm.get('carrierID')?.value}"
+                  [tagLine]="'Carrier'">
+                </app-type-ahead-drop-down>
+              </div>
+            </div>
+          </div>
+
+          <!-- shipper -->
+          <div class="row pb-3">
+            <div class="col-2 px-0">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'shipperName'"
+                       aria-label="shipperName" class="form-control form-control-sm" id="shipperName"
+                       placeholder="Shipper Name"
+                       type="text">
+                <label for="shipperName">Shipper Name</label>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'shipperAddress'"
+                       aria-label="shipperAddress" class="form-control form-control-sm" id="shipperAddress"
+                       placeholder="Shipper Address"
+                       type="text">
+                <label for="shipperAddress">Shipper Address</label>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'shipperZip'"
+                       aria-label="shipperZip" class="form-control form-control-sm" id="shipperZip"
+                       placeholder="Shipper Zip"
+                       oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '');
+                       if (this.value.length > 6) this.value = this.value.slice(0, 6);"
+                       pattern="[a-zA-Z0-9]{6}">
+                <label for="shipperZip">Shipper Zip</label>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'shipperCity'"
+                       aria-label="shipperCity" class="form-control form-control-sm" id="shipperCity"
+                       placeholder="Shipper City"
+                       type="text">
+                <label for="shipperCity">Shipper City</label>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-label-group m-0">
+                <app-type-ahead-drop-down
+                  (modelValueOnChange)="setControlValue($event, 'shipperState');"
+                  [data]="this.stateDropdown"
+                  [editable]="false"
+                  [name]="'shipperState'"
+                  [placeHolder]="'Shipper State'"
+                  [selectedValue]="this.reportSearchForm.get('shipperState')?.value"
+                  [tagLine]="'Shipper State'">
+                </app-type-ahead-drop-down>
+              </div>
+            </div>
+            <div class="col-2 px-0">
+              <select [formControlName]="'pickupException'" name="pickupException" id="pickupException"
+                      class="form-select form-select-sm custom-select">
+                <option disabled hidden selected value="">Pickup Exception</option>
+                @for (exception of this.exceptionDropDown;  track exception.ExceptionID){
+                  <option attr.name="{{exception.ExceptionName}}"
+                          value="{{exception.ExceptionID}}">{{exception.ExceptionName}}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <!-- consignee -->
+          <div class="row pb-3">
+            <div class="col-2 px-0">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'consigneeName'"
+                       aria-label="consigneeName" class="form-control form-control-sm" id="consigneeName"
+                       placeholder="Consignee Name"
+                       type="text">
+                <label for="consigneeName">Consignee Name</label>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'consigneeAddress'"
+                       aria-label="consigneeAddress" class="form-control form-control-sm" id="consigneeAddress"
+                       placeholder="Consignee Address"
+                       type="text">
+                <label for="consigneeAddress">Consignee Address</label>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'consigneeZip'"
+                       aria-label="consigneeZip" class="form-control form-control-sm" id="consigneeZip"
+                       placeholder="Consignee Zip"
+                       oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '');
+                       if (this.value.length > 6) this.value = this.value.slice(0, 6);"
+                       pattern="[a-zA-Z0-9]{6}">
+                <label for="consigneeZip">Consignee Zip</label>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'consigneeCity'"
+                       aria-label="consigneeCity" class="form-control form-control-sm" id="consigneeCity"
+                       placeholder="Consignee City"
+                       type="text">
+                <label for="consigneeCity">Consignee City</label>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-label-group m-0">
+                <app-type-ahead-drop-down
+                  (modelValueOnChange)="setControlValue($event, 'consigneeState');"
+                  [data]="this.stateDropdown"
+                  [editable]="false"
+                  [name]="'consigneeState'"
+                  [placeHolder]="'Consignee State'"
+                  [selectedValue]="this.reportSearchForm.get('consigneeState')?.value"
+                  [tagLine]="'Consignee State'">
+                </app-type-ahead-drop-down>
+              </div>
+            </div>
+            <div class="col-2 px-0">
+              <select [formControlName]="'deliveryException'" name="deliveryException" id="deliveryException"
+                      class="form-select form-select-sm custom-select">
+                <option disabled hidden selected value="">Delivery Exception</option>
+                @for (exception of this.exceptionDropDown; track exception.ExceptionID) {
+                  <option attr.name="{{exception.ExceptionName}}"
+                          value="{{exception.ExceptionID}}">{{exception.ExceptionName}}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="row pb-4">
+            <div class="col-4 px-0">
+              <div class="form-label-group m-0">
+                <ng-multiselect-dropdown
+                  (onSelect)="onItemSelect($event)"
+                  (onSelectAll)="onSelectAll($event)"
+                  (onDeSelect)="onDeSelect($event)"
+                  (onDeSelectAll)="onDeSelectAll()"
+                  [formControl]="convertToFormControl(this.reportSearchForm.controls['statuses'])"
+                  [placeholder]="'Status'"
+                  [settings]="dropdownSettings"
+                  [data]="this.statusDropdown">
+                </ng-multiselect-dropdown>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'mcNumber'"
+                       aria-label="mcNumber" class="form-control form-control-sm" id="mcNumber"
+                       placeholder="MC Number">
+                <label for="mcNumber">MC Number</label>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'createDate'"
+                       aria-label="createDate" class="form-control form-control-sm" id="createDate"
+                       type="date">
+                <label for="createDate">Create Date</label>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'createDateFrom'"
+                       aria-label="createDateFrom" (ngModelChange)="validateCreateDate()" class="form-control form-control-sm" id="createDateFrom"
+                       type="date">
+                <label for="createDate">Create Date From</label>
+              </div>
+            </div>
+            <div class="col-2 px-0">
+              <div class="form-label-group m-0">
+                <input [formControlName]="'createDateTo'"
+                       aria-label="createDateTo" (ngModelChange)="validateCreateDate()" class="form-control form-control-sm" id="createDateTo"
+                       type="date">
+                <label for="createDate">Create Date To</label>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!--buttons -->
+        <div class="row pb-2">
+          <div class="col-8 px-0">
+            @if (this.backToSearch) {
+              <div class="col ml-1">
+                <span class="fw-bold">Shipment search criteria:  </span> <span
+                class="ml-2">{{this.summaryParams}}</span>
+                <br><span class="font-italic small-font-size">Returning {{this.reportsData.length}} Record(s)</span>
+              </div>
+            }
+            @if (!this.backToSearch) {
+              <div class="pl-1">
+                <div class="form-check">
+                  <input [formControlName]="'managed'" class="form-check-input" id="onlyManaged" type="checkbox"/>
+                  <label class="form-check-label font-weight-500" for="onlyManaged">
+                    Only show managed shipments
+                  </label>
+                </div>
+              </div>
+            }
+          </div>
+          <div class="col-1">
+            @if (!this.backToSearch) {
+              <button (click)="resetForm();" class="btn btn-sm btn-danger w-100" type="button">
+                Reset
+              </button>
+            }
+          </div>
+          <div class="col px-0">
+            @if (!this.backToSearch) {
+              <button (click)="sendSearchParams()" class="btn btn-sm btn-primary w-100" type="button">
+                Generate Report
+              </button>
+            }
+          </div>
+          @if (this.backToSearch) {
+            <div class="col-1 px-0">
+              <button (click)="this.backToSearch = false;" class="btn btn-sm btn-danger w-100" type="button">
+                Back
+              </button>
+            </div>
+          }
+        </div>
+        <div [ngClass]="{'d-block': this.backToSearch, 'd-none': !this.backToSearch }" class="font-smaller disable-h-scroll disable-v-scroll">
+          <app-data-table
+            [autoWidth]="false"
+            [columns]="reportsColumns"
+            [customFixedHeight]="true"
+            [customSort]="this.sortOrder"
+            [data]="this.reportsData"
+            [footerFixed]="true"
+            [gridName]="'reportsTable'"
+            [hover]="true"
+            [info]="true"
+            [lengthChange]="false"
+            [ordering]="true"
+            [paging]="true"
+            [scrollX]="true"
+            [scrollY]="false"
+            [searching]="false">
+          </app-data-table>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
