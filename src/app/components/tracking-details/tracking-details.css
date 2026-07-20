@@ -1,0 +1,148 @@
+.card-horizontal.status-bar {
+  display: flex;
+  width: 4%;
+  /*border-radius: 0.125rem !important;*/
+  border-radius: 0.125rem 0 0 0.125rem;
+}
+
+.green {
+  background: #28A745;
+}
+
+.red {
+  background: #DC3545;
+}
+
+.blue {
+  color: #007bff;
+}
+
+.card-size {
+  /*  max-width: 285px;
+    max-height: 130px;*/
+  min-height: 145px;
+  /*  min-width: 180px;*/
+}
+
+.text-size {
+  font-size: 14px;
+}
+
+.carrier-info-card {
+  background: #f8f9fa;
+}
+
+.center {
+  display: flex;
+  min-width: 1080px;
+  /*max-width: 1080px;*/
+  padding-right: 6rem;
+  overflow: hidden;
+  justify-content: center;
+}
+
+.label-a {
+  color: #999999;
+}
+
+.rounded-btn-cancel {
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: inline-block;
+}
+
+.rounded-col-cancel {
+  border-radius: 50%;
+  /*width: 35px;*/
+  height: 35px;
+}
+
+
+.rounded-col {
+  border-radius: 50%;
+  /*width: 35px;*/
+  height: 35px;
+}
+
+.round-btn {
+  height: 50px;
+  width: 50px;
+  border-radius: 100%;
+  display: inline-block;
+}
+
+
+.label {
+  color: #999999;
+  text-align: left;
+  width: 25%;
+  height: 24px;
+}
+
+.assignment-return-size {
+  font-size: 18px;
+  margin-top: 2px; margin-right: 5px;
+}
+
+.city-ctrl {
+  min-width: 50px;
+}
+
+.footer-bkg-tran {
+  background: transparent;
+}
+
+.footer-edit-button {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  min-width: 65px;
+  overflow: visible !important;
+}
+
+.flex-flow-unset {
+  flex-flow: unset;
+}
+
+.table[id=charge] td, .table th {
+  padding: .75rem .75rem 0;
+  vertical-align: top;
+  border-top: none;
+}
+
+.reference-label {
+  color: black;
+  min-width: 150px;
+}
+
+.shippingDetailsText {
+  text-transform: UpperCase;
+}
+
+.shippingDetailsText span[id=emailText] {
+  text-transform: none;
+}
+
+.blink_me {
+  animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+#showHideDetailsBuy {
+  float: left;
+  margin-bottom: 19px;
+}
+
+.whiteglove{
+  list-style: none;
+}
+
+.whiteglovecolor{
+  color: #A5B7D4;
+}

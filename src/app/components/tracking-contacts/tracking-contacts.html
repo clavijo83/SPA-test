@@ -1,0 +1,142 @@
+<div [formGroup]="trackingContactsFormGroup" [id]="'appTrackingContacts' + (shipmentType() == 'LTL' ? 'LTL' : 'TL' + shipTrackID())">
+
+  <div class="col-12 mr-0 mt-0 mb-2">
+       <span class="label fw-bold">
+          Tracking Contacts
+       </span>
+  </div>
+
+  @for (control of trackingContacts.controls; track control; let i = $index) {
+    <div class="row pb-2" formArrayName="trackingContacts">
+      <div [formGroupName]="i" id="rowItem{{i}}">
+
+        <div class="row">
+
+          <input type="hidden" id="{{'shipTrackID' + i }}" formControlName="shipTrackID">
+
+          <!-- Events -->
+          <div class="col-3 pl-0 pr-1">
+            <div class="form-label-group m-0">
+              <ng-multiselect-dropdown
+                [id]="'trackingEvents' + (shipmentType() == 'LTL' ? 'LTL' : 'TL' + shipTrackID()) + '-' + i"
+                [disabled]="disabled()"
+                formControlName="selectedEvent"
+                [placeholder]="'Tracking Events'"
+                [settings]="dropdownSettings"
+                [data]="trackingEventsData"
+                (onSelect)="setTrackingEvent(i, $event)"
+                (onDeSelect)="setTrackingEvent(i, $event, false)">
+              </ng-multiselect-dropdown>
+              <label hidden id="{{'lblTrackingEvents' + (shipmentType() == 'LTL' ? 'LTL' : 'TL' + shipTrackID()) + '-' + i }}">Tracking Events</label>
+              <div class="invalid-tooltip">Event is missing</div>
+            </div>
+          </div>
+          <!-- End Events -->
+
+          <!-- mail -->
+          <div class="col-3 px-1">
+            <div class="form-label-group m-0">
+              <input (input)="onChange($event,'emailAddress', i);"
+                     (focusout)="isValidEmail(i, $event)"
+                     [readOnly]="disabled()"
+                     aria-label="emailAddress"
+                     class="form-control form-control-sm d-inline-flex"
+                     [ngClass]="{'p-disabled': disabled()}"
+                     formControlName="emailAddress"
+                     id="{{'emailAddress' + (shipmentType() == 'LTL' ? 'LTL' : 'TL' + shipTrackID()) + '-' + i }}"
+                     placeholder="Mail to"
+                     type="email">
+              <label for="{{'emailAddress' + (shipmentType() == 'LTL' ? 'LTL' : 'TL' + shipTrackID()) + '-' + i }}">Email</label>
+              <div class="invalid-tooltip">Invalid Mail</div>
+            </div>
+          </div>
+          <!-- End mail -->
+
+          <!-- First Name -->
+          <div class="col px-1">
+            <div class="form-label-group m-0">
+              <input (input)="onChange($event,'FirstName', i);"
+                     [readOnly]="disabled()"
+                     aria-label="FirstName"
+                     class="form-control form-control-sm d-inline-flex"
+                     [ngClass]="{'p-disabled': disabled()}"
+                     formControlName="FirstName"
+                     id="{{'FirstName' + (shipmentType() == 'LTL' ? 'LTL' : 'TL' + shipTrackID()) + '-' + i }}"
+                     placeholder="First Name"
+                     type="text">
+              <label for="{{'FirstName' + (shipmentType() == 'LTL' ? 'LTL' : 'TL' + shipTrackID()) + '-' + i }}">First Name</label>
+            </div>
+          </div>
+          <!-- First Name -->
+
+          <!-- Last Name -->
+          <div class="col px-1">
+            <div class="form-label-group m-0">
+              <input (input)="onChange($event,'LastName', i);"
+                     [readOnly]="disabled()"
+                     aria-label="LastName"
+                     class="form-control form-control-sm d-inline-flex"
+                     formControlName="LastName"
+                     [ngClass]="{'p-disabled': disabled()}"
+                     id="{{'LastName' + (shipmentType() == 'LTL' ? 'LTL' : 'TL' + shipTrackID()) + '-' + i }}"
+                     placeholder="Last Name"
+                     type="text">
+              <label for="{{'LastName' + (shipmentType() == 'LTL' ? 'LTL' : 'TL' + shipTrackID()) + '-' + i }}">Last Name</label>
+            </div>
+          </div>
+          <!-- Last Name -->
+
+          <!-- Phone -->
+          <div class="col pr-1">
+            <div class="form-label-group m-0">
+              <input (input)="onChange($event,'mobilePhoneNumber', i);"
+                     [readOnly]="disabled()"
+                     aria-label="mobilePhoneNumber"
+                     class="form-control form-control-sm"
+                     [ngClass]="{'p-disabled': disabled()}"
+                     oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
+                     formControlName="mobilePhoneNumber"
+                     id="{{'mobilePhoneNumber' + (shipmentType() == 'LTL' ? 'LTL' : 'TL' + shipTrackID()) + '-' + i }}"
+                     placeholder="Phone Number"
+                     type="text">
+              <label for="{{'mobilePhoneNumber' + (shipmentType() == 'LTL' ? 'LTL' : 'TL' + shipTrackID()) + '-' + i }}">Phone Number</label>
+            </div>
+          </div>
+          <!-- End phone -->
+
+          <!-- Remove button -->
+          @if (!disabled()) {
+            <div class="col-1 d-inline-flex pr-1">
+
+              <div class="px-1" ngbTooltip="Remove mail" placement="bottom">
+                <button (click)="removeControl(i);onChange($event,'', i); "
+                        [attr.disabled]="disabled() ? 'disabled' : null"
+                        class="btn btn-sm btn-danger pb-0 px-1" id="{{'btnRemoveMail' + (shipmentType() == 'LTL' ? 'LTL' : 'TL' + shipTrackID()) + '-' + i }}" >
+                  <i class="material-icons text-white" id="{{'btnRemoveMailIcon' + (shipmentType() == 'LTL' ? 'LTL' : 'TL' + shipTrackID()) + '-'  + i }}">clear</i>
+                </button>
+              </div>
+
+              <!-- Add button -->
+              @if (i == trackingContacts.length-1) {
+                <div class="px-1" ngbTooltip="Add mail" placement="bottom">
+                  <button (click)="addTrackingContacts();"
+                          [attr.disabled]="disabled() ? 'disabled' : null"
+                          class="btn btn-success btn-sm pb-0 px-1" id="btnAddMail" >
+                    <i class="material-icons text-white" id="btnAddMailIcon">add_circle_outline</i>
+                  </button>
+                </div>
+              }
+              <!-- End Add button -->
+            </div>
+          }
+
+        </div>
+
+      </div>
+    </div>
+  }
+
+</div>
+
+
+

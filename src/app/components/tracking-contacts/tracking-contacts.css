@@ -1,0 +1,30 @@
+/*.acc-dropdown-menu {*/
+/*  background: white !important;*/
+/*  border: 1px solid #ced4da !important;*/
+/*  outline: none !important;*/
+/*  color: #495057;*/
+/*  padding: 6px 12px;*/
+/*  border-radius: .25rem !important;*/
+/*  line-height: 1.25 !important;*/
+/*  padding-top: .5rem !important;*/
+/*  width: 200px;*/
+/*  scroll-behavior: auto;*/
+/*  height: 30px;*/
+/*  max-height: 200px;*/
+/*  overflow-x: hidden;*/
+/*  font-size: .8rem;*/
+/*}*/
+
+.vl {
+  border-left: 6px solid #007bff;
+  height: 80%;
+  border-radius: .25rem;
+}
+
+/*.material-icons {*/
+/*  font-size: 20px;*/
+/*}*/
+
+.invalid-mail {
+  border-color: #dc3545 !important;
+}

@@ -1,0 +1,1435 @@
+<ngx-spinner name="createLoadTrackSpinner"></ngx-spinner>
+
+@if (truck) {
+  <div class="pb-2">
+    <div class="col-12 d-flex">
+      <div class="col-3">
+        <!-- TRUCKLOAD DETAILS -->
+        <div class="card h-100">
+          <div class="card-body">
+            <h6 class="card-title text-size mb-2 fw-bold">
+              {{ getTruckInfoCardDetails() }}
+            </h6>
+            <div class="font-small">
+              <!--TRUCK ID-->
+              @if (showEdit()) {
+                <div class="col-12 d-inline-flex align-items-center mb-1">
+                  <label class="col">TRUCK ID:</label>
+                  <div class="col">
+                    <div class="float-end pe-1">
+                      {{ truck.truckID ?? '' }}
+                    </div>
+                  </div>
+                </div>
+              }
+              <!--NICKNAME-->
+              <div class="col-12 d-inline-flex align-items-center mb-1">
+                <label class="col-5">
+                  NICKNAME:
+                </label>
+                <div class="col">
+                  <input (ngModelChange)="changeMade()"
+                         [(ngModel)]="truck.nickName" [disabled]="disabled()"
+                         class="form-control form-control-sm d-inline-flex align-right" id="nickName" name="nickName"
+                         type="text" value="">
+                </div>
+              </div>
+              <!--DRIVER PHONE-->
+              <div class="col-12 d-inline-flex align-items-center mb-1">
+                <label class="col-5">
+                  DRIVER PHONE:
+                </label>
+                <div class="col">
+                  <input (ngModelChange)="changeMade()"
+                         [(ngModel)]="truck.driverPhone"
+                         [disabled]="disabled()"
+                         class="form-control form-control-sm d-inline-flex align-right"
+                         id="driverPhone" name="driverPhone"
+                         oninput="value = value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
+                         type="text" value="">
+                </div>
+              </div>
+              <!--PRO/LOAD NUMBER-->
+              <div class="col-12 d-inline-flex align-items-center mb-1">
+                <label class="col-5">
+                  BOL #:
+                </label>
+                <div class="col">
+                  <input (ngModelChange)="changeMade()"
+                         [(ngModel)]="truck.proLoadNumber" [disabled]="disabled()"
+                         class="form-control form-control-sm d-inline-flex align-right" id="proLoadNumber"
+                         name="proLoadNumber"
+                         type="text" value="">
+                </div>
+              </div>
+              <!--LICENSE PLATE #-->
+              <div class="col-12 d-inline-flex align-items-center mb-1">
+                <label class="col-5">
+                  LICENSE PLATE #:
+                </label>
+                <div class="col">
+                  <input (ngModelChange)="changeMade()"
+                         [(ngModel)]="truck.licensePlateNo" [disabled]="disabled()"
+                         class="form-control form-control-sm d-inline-flex align-right" id="licensePlateNo"
+                         name="licensePlateNo"
+                         type="text" value="">
+                </div>
+              </div>
+              <!-- TRAILER NUMBER -->
+              <div class="col-12 d-inline-flex align-items-center mb-1" ngbTooltip="Number assigned to cargo trailer.">
+                <label class="col-5">
+                  TRAILER NUMBER:
+                </label>
+                <div class="col">
+                  <input (ngModelChange)="changeMade()"
+                         [(ngModel)]="truck.trailerNumber" [disabled]="disabled()"
+                         class="form-control form-control-sm d-inline-flex align-right" id="trailerNumber"
+                         name="trailerNumber"
+                         type="text" value="">
+                </div>
+              </div>
+              <!-- TRUCK NUMBER -->
+              <div class="col-12 d-inline-flex align-items-center mb-1"
+                   ngbTooltip="External Truck Number, Number assigned to truck or vehicle.">
+                <label class="col-5">
+                  TRUCK NUMBER:
+                </label>
+                <div class="col">
+                  <input (ngModelChange)="changeMade()" name="truckNumber"
+                         [(ngModel)]="truck.extTruckNumber"
+                         [disabled]="disabled()"
+                         class="form-control form-control-sm d-inline-flex align-right" id="truckNumber"
+                         type="text" value="">
+                </div>
+              </div>
+              <!-- TRACTOR NUMBER -->
+              <div class="col-12 d-inline-flex align-items-center mb-1">
+                <label class="col-5">
+                  TRACTOR NUMBER:
+                </label>
+                <div class="col">
+                  <input (ngModelChange)="changeMade()"
+                         [(ngModel)]="truck.tractorNumber" [disabled]="disabled()"
+                         class="form-control form-control-sm d-inline-flex align-right" id="tractorNumber"
+                         name="tractorNumber" type="text" value="">
+                </div>
+              </div>
+              <!-- PROBLEM FLAG -->
+              <div class="col-12 my-2">
+                <div class="d-inline-flex">
+                  <div class="form-check">
+                    <input [attr.disabled]="disabled() ? 'disabled' : null" class="form-check-input" type="checkbox" id="isPriority"
+                           (change)="changeMade()" [(ngModel)]="truck.isProblem" [checked]="truck.isProblem">
+                    <label class="form-check-label px-2" for="isPriority">
+                      <span>Shipment Priority/Elevated?</span>
+                    </label>
+                  </div>
+                  <i class="material-icons" style="color:red;">flag</i>
+                </div>
+              </div>
+              <div class="col-12 mb-1">
+                @if (truck.state !== 'COMPLETE' && truck.state !== 'DELIVERED' && truck.state !== 'DELETED') {
+                  <button [hidden]="true" data-bs-target="#deleteTruckModal" data-bs-toggle="modal"
+                          id="deleteTruckModalButton" class="d-none"></button>
+                  <button (click)="deleteTruck()" class="btn btn-sm btn-danger" type="button">Remove Load</button>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-3 px-1">
+        <!-- TRANSIT DETAILS -->
+        <div class="card h-100">
+          <div class="card-body">
+            <h6 class="card-title text-size mb-2 fw-bold">TRANSIT DETAILS</h6>
+            @if (showEdit()) {
+              <!-- PICKUP -->
+              <div class="col-12 d-inline-flex align-items-center mb-1">
+                <label class="col-2">
+                  P/U:
+                </label>
+                <div class="col">
+                  @if (exceptionDropdown().length > 0) {
+                    <select (change)="changeMade()" [(ngModel)]="truck.pickupExceptionFK"
+                            [attr.disabled]="disabled() ? 'disabled' : null"
+                            class="form-select form-select-sm custom-select" id="pickupExceptionFK">
+                      <option disabled value="">Choose Exception</option>
+                      @for (exception of exceptionDropdown(); track exception.ExceptionID) {
+                        <option value="{{exception.ExceptionID}}">
+                          {{ exception.ExceptionName }}
+                        </option>
+                      }
+                    </select>
+                  } @else {
+                    <select class="form-select form-select-sm custom-select">
+                      <option disabled selected value="">Choose Exception</option>
+                    </select>
+                  }
+                </div>
+                @if (truck.shipDate) {
+                  <div class="col-4 blue">
+                    <span class="px-1 float-end"> {{ truck.shipDate | date : 'MM/dd/yyyy' }} </span>
+                  </div>
+                }
+              </div>
+              <!-- FINAL DELIVERY -->
+              <div class="col-12 d-inline-flex align-items-center mb-1">
+                <label class="col-2">
+                  DEL:
+                </label>
+                <div class="col">
+                  @if (exceptionDropdown().length > 0) {
+                    <select (change)="changeMade()" [(ngModel)]="truck.deliveryExceptionFK"
+                            id="deliveryExceptionFK" [attr.disabled]="disabled() ? 'disabled' : null"
+                            class="form-select form-select-sm custom-select">
+                      <option disabled selected value="">Choose Exception</option>
+                      @for (exception of exceptionDropdown(); track exception.ExceptionID) {
+                        <option value="{{exception.ExceptionID}}">
+                          {{ exception.ExceptionName }}
+                        </option>
+                      }
+                    </select>
+                  } @else {
+                    <select class="form-select form-select-sm custom-select">
+                      <option disabled selected value="">Choose Exception</option>
+                    </select>
+                  }
+                </div>
+                @if (truck.deliveryDate && truck.deliveryDate != '0000-00-00') {
+                  <div class="col-4 blue">
+                    <span class="px-1 float-end"> {{ truck.deliveryDate | date : 'MM/dd/yyyy' }}</span>
+                  </div>
+                }
+              </div>
+              <!-- SALES REP -->
+              <div class="col-12 d-inline-flex align-items-center mb-1">
+                <label class="col-6">
+                  CARRIER SALES REP:
+                </label>
+                <div class="col">
+                  <select (change)="changeSalesRep($event)" [(ngModel)]="truck.salesRep"
+                          class="form-select form-select-sm custom-select" id="salesRep">
+                    <option disabled value="">Choose Sales rep</option>
+                    @for (salesRep of salesRepDropdown(); track salesRep.UserID) {
+                      <option [value]="salesRep.UserID">
+                        {{ salesRep.UserName }}
+                      </option>
+                    }
+                  </select>
+                </div>
+              </div>
+              <!-- EQUIPMENT TYPE -->
+              <div class="col p-0 m-0 pb-1">
+                EQUIPMENT TYPE:
+                <div class="float-end pe-1">
+                  {{ truck.equipmentType?.toUpperCase() ?? '' }}
+                </div>
+              </div>
+              <div class="col p-0 m-0 pb-1">
+                LINEAR FEET:
+                <div class="float-end pe-1">
+                  {{ (truck.linearFoot ?? 0) + ' FT' }}
+                </div>
+              </div>
+              <div class="col p-0 m-0 pb-1">
+                CURRENT LOCATION:
+                <div class="float-end pe-1">
+                  {{ mostRecentLocation != '' ? mostRecentLocation.toUpperCase() : '' }}
+                </div>
+              </div>
+              <div class="col p-0 m-0 pb-1">
+                DATE/TIME:
+                <div class="float-end pe-1">
+                  {{ mostRecentEventDate != '' ? (mostRecentEventDate | date : 'MM/dd/yyyy hh:mm aa ') + timezone : '' }}
+                </div>
+              </div>
+              <div class="col p-0 m-0 pb-1">
+                CREATED ON:
+                <div class="float-end pe-1">
+                  {{ (getTruckInfoCardDetails('createdOn') | date : 'MM/dd/yyyy hh:mm aa ') }}
+                </div>
+              </div>
+              <div class="col p-0 py-1">
+                @if (truck.mapUrl) {
+                  <span class="blue icon-pointer">
+                  <button (click)="displayTrackingMap()" class="btn btn-sm btn-primary">View Tracking Map
+                    <i class="material-icons text-center" style="font-size: 14px">my_location</i>
+                  </button>
+                </span>
+                }
+              </div>
+              <div class="col p-0 pb-1">
+                <span class="blue icon-pointer">
+                  <button (click)="viewCompleteTracking()" class="btn btn-sm btn-primary">View Complete Tracking</button>
+                </span>
+              </div>
+            }
+            <!-- CREATE LOAD TRACK -->
+            <div class="col p-0 pb-1">
+              @if (truck.loadPosted) {
+                <div class="col-12">
+                  <b style="color:green;">Load Track Posted</b>
+                  <i class="material-icons text-center" style="color:green; font-size: 12px">check</i>
+                </div>
+              }
+              @if (truck.state !== 'COMPLETE' && truck.state !== 'DELIVERED' && truck.state !== 'DELETED') {
+                <div class="col-12">
+                  <button (click)="createLoadTrack()" [attr.disabled]="!canCreateLoadTrack ? 'disabled' : null"
+                          class="btn btn-sm btn-success" placement="top" type="button"
+                          ngbTooltip="{{ canCreateLoadTrack ? 'Create load track' : 'Missing Required Data to Create Load Track: ' + loadTrackErrorString }}">
+                    {{ truck.isLoadTrackCreated == 1 ? 'Update Load Track' : 'Create Load Track' }}
+                  </button>
+                </div>
+              }
+              @if (truck.isLoadTrackCreated == 1) {
+                <div class="col-12 pt-1">
+                  <b style="color: green">Load Track Created
+                    <i class="material-icons text-center" style="color: green; font-size: 12px">check</i>
+                  </b>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-3 px-1">
+        <!-- ORIGIN -->
+        <div class="card h-100">
+          <form [formGroup]="shippingDatesGroup">
+            <div class="card-body">
+              <h6 class="card-title text-size mb-2 fw-bold">ORIGIN</h6>
+              <address class="card-text">
+                <!-- origin dates -->
+                {{ getTruckInfoCardDetails('shipperName') }}
+                <br>
+                {{ getTruckInfoCardDetails('shipperAddress') }}
+                <br>
+                @if (getTruckInfoCardDetails('shipperAddress2') !== '') {
+                  {{ getTruckInfoCardDetails('shipperAddress2') }}
+                }
+                {{ getTruckInfoCardDetails('shipperCity') }} {{ getTruckInfoCardDetails('shipperState') }} {{ getTruckInfoCardDetails('shipperZip') }}
+                <br>
+                <a href="tel:{{getTruckInfoCardDetails('shipperPhone')}}">
+                  {{ (getTruckInfoCardDetails('shipperPhone') | mask:'(000) 000-0000') }}
+                </a>
+                <br>
+                <div>
+                  <a (click)="email.getEmailAttachmentBody()" data-bs-target="#emailModal" data-bs-toggle="modal" href="">
+                    {{ clientEmail() }}
+                  </a>
+                </div>
+              </address>
+              @if (truck.shipments) {
+                <div class="col-12">
+                  <b>
+                    PICKUP {{ truck.shipments?.[(truck.shipments?.length ?? 0) - 1]?.shipmentDetail.appointmentRequired ? 'APPOINTMENT' : 'WINDOW' }}
+                  </b>
+                </div>
+              }
+              @if (isEditMode()) {
+                <div class="col-12 d-inline-flex align-items-baseline pb-1">
+                  <div class="col-5">
+                    <b>APT START:</b>
+                  </div>
+                  <div class="col-7">
+                    <input [formControlName]="'pickupStart'"
+                           (change)="setDates('pickup', $event.target,'pickupAppointmentStart');"
+                           class="form-control form-control-sm" id="pickupStart"
+                           name="pickupStart" type="time">
+                  </div>
+                </div>
+                <div class="col-12 d-inline-flex align-items-baseline pb-1">
+                  <div class="col-5">
+                    <b>APT STOP:</b>
+                  </div>
+                  <div class="col-7">
+                    <input [formControlName]="'pickupStop'"
+                           (change)="setDates('pickup',$event.target, 'pickupAppointmentStop');"
+                           class="form-control form-control-sm" id="pickupStop"
+                           name="pickupStop" type="datetime-local">
+                  </div>
+                </div>
+              } @else {
+                <p>
+                  {{
+                    pickupAppointmentStart != null && pickupAppointmentStart != 'Invalid date' && pickupAppointmentStop != 'Invalid date' &&
+                    pickupAppointmentStop != null ? (pickupAppointmentStart | date: 'MM/dd/yyyy hh:mm a') + ' - ' + (pickupAppointmentStop | date: 'hh:mm a') : 'N/A'
+                  }}
+                  {{
+                    (pickupAppointmentStart != null && pickupAppointmentStart != 'Invalid date') || (pickupAppointmentStop != 'Invalid date' &&
+                      pickupAppointmentStop != null) ? shipperTimezone : ""
+                  }}
+                </p>
+              }
+              <div class="col-12 d-inline-flex align-items-baseline pb-1">
+                <div class="col-5">
+                  <b>ACTUAL PICKUP:</b>
+                </div>
+                <div class="col-7">
+                  @if (isEditMode()) {
+                    <input [formControlName]="'actualPickupDate'"
+                           (change)="setDates('pickup',$event.target, 'actualShipDate');"
+                           class="form-control form-control-sm" id="actualPickupDate"
+                           name="actualPickupDate" type="date">
+                  }
+                </div>
+              </div>
+              @if (!isEditMode() && truck.shipments) {
+                <p class="mb-0">
+                  {{ truck.shipments?.[0]?.shipmentDetail?.actualShipDate == null ? 'N/A' : truck.shipments?.[0]?.shipmentDetail.actualShipDate | date : 'MM/dd/yyyy' }}
+                </p>
+              }
+            </div>
+          </form>
+          @if (showEdit()) {
+            <div class="card-body">
+              <div class="row">
+                @if (!isEditMode()) {
+                  <div class="col">
+                    <button (click)="onEditClick()" [attr.disabled]="disabled() ? 'disabled' : null"
+                            class="btn btn-sm w-100 btn-primary mx-1" ngbTooltip="Edit Details" type="button">
+                      <i class="material-icons ps-1 assignment-return-size float-start">edit</i>
+                      Edit Details
+                    </button>
+                  </div>
+                } @else {
+                  <div class="col">
+                    <button class="btn btn-sm w-100 btn-danger mx-1" ngbTooltip="Cancel edit" onclick="location.reload();"
+                            type="button">
+                      <i class="material-icons ps-1 assignment-return-size float-start">clear</i>
+                      Cancel Edit
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+      <div class="col-3">
+        <!-- DESTINATION -->
+        <div class="card h-100">
+          <form [formGroup]="shippingDatesGroup">
+            <div class="card-body">
+              <h6 class="card-title text-size mb-2 fw-bold">DESTINATION</h6>
+              <address class="card-text">
+                <!-- Destination dates -->
+                {{ getTruckInfoCardDetails('consigneeName') }}
+                <br>
+                {{ getTruckInfoCardDetails('consigneeAddress') }}
+                <br>
+                @if (getTruckInfoCardDetails('consigneeAddress2') !== '') {
+                  {{ getTruckInfoCardDetails('consigneeAddress2') }}
+                }
+                {{ getTruckInfoCardDetails('consigneeCity') }} {{ getTruckInfoCardDetails('consigneeState') }} {{ getTruckInfoCardDetails('consigneeZip') }}
+                <br>
+                <a href="tel:{{getTruckInfoCardDetails('consigneePhone')}}">
+                  {{ getTruckInfoCardDetails('consigneePhone') | mask:'(000) 000-0000' }}
+                </a>
+                <br>
+                <a href="mailto:{{getTruckInfoCardDetails('consigneeEmail')}}">
+                  {{ getTruckInfoCardDetails('consigneeEmail') }}
+                </a>
+              </address>
+              <br>
+              @if (receivingHourStart) {
+                <div class="col ps-0">
+                  <b>RECEIVING HOUR START : </b> {{ receivingHourStart }} {{ consigneeTimezone }}
+                </div>
+                <br>
+              }
+              @if (receivingHourStop) {
+                <div class="col ps-0">
+                  <b>RECEIVING HOUR STOP : </b> {{ receivingHourStop }} {{ consigneeTimezone }}
+                </div>
+                <br>
+              }
+              @if (truck.shipments) {
+                <div class="col-12">
+                  <b>
+                    DELIVERY {{ truck.shipments?.[(truck.shipments?.length ?? 0) - 1]?.shipmentDetail?.deliveryAppointmentRequired ? 'APPOINTMENT' : 'WINDOW' }}
+                  </b>
+                </div>
+              }
+              @if (isEditMode()) {
+                <div class="col ps-0">
+                  <div class="col-12 d-inline-flex align-items-baseline pb-1">
+                    <div class="col-5">
+                      <b>APT START:</b>
+                    </div>
+                    <div class="col-7">
+                      <input [formControlName]="'deliveryStart'"
+                             (change)="setDates('delivery', $event.target, 'deliveryAppointmentStart');"
+                             class="form-control form-control-sm" id="deliveryStart"
+                             name="deliveryStart" type="time">
+                    </div>
+                  </div>
+                  <div class="col-12 d-inline-flex align-items-baseline pb-1">
+                    <div class="col-5">
+                      <b>APT STOP:</b>
+                    </div>
+                    <div class="col-7">
+                      <input [formControlName]="'deliveryStop'"
+                             (change)="setDates('delivery',$event.target,'deliveryAppointmentStop');"
+                             class="form-control form-control-sm" id="deliveryStop"
+                             name="deliveryStop" type="datetime-local">
+                    </div>
+                  </div>
+                </div>
+              } @else {
+                <p>
+                  {{ deliveryAppointmentStart != null && deliveryAppointmentStart != 'Invalid date' && deliveryAppointmentStop != 'Invalid date' && deliveryAppointmentStop != null ? (deliveryAppointmentStart | date: 'MM/dd/yyyy hh:mm a') + ' - ' + (deliveryAppointmentStop | date: 'hh:mm a') : 'N/A' }} {{ (deliveryAppointmentStart != null && deliveryAppointmentStart != 'Invalid date') || (deliveryAppointmentStop != 'Invalid date' && deliveryAppointmentStop != null) ? consigneeTimezone : "" }}
+                </p>
+              }
+              <div class="col-12 d-inline-flex align-items-baseline pb-1">
+                <div class="col-5">
+                  <b>ACTUAL DELIVERY:</b>
+                </div>
+                <div class="col-7">
+                  @if (isEditMode()) {
+                      <input [formControlName]="'actualDeliveryDate'" [max]="todayDate"
+                             (change)="setDates('delivery',$event.target,'actualDeliveryDate');"
+                             class="form-control form-control-sm" id="actualDeliveryDate"
+                             max="{{todayDate}}" name="actualDeliveryDate" type="date">
+                  }
+                </div>
+              </div>
+              @if (!isEditMode()) {
+                <div class="mb-0">
+                  {{ truck.deliveryDate == null || truck.deliveryDate == '0000-00-00' ? 'N/A' : truck.deliveryDate | date : 'MM/dd/yyyy' }}
+                </div>
+              }
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINANCIAL REVIEW -->
+  <div class="row mb-3">
+    <div class="col-md-6 pe-1">
+      <div class="card mb-2 h-100">
+        <div class="card-body py-2">
+          <div class="text-size mb-2 fw-bold">
+            FINANCIAL REVIEW
+          </div>
+          <div class="table-responsive">
+            <table class="table table-borderless mb-0" style="text-align: center">
+              <thead>
+              <tr>
+                <th>Client $</th>
+                <th>Carrier $</th>
+                <th>Margin $</th>
+                <th>Margin %</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td>
+                  {{
+                    selectedClientCost > 0 ? "$" + selectedClientCost.toFixed(2).toString() + " " +
+                      (truck?.shipments?.[0]?.client?.cutAbbreviation ? truck?.shipments?.[0]?.client?.cutAbbreviation : "USD") : "N/A"
+                  }}
+                </td>
+                <td>
+                  {{
+                    selectedCarrierCost > 0 ? "$" + selectedCarrierCost.toFixed(2).toString() + " " + setCarrierCurrency() : "N/A"
+                  }}
+                </td>
+                <td>
+                  {{
+                    selectedMarginAmount != null ? "$" + selectedMarginAmount.toFixed(2).toString() + " " +
+                      (truck?.shipments?.[0]?.client?.cutAbbreviation ? truck?.shipments?.[0]?.client?.cutAbbreviation : "USD") : "N/A"
+                  }}
+                </td>
+                <td>
+                  {{ selectedMarginPercent != null ? selectedMarginPercent.toFixed(2).toString() + "%" : "N/A" }}
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- CLIENT QUOTE BUTTON -->
+      @if (truck && truck?.state == 'FINDING_QUOTES' && !showAddClientQuote && clientQuotes.length == 0) {
+        <div class="col p-0 py-3">
+          <button (click)="onClickShowClientQuote(true)" class="btn btn-sm btn-primary">
+            Add Client Quote
+          </button>
+        </div>
+      }
+    </div>
+    <div class="col-md-6 ps-1">
+      <div class="card mb-2 h-100">
+        <div class="card-body py-2">
+          <div class="text-size mb-2 fw-bold">
+            CAPACITY PROVIDERS
+          </div>
+          <div class="row">
+            <div class="col-md pe-1">
+              <div>
+                <button (click)="onClickPostLoad()" [disabled]="truck?.loadPosted || truck?.loadPostedTT || truck?.mpOrderId ||
+                      !validateStatusForPosting() || !validateStatusForProNumber()"
+                        class="btn btn-sm mb-2 btn-primary"
+                        type="button">
+                  {{ "Post Load" }}
+                </button>
+              </div>
+              @if (!(truck?.mpOrderId == null || truck?.mpOrderId === '')) {
+                <div>
+                  <b style="color: green">Macropoint - Posted
+                    <i class="material-icons text-center" style="color: green; font-size: 12px">check</i>
+                  </b>
+                </div>
+              }
+              @if (truck?.loadPosted) {
+                <div>
+                  <b style="color: green">DAT - Posted
+                    <i class="material-icons text-center" style="color: green; font-size: 12px">check</i>
+                  </b>
+                </div>
+              }
+              @if (truck?.loadPostedTT) {
+                <div>
+                  <b style="color: green">Trucker Tools - {{ truck?.loadCoveredTT ? "Covered" : "Posted" }}
+                    <i class="material-icons text-center" style="color: green; font-size: 12px">check</i>
+                  </b>
+                </div>
+              }
+            </div>
+            @if (truckerToolsActive) {
+              <div class="col-md px-1">
+                <div class="row">
+                  <div class="col">
+                    @if (validateStatusForPosting()) {
+                      <button (click)="onClickPostTruckerToolBoard()"
+                              [disabled]="truck?.loadCoveredTT || !validateStatusForProNumber()"
+                              [ngClass]="truck?.loadPostedTT == true ? 'btn-success' : 'btn-primary'"
+                              class="btn btn-sm mb-2" type="button">
+                        {{
+                          truck?.loadCoveredTT ? "Covered Load" :
+                            truck?.loadPostedTT == true ? "Trucker Tools - Update Load" : "Trucker Tools - Post Load"
+                        }}
+                      </button>
+                    } @else {
+                      <button [disabled]="true" class="btn btn-sm btn-primary mb-2" type="button">
+                        {{
+                          truck?.loadCoveredTT ? "Covered Load" :
+                            truck?.loadPostedTT == true ? "Trucker Tools - Update Load" : "Trucker Tools - Post Load"
+                        }}
+                      </button>
+                    }
+                    @if (truck?.loadPostedTT == true) {
+                      <button (click)="deleteFromTruckerBoard()"  class="btn btn-sm btn-danger"
+                              [attr.disabled]="!validateStatusForPosting() ? 'disabled' : null" type="button">
+                        Trucker Tools - Delete Load
+                      </button>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+            @if (macropointActive) {
+              <div class="col-md px-1">
+                <div class="row">
+                  <div class="col">
+                    <div>
+                      <button (click)="onClickPostMacropointBoard()" class="btn btn-sm mb-2" type="button"
+                              [disabled]="!validateStatusForProNumber() || !validateStatusForPosting() || (truck?.driverPhone === '' || truck?.driverPhone == null)"
+                              [ngClass]="!validateStatusForProNumber() || !validateStatusForPosting() ? 'btn-primary' : truck?.mpOrderId ? 'btn-success' : 'btn-primary'"
+                              ngbTooltip="{{ !validateStatusForProNumber() || (truck?.driverPhone === '' || truck?.driverPhone == null) ? 'Missing Driver Phone or Pro/Load number' : 'Post Load'}}">
+                        {{
+                          truck?.mpOrderId ? "Macropoint - Update Load" : "Macropoint - Post Load"
+                        }}
+                      </button>
+                    </div>
+                    @if (truck?.mpOrderId) {
+                      <div>
+                        <button (click)="deleteFromMacropointBoard()" class="btn btn-sm btn-danger"
+                                [attr.disabled]="!validateStatusForPosting() ? 'disabled' : null" type="button">
+                          Macropoint - Delete Load
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+            @if (datActive) {
+              <div class="col-md ps-1">
+                <div class="row">
+                  <div class="col">
+                    <div>
+                      <button (click)="onClickPostToLoadBoard()" class="btn btn-sm mb-2"
+                              [attr.disabled]="!validateStatusForPosting() ? 'disabled' : null"
+                              [ngClass]="truck?.loadPosted == true ? 'btn-success' : 'btn-primary'" type="button">
+                        {{
+                          truck?.loadPosted == true ? "DAT - Update Load" : "DAT - Post Load"
+                        }}
+                      </button>
+                    </div>
+                    @if (truck?.loadPosted) {
+                      <div>
+                        <button (click)="deleteFromLoadBoard()"
+                                [attr.disabled]="!validateStatusForPosting() ? 'disabled' : null"
+                                class="btn btn-sm btn-danger"
+                                type="button">
+                          DAT - Delete Load
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIENT QUOTE SECTION -->
+  @if (showAddClientQuote || clientQuotes.length > 0) {
+    <div class="card mb-3">
+      <div class="card-body py-2">
+        <div class="text-size mb-2 fw-bold">CLIENT QUOTE</div>
+        @if (truck) {
+          <div class="row">
+            @for (quote of clientQuotes; track quote.quoteID) {
+              <div class="col-12 row mt-2 ms-1 vl" id="rowClientQuote-{{ quote.quoteID }}">
+                <div class="col-12 d-inline-flex ps-0">
+                  <div class="ps-0 pe-1 col-3">
+                    <select class="form-select form-select-sm custom-select" disabled id="carrierClientQuote-{{ quote.quoteID }}"
+                            name="carrierClientQuote-{{ quote.quoteID }}">
+                      <option selected value="{{ quote.carrierID }}">{{ quote.carrierName }}</option>
+                    </select>
+                  </div>
+
+                  <div class="ps-0 pe-1 col-2">
+                    <div class="form-label-group m-0">
+                      <input (change)="validateQuoteChanged(quote.quoteID)"
+                             (keydown)="checkTwoDecimals($event)"
+                             [attr.disabled]="disabled() ? 'disabled' : null"
+                             class="form-control form-control-sm"
+                             id="costClientQuote-{{ quote.quoteID }}"
+                             min="0" placeholder="Client Cost {{ truck?.shipments?.[0]?.client?.cutAbbreviation ?? 'USD' }}" type="number"
+                             value="{{quote.clientCost}}"/>
+                      <label for="costClientQuote-{{ quote.quoteID }}">
+                        Client Cost {{ truck?.shipments?.[0]?.client?.cutAbbreviation ?? "USD" }}
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="col-2 ps-0 pe-1">
+                    <app-type-ahead-drop-down (modelValueOnChange)="validateQuoteChanged(quote.quoteID)"
+                                              [data]="equipment"
+                                              [disabled]="disabled()"
+                                              [editable]="false"
+                                              [isRequired]="true"
+                                              [name]="'equipmentClientQuote-' + quote.quoteID"
+                                              [placeHolder]="'Equipment'"
+                                              [selectedValue]="quote.equipment"
+                                              [tagLine]="'Equipment'">
+                    </app-type-ahead-drop-down>
+                  </div>
+
+                  <div class="col-1 ps-0 pe-1">
+                    <div class="form-label-group m-0" ngbTooltip="Transit time">
+                      <input (change)="validateQuoteChanged(quote.quoteID)"
+                             [attr.disabled]="disabled() ? 'disabled' : null"
+                             class="form-control form-control-sm"
+                             id="ttClientQuote-{{ quote.quoteID }}"
+                             maxlength="3"
+                             min="0"
+                             placeholder="TT" type="number" value="{{quote.transitTime | number: '1.0-0'}}"/>
+                      <label for="ttClientQuote-{{ quote.quoteID }}">TT</label>
+                    </div>
+                  </div>
+
+                  <div class="col px-1">
+                    <div class="form-label-group m-0">
+                      <input (change)="validateQuoteChanged(quote.quoteID)" [attr.disabled]="disabled() ? 'disabled' : null"
+                             aria-label="notes"
+                             class="form-control form-control-sm"
+                             id="notesClientQuote-{{ quote.quoteID }}"
+                             placeholder="Notes" type="text" value="{{quote.notes}}"/>
+                      <label for="notesClientQuote-{{ quote.quoteID }}">Notes</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+            @if (setClientQuotes().length == 0) {
+              <div class="col-12 row mt-2 ms-1 vl" id="rowClientQuote-new">
+                <div class="col-12 d-inline-flex ps-0">
+                  <div class="ps-0 pe-1 col-3">
+                    <select class="form-select form-select-sm custom-select" disabled id="carrierClientQuote"
+                            name="carrierClientQuote">
+                      <option selected value="2">IL2000</option>
+                    </select>
+                  </div>
+
+                  <div class="ps-0 pe-1 col-2">
+                    <div class="form-label-group m-0">
+                      <input (keydown)="checkTwoDecimals($event)" [attr.disabled]="disabled() ? 'disabled' : null"
+                             [value]="0 | number : '1.0-2'" step="0.01" type="number"
+                             class="form-control d-inline-flex me-1 form-control-sm" id="costClientQuote" min="0"
+                             placeholder="Client Cost {{ truck?.shipments?.[0]?.client?.cutAbbreviation ?? 'USD' }}"/>
+                      <label for="costClientQuote">
+                        Client Cost {{ truck?.shipments?.[0]?.client?.cutAbbreviation ?? "USD" }}
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="col-2 ps-0 pe-1">
+                    <app-type-ahead-drop-down [data]="equipment"
+                                              [disabled]="disabled()"
+                                              [editable]="false"
+                                              [isRequired]="true"
+                                              [name]="'equipmentClientQuote'"
+                                              [placeHolder]="'Equipment'"
+                                              [tagLine]="'Equipment'">
+                    </app-type-ahead-drop-down>
+                  </div>
+
+                  <div class="col-1 ps-0 pe-1">
+                    <div class="form-label-group m-0" ngbTooltip="Transit time">
+                      <input [attr.disabled]="disabled() ? 'disabled' : null"
+                             [value]="0 | number : '1.0-0'"
+                             class="form-control form-control-sm"
+                             id="ttClientQuote"
+                             maxlength="3" min="0" placeholder="TT" type="number"/>
+                      <label for="ttClientQuote">TT</label>
+                    </div>
+                  </div>
+
+                  <div class="col px-1">
+                    <div class="form-label-group m-0">
+                      <input [attr.disabled]="disabled() ? 'disabled' : null" aria-label="notes"
+                             class="form-control form-control-sm"
+                             id="notesClientQuote" placeholder="Notes" type="text"/>
+                      <label for="notesClientQuote">Notes</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+            <div class="col-12 row mt-2 ms-1">
+              <div class="col-12 d-inline-flex ps-0">
+                <div class="col"></div>
+                <div class="col-2 ps-0 pe-1">
+                  <button (click)="onclickClientQuoteEmit()" [disabled]="!enableSaveCQbtn()" class="btn btn-sm btn-success">
+                    Save Client Quote
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- AUTO GENERATED DOCUMENTS -->
+  <div class="card mb-3">
+    <div class="card-body py-2">
+      <div class="text-size mb-2 fw-bold">DOCUMENTS [MANUAL]</div>
+      @if (truck) {
+        <div class="row px-2">
+          <div class="col px-1">
+            <select (change)="documentSelect = true; setEmailDocument(selectedDocument)"
+                    [(ngModel)]="selectedDocument"
+                    class="form-select form-select-sm custom-select d-inline-flex me-1 pt-1 pb-1" id="docSelect">
+              <option disabled hidden selected value="">Select Document</option>
+              <option value="BOL">Bill of Lading</option>
+              @if (showEdit() && truck?.state != 'PREBOOKED' && truck?.state != 'FINDING_QUOTES' && proLoadEntered &&
+              selectedCarrierCost != null && selectedCarrierCost.toString() != '') {
+                <option value="carrierconfirmation">
+                  Carrier Confirmation
+                </option>
+              }
+              @for (q of quotesNotUsed; track q) {
+                <option [value]="'tnuconfirmation-' + q.quoteID + '-' + q.carrierName">
+                  {{ 'TNU Carrier Confirmation - Quote Id: ' + q.quoteID + ' - ' + q.carrierName + ' ' + q.mcNumber }}
+                </option>
+              }
+              @if (selectedClientCost > 0 && (selectedQuote?.length ?? 0) > 0) {
+                <option value="clientquote">
+                  Client Quote
+                </option>
+              }
+              @for (doc of truck?.documents; track doc) {
+                <option [value]="doc.url">{{ doc.type + showDocumentSource(doc.url) }}</option>
+              }
+            </select>
+          </div>
+          <div class="col px-1">
+            <button (click)="viewDocument(selectedDocument, true)" [disabled]="!documentSelect"
+                    class="btn btn-sm btn-primary w-100" type="button">
+              View/Print <i class="material-icons text-center blue" style="font-size: 14px; color:white;">print</i>
+            </button>
+          </div>
+          <div class="col px-1">
+            <app-email-modal (eventEmailSent)="onMailSent(selectedDocument)"
+                             [BOLNumber]="truck?.truckID?.toString() ?? ''"
+                             [attachments]="emailSendAttachment" [btnClassType]="'Document'"
+                             [btnLabel]="''" [ccSender]="true"
+                             [disableBtn]="!documentSelect"
+                             [documentType]="emailSendDocumentType"
+                             [emailBody]="statusEmailBody()"
+                             [emailModalLabel]="emailSendSubject"
+                             [emailModalName]="'TruckDocumentEmailModal'"
+                             [emailSubject]="emailSendSubject"
+                             [fromEmailAddress]="'truckload@il2000.com'"
+                             [hideDocumentUpload]="true" [htmlEmailBody]="''"
+                             [identifierType]="'TL'" [isHtml]="false"
+                             [reloadAfterSend]="false" [sendingManualDoc]="false"
+                             [toEmailAddress]="truck?.carrierEmail?.toLowerCase() ?? ''"
+                             [truckBOLs]="shipmentIDs"
+                             class="d-block justify-content-center">
+            </app-email-modal>
+          </div>
+          <div class="col px-1">
+            <button (click)="downloadDocument(selectedDocument, true)" [disabled]="!documentSelect"
+                    class="btn btn-sm btn-success w-100" type="button">
+              Download <i class="material-icons text-center blue" style="font-size: 14px; color:white">download</i>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- MANUALLY UPLOADED DOCUMENTS -->
+  <div class="card mb-3">
+    <div class="card-body py-2">
+      <div class="text-size mb-2 fw-bold">DOCUMENTS [MANUAL]</div>
+      @if (truck) {
+        <div class="row px-2">
+          <div class="col px-1">
+            <select (change)="documentManualSelect = true;setManualDocumentType();"
+                    [(ngModel)]="selectedManualDocument"
+                    class="form-select form-select-sm custom-select d-inline-flex me-1 pt-1 pb-1"
+                    id="docSelectManual" name="docSelectManual">
+              <option disabled hidden selected value="">Select Document</option>
+              @for (doc of manualDocDropdown; track doc) {
+                <option [value]="doc.description">
+                  {{ doc.description == 'Other Document' ? 'Other' : doc.description }}
+                </option>
+              }
+            </select>
+          </div>
+          <div class="col px-1">
+            <button (click)="viewManualDocument(selectedManualDocument)" [disabled]="!documentManualSelect"
+                    class="btn btn-sm btn-primary w-100" type="button">
+              View/Print <i class="material-icons text-center blue" style="font-size: 14px; color:white;">print</i>
+            </button>
+          </div>
+          <div class="col px-1">
+            <app-email-modal (eventEmailSent)="onMailSent()"
+                             [BOLNumber]="truck?.truckID?.toString() ?? ''"
+                             [attachments]="emailSendAttachment" [btnClassType]="'Document'"
+                             [btnLabel]="''"
+                             [ccSender]="true" [disableBtn]="!documentManualSelect"
+                             [documentType]="selectedManualDocument"
+                             [emailBody]="statusEmailBody()"
+                             [emailModalLabel]="emailSendSubject"
+                             [emailModalName]="'TruckManualDocumentEmailModal'"
+                             [emailSubject]="emailSendSubject"
+                             [fromEmailAddress]="'truckload@il2000.com'"
+                             [hideDocumentUpload]="true" [htmlEmailBody]="''"
+                             [identifierType]="'TL'"
+                             [isHtml]="false"
+                             [reloadAfterSend]="false" [sendingManualDoc]="true"
+                             [toEmailAddress]="truck?.carrierEmail?.toLowerCase() ?? ''"
+                             [truckBOLs]="shipmentIDs"
+                             class="d-block justify-content-center"></app-email-modal>
+          </div>
+          <div class="col px-1">
+            <button (click)="openUploadModal()" class="btn btn-sm btn-success w-100" type="button">
+              Upload <i class="material-icons text-center blue" style="font-size: 14px; color:white">upload</i>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (truck?.state == 'PENDING') {
+    <div class="card mb-3">
+      <div class="card-body py-2">
+        <div class="row">
+          <div class="px-2 pt-1">Add Shipment to Truck by Shipment ID:</div>
+          <div class="col-sm-3">
+            <input (ngModelChange)="changeMade()" [(ngModel)]="addShipment"
+                   class="form-control form-control-sm d-inline-flex align-right"
+                   id="addShipment" name="addShipment" type="number" value="">
+          </div>
+          <div class="col"></div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (truck && (truck?.shipments?.length ?? 0) > 1 && truck?.state == 'PENDING') {
+    <b class="color: red">
+      Drag stops to reorder them
+    </b>
+  }
+
+  @if (truck) {
+    <div (cdkDropListDropped)="drop($event)" [cdkDropListData]="truck?.shipments" cdkDropList>
+      @for (shipment of truck?.shipments; track shipment.shipmentDetail.shipmentID; let s=$index) {
+        <div [cdkDragDisabled]="disableShipDrag()" cdkDrag>
+          <div class="mb-3">
+            <div class="flex-column">
+              <div class="card card-stop">
+                <div class="card-body p-3">
+                  <div class="row">
+                    <div class="col-sm-2">
+                      <div class="row mb-2">
+                        <div class="col-sm-12">
+                          <div>
+                            <p class="mb-3 fw-bold">
+                        <span style="vertical-align:middle;margin-right: 2px;">
+                          <i class="material-icons dodger-blue rotate-90 alignMiddle">
+                              drag_indicator
+                          </i>
+                        </span>
+                              <span style="vertical-align: middle;">
+                          STOP #{{ s + 1 }} - {{ shipment.shipmentDetail.shipmentID }}
+                        </span>
+                            </p>
+                          </div>
+                        </div>
+                        <div class="col-sm-12 mb-2">
+                          <button (click)="viewBOL(shipment.shipmentDetail.bolNumber)" class="btn btn-sm w-75 btn-primary">
+                            View BOL
+                          </button>
+                        </div>
+                        @if (truck?.state == 'PENDING' || truck?.state == 'PREBOOKED' || truck?.state == 'BOOKED' || truck?.state == 'REQUEST FOR QUOTE') {
+                          <div class="col-sm-12 mb-2">
+                            <a [href]="'SPAs/new/'+ shipment.shipmentDetail.shipmentID +'/'+ shipment.client?.groupID"
+                               class="btn btn-sm w-75 btn-primary" target="_blank">
+                              Edit Shipment
+                            </a>
+                          </div>
+                        }
+                        <div class="col-sm-12 mb-2">
+                          <button (click)="viewAllTracking(shipment.shipmentDetail.shipmentID, shipment.historicalEvents)"
+                                  class="btn btn-sm w-75 btn-primary">
+                            View Tracking for this stop
+                          </button>
+                          <button [hidden]="true" data-bs-target="#viewAllTrackingModal" data-bs-toggle="modal"
+                                  id="viewAllTrackingModalButton">
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-sm-10 ps-0">
+                      <div class="row mb-3">
+                        <div class="col-sm-5 scheduledContainer">
+                          <div style="display: inline-block;float: left;">
+                            <b>Scheduled Pickup Start: </b><br>
+                            {{ shipment.shipmentDetail?.pickupAppointmentStart != null && shipment.shipmentDetail.pickupAppointmentStart != 'Invalid date' ? (shipment.shipmentDetail.pickupAppointmentStart | date: 'MM/dd/yyyy hh:mm a') : 'N/A' }}
+                            @if (s === ((truck?.shipments?.length ?? 0) - 1)) {
+                              {{ getShortTimeZone(shipment.shipper?.timezone) }}
+                            } @else {
+                              {{ multiStopTimezone[s] }}
+                            }
+                          </div>
+                          <div style="display: inline-block;float: right;">
+                            <b>Scheduled Pickup End:</b><br>
+                            {{ shipment.shipmentDetail?.pickupAppointmentStop != null && shipment.shipmentDetail.pickupAppointmentStop != 'Invalid date' ? (shipment.shipmentDetail.pickupAppointmentStop | date: 'MM/dd/yyyy hh:mm a') : 'N/A' }}
+                            @if (s === ((truck?.shipments?.length ?? 0) - 1)) {
+                              {{ getShortTimeZone(shipment.shipper?.timezone) }}
+                            } @else {
+                              {{ multiStopTimezone[s] }}
+                            }
+                          </div>
+                        </div>
+                        <div class="col-sm-5 ms-2 scheduledContainer">
+                          <div style="display: inline-block;float: left;">
+                            <b>Scheduled Delivery Start:</b><br>
+                            {{ shipment.shipmentDetail?.deliveryAppointmentStart != null && shipment.shipmentDetail.deliveryAppointmentStart != 'Invalid date' ? (shipment.shipmentDetail.deliveryAppointmentStart | date: 'MM/dd/yyyy hh:mm a') : 'N/A' }}
+                            {{ multiStopTimezone[s] }}
+                          </div>
+                          <div style="display: inline-block;float: right;">
+                            <b>Scheduled Delivery End:</b><br>
+                            {{ shipment.shipmentDetail?.deliveryAppointmentStop != null && shipment.shipmentDetail.deliveryAppointmentStop != 'Invalid date' ? (shipment.shipmentDetail.deliveryAppointmentStop | date: 'MM/dd/yyyy hh:mm a') : 'N/A' }}
+                            {{ multiStopTimezone[s] }}
+                          </div>
+                        </div>
+                        <div class="col text-center">
+                          <b>Contact:</b>
+                          <br>{{ shipment.shipmentDetail?.contact != null ? shipment.shipmentDetail.contact : 'N/A' }}
+                        </div>
+                      </div>
+
+                      <div class="row">
+                        <!-- PO / REFERENCE FIELDS -->
+                        <div class="col-3">
+                          <div class="row">
+                            <h6 class="col fw-bold">REFERENCE FIELDS</h6>
+                          </div>
+                          <div class="row pt-1 pe-2 pb-2">
+                            <div class="col">
+                              @if (truck?.shipments) {
+                                <div class="form-label-group m-0">
+                                  <input (change)="onChangePoNumber(s, $event);changeMade();"
+                                         [disabled]="disabled()"
+                                         [value]="truck?.shipments?.[s]?.shipmentDetail?.poNumber"
+                                         aria-label="PO Number"
+                                         class="form-control form-control-sm d-inline-flex"
+                                         id="{{'PONumber' + s }}" placeholder="PO Number"
+                                         type="text">
+                                  <label for="{{'PONumber' + s }}">PO Number</label>
+                                </div>
+                              }
+                            </div>
+                          </div>
+
+                          @for (reference of shipment.referenceFields; track reference) {
+                            @if (reference) {
+                              <div class="row pt-1 pe-2 pb-2 ">
+                                <div class="col">
+                                  <div class="form-label-group m-0">
+                                    <input (ngModelChange)="changeMade()" [(ngModel)]="reference.value"
+                                           [disabled]="disabled()" class="form-control form-control-sm d-inline-flex"
+                                           id="{{ (reference?.description ?? '') + s }}"
+                                           placeholder="{{reference?.description}}" type="text">
+                                    <label for="{{(reference?.description ?? '') + s }}">
+                                      {{ reference?.description }}
+                                    </label>
+                                  </div>
+                                </div>
+                              </div>
+                            }
+                          }
+
+                          @for (openRef of shipment?.openReferenceFields; track openRef.rftID) {
+                            <div class="row pt-1 pe-2 pb-2 ">
+                              @if (openRef.rftID !== 1 || (openRef.rftID == 1 && openRef?.value !== shipment.shipmentDetail.poNumber)) {
+                                <div class="col">
+                                  <div class="form-label-group m-0">
+                                    <input (ngModelChange)="changeMade()" [(ngModel)]="openRef.value"
+                                           [disabled]="disabled()" class="form-control form-control-sm d-inline-flex"
+                                           id="{{openRef?.rftDescription + s }}"
+                                           placeholder="{{openRef?.rftDescription}}" type="text">
+                                    <label for="{{openRef?.rftDescription + s }}">
+                                      {{ openRef?.rftDescription }}
+                                    </label>
+                                  </div>
+                                </div>
+                              }
+                            </div>
+                          }
+
+                          <div class="row pb-1 pe-2">
+                            <div class="col">
+                              <label class="col-form-label d-inline fw-bold">Add Fields</label>
+                            </div>
+                          </div>
+                          <div class="row pe-2">
+                            <div class="col">
+                              <app-reference-field (addReferenceEmit)="changeMade()"
+                                                   (selectRefTypeEmit)="checkExceptionCodeExists(shipment.shipmentDetail.shipmentID, shipment.referenceFields)"
+                                                   [groupID]="shipment.client?.groupID"
+                                                   [isShipmentsPage]="false"
+                                                   [shipmentID]="shipment.shipmentDetail.shipmentID"
+                                                   id="referenceComponent{{s}}">
+                              </app-reference-field>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- DESTINATION / STATUS -->
+                        <div class="col">
+                          <div class="row mb-2">
+                            <!-- DESTINATION -->
+                            <div class="col">
+                              <b>DESTINATION</b>
+                              @if (truck) {
+                                <address class="card-text">
+                                  {{ getTruckInfoCardDetails('consigneeName', s) }}
+                                  <br>
+                                  {{ getTruckInfoCardDetails('consigneeAddress', s) }}
+                                  <br>
+                                  @if (getTruckInfoCardDetails('consigneeAddress2', s) !== '') {
+                                    {{ getTruckInfoCardDetails('consigneeAddress2', s) }}
+                                  }
+                                  {{ getTruckInfoCardDetails('consigneeCity', s) }} {{ getTruckInfoCardDetails('consigneeState', s) }} {{ getTruckInfoCardDetails('consigneeZip', s) }}
+                                  <br>
+                                  <a href="tel:{{getTruckInfoCardDetails('consigneePhone', s)}}">
+                                    {{ getTruckInfoCardDetails('consigneePhone', s) | mask:'(000) 000-0000' }}
+                                  </a>
+                                  <br>
+                                  <a href="mailto:{{getTruckInfoCardDetails('consigneeEmail', s)}}">
+                                    {{ getTruckInfoCardDetails('consigneeEmail', s) }}
+                                  </a>
+                                </address>
+                              }
+                            </div>
+
+                            <!-- CURRENT STATUS -->
+                            <div class="col">
+                              <b>CURRENT STATUS</b>
+                              <br>
+                              {{ shipment.historicalEvents.length > 0 ? shipment.historicalEvents[0].trackingState : 'No Status Updates' }}
+                              @if (shipment.historicalEvents.length > 0 && shipment.historicalEvents[0].trackingState == 'DELIVERED') {
+                                <i class="material-icons text-center" style="color:green; font-size: 12px">check</i>
+                              }
+                              <br>
+                              {{ shipment.historicalEvents.length > 0 ? convertDateTimeToLocalString(shipment.historicalEvents[0].eventDate, shipment.historicalEvents[0].eventTime, true) : '' }}
+                              <br>
+                              @if (shipment.historicalEvents.length > 0 && shipment.historicalEvents[0].trackingMessage !== '') {
+                                <p class="mb-0">{{ shipment.historicalEvents[0].trackingMessage }}</p>
+                              }
+                              @if (shipment.historicalEvents.length > 0 && shipment.historicalEvents[0].currentLocation !== '') {
+                                <p class="mb-0">{{ shipment.historicalEvents[0].currentLocation?.toUpperCase() }}</p>
+                              }
+                              <!-- Notification Mails -->
+                              <div class="col-12 px-0">
+                                <app-notification-mails
+                                  (getNotifications)="getNotificationMails(s, $event)"
+                                  [disabled]="disabled()"
+                                  [notMailId]="s"
+                                  [notMails]="shipment.notificationMails"
+                                  [shipmentType]="'Truckload'">
+                                </app-notification-mails>
+                              </div>
+                              <!-- End Notification Mails -->
+                            </div>
+
+                            <!-- UPDATE STATUS -->
+                            <form [formGroup]="trackingStatusForm" class="col-sm-4">
+                              <div>
+                                <b>UPDATE STATUS</b>
+                                <div class="row mt-2">
+                                  <div class="col-sm-6 pe-1">
+
+                                    <select (change)="changeMade();statusChangeMade(s)"
+                                            [(ngModel)]="updateStatusArray[s]!.trackingState" id="trackingStatus"
+                                            [attr.disabled]="disabled() ? 'disabled' : null"
+                                            [disabled]="disableStatus || disableCard[s]"
+                                            class="form-select form-select-sm custom-select" formControlName="trackingStatus">
+                                      <option disabled hidden selected value="">Select Status</option>
+                                      @for (status of statuses; track status.status) {
+                                        <option value="{{status.status}}">{{ status.description }}</option>
+                                      }
+                                    </select>
+
+                                  </div>
+                                  <div class="col-sm-6 ps-1">
+                                    <input (change)="statusChangeMade(s);" [(ngModel)]="updateStatusArray[s]!.trackingDate"
+                                           [attr.disabled]="disabled() ? 'disabled' : null" type="datetime-local"
+                                           [disabled]="disableCard[s]" [required]="updateStatusArray[s]!.trackingState"
+                                           class="form-control form-control-sm" formControlName="trackingDate"
+                                           id="trackingDate{{s}}" max="{{global.formattedMaxDateTime}}"/>
+                                    @if (validateLocation[s] && validateLocation[s].date) {
+                                      <div class="error-message">Date is required</div>
+                                    }
+                                  </div>
+                                </div>
+                                <div class="row mt-2">
+                                  <div class="col-sm-12">
+                                    <input (change)="statusChangeMade(s);" [(ngModel)]="updateStatusArray[s]!.trackingMessage"
+                                           [attr.disabled]="disabled() ? 'disabled' : null"
+                                           [disabled]="disableCard[s]" aria-label="trackingMessage"
+                                           class="form-control form-control-sm"
+                                           formControlName="trackingMessage" id="trackingMessage"
+                                           placeholder="Enter message" type="text">
+                                  </div>
+                                </div>
+                                <div class="row mt-2">
+                                  <div class="col-sm-6 pe-1">
+                                    <input (change)="statusChangeMade(s);" [(ngModel)]="updateStatusArray[s]!.currentCity"
+                                           [attr.disabled]="disabled() ? 'disabled' : null" aria-label="trackingCity"
+                                           [disabled]="disableCard[s]" [required]="updateStatusArray[s]!.trackingState"
+                                           class="form-control form-control-sm" formControlName="trackingCity"
+                                           id="trackingCity{{s}}" placeholder="Enter City" type="text">
+                                    @if (validateLocation[s].city) {
+                                      <div class="error-message">City is required</div>
+                                    }
+                                  </div>
+                                  <div class="col-sm-6 ps-1">
+                                    <select (change)="changeMade();statusChangeMade(s);" id="currentState{{s}}"
+                                            [(ngModel)]="updateStatusArray[s]!.currentState"
+                                            [attr.disabled]="disabled() ? 'disabled' : null"
+                                            [disabled]="disableCard[s]" [required]="updateStatusArray[s].trackingState"
+                                            class="form-select form-select-sm custom-select" formControlName="trackingState">
+                                      <option disabled hidden selected value="">Select State</option>
+                                      @for (state of states; track state) {
+                                        <option value="{{state}}">{{ state }}</option>
+                                      }
+                                    </select>
+                                    @if (validateLocation[s].state) {
+                                      <div class="error-message">State is required</div>
+                                    }
+                                  </div>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+
+                          <!-- SPECIAL INSTRUCTIONS -->
+                          <div class="row ps-2">
+                            <div class="col-sm-6">
+                              <div class="pb-2">
+                                <app-type-ahead-drop-down
+                                  (modelValueOnChange)="getSpecialInstruction(s, $event);changeMade();"
+                                  [data]="noteList"
+                                  [disabled]="disabled()"
+                                  [editable]="false"
+                                  [isRequired]="false"
+                                  [name]="'specialInstruction'+s"
+                                  [placeHolder]="'Special Instructions'"
+                                  [tagLine]="'Special Instructions'">
+                                </app-type-ahead-drop-down>
+                              </div>
+                              @if (truck?.shipments) {
+                                <div class="pb-2">
+                                <textarea (change)="getSpecialInstruction(s, $event, true);changeMade();"
+                                          [attr.disabled]="disabled() ? 'disabled' : null"
+                                          [value]="truck?.shipments?.[s]?.shipmentDetail?.specialInstructions"
+                                          class="form-control form-control-sm mt-1"
+                                          id="{{'specialInstructionsText' + s }}"
+                                          placeholder="Type Something" rows="3" type="textarea">
+                                </textarea>
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mb-2">
+            <div class="card-body py-2 m-1 p-1">
+              <div class="row px-2">
+                <app-tracking-contacts
+                  (trackingContactsEvent)="getTrackingContactsEvent(s, $event)"
+                  [disabled]="disabledTrackingContacts()"
+                  [shipTrackID]="s"
+                  [shipmentType]="'Truckload'"
+                  [trackingContactsMail]="shipment.trackingContacts">
+                </app-tracking-contacts>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-2">
+            <app-note-form-grid [expand]="false"
+                                [priority]="shipment.shipmentDetail.priority ?? ''"
+                                [shipmentId]="toNumber(shipment.shipmentDetail.shipmentID)"
+                                [shipmentType]="'Truckload'"
+                                id="notesDisplay{{s}}">
+            </app-note-form-grid>
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+
+  <div aria-hidden="true" class="modal fade" id="viewAllTrackingModal" role="dialog" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered pt-5" role="document">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+        <span class="fw-bold ps-1 modal-title" style="font-size: large">
+          {{ viewAllTrackingShipmentID }}
+        </span>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center px-4 pt-0">
+          <app-data-table
+            [columns]="viewAllTrackingHeaders"
+            [customSort]="sortOrder"
+            [data]="viewAllTrackingHistoricalEvents"
+            [footerFixed]="false"
+            [hover]="true"
+            [info]="false"
+            [ordering]="true"
+            [paging]="false"
+            [searching]="false">
+          </app-data-table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div aria-hidden="true" class="modal fade" id="deleteTruckModal" role="dialog" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+        <span class="fw-bold ps-1 modal-title" style="font-size: large">
+          Removing Truck {{ truck?.truckID }}
+        </span>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center px-4 pt-0">
+          <p class="swal2-title">
+            Are you sure you want to remove this load?
+            <br>
+            <b>THIS ACTION CANNOT BE UNDONE.</b>
+            <br><br>
+          </p>
+        </div>
+        <div class="modal-footer text-center justify-content-center px-4 pt-0">
+          <button (click)="confirmDeleteTruck()" class="btn btn-danger">Yes, Remove Load</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button [hidden]="true" class="d-none" id="uploadFileModalButton"
+          data-bs-target="#uploadFileModal" data-bs-toggle="modal">
+  </button>
+
+  <div aria-hidden="true" class="modal fade" id="uploadFileModal" role="dialog" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+        <span class="fw-bold ps-1 modal-title" style="font-size: large">
+          Upload File for Truck: {{ truck?.truckID }}
+        </span>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body justify-content-center text-center px-4 pt-0">
+          <b>1. Select the type of document to upload</b><br><br>
+          <select (change)="dropDownSelected = true;" class="form-select form-select-sm custom-select" id="manualUploadFileType">
+            <option disabled selected>Select Document Type</option>
+            <option value="Bill of Lading">Bill of Lading</option>
+            <option value="Carrier Confirmation">Carrier Confirmation</option>
+            <option value="Client Quote">Client Quote</option>
+            <option value="Quote Response">Quote Response</option>
+            <option value="Tracking Response">Tracking Response</option>
+            <option value="Insurance Certificate">Insurance Certificate</option>
+            <option value="Proof of Delivery">Proof of Delivery</option>
+            <option value="Other Document">Other</option>
+          </select>
+          <br>
+          <b>2. Click below to attach your file</b><br><br>
+          <input (change)="setFileSelected($event)" accept="application/pdf"
+                 class="form-control-file" id="documentToEmail" style="width:200px; display:inline-flex!important;"
+                 type="file">
+          <br><br>
+        </div>
+        <div class="modal-footer text-center justify-content-center px-4 pt-0">
+          <button (click)="confirmFileUpload()" [disabled]="!dropDownSelected || !selectedFile"
+                  class="btn btn-sm btn-success" type="button">
+            Upload <i class="material-icons text-center blue" style="font-size: 14px; color:white">upload</i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

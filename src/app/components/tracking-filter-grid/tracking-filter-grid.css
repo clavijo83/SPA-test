@@ -1,0 +1,7 @@
+.blue {
+  color: #007bff;
+}
+
+::ng-deep body {
+  margin-right: 0 !important;
+}

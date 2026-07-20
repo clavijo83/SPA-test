@@ -1,0 +1,30 @@
+<div [ngClass]="{'form-label-group m-0' : floatingLabel}">
+  <input
+    #instance="ngbTypeahead"
+    (click)="click$.next($any($event).target.value);focusIn($any($event).target.id);"
+    (focus)="focus$.next($any($event).target.value);focusIn($any($event).target.id);"
+    (focusout)="focusOut($any($event).target.value);"
+    (ngModelChange)="getValueOnChange($event)"
+    (selectItem)="clickItemEvent($event)"
+    [(ngModel)]="model"
+    [attr.disabled]="disabled ? 'disabled' : null"
+    [editable]="this.editable"
+    [focusFirst]="this.focusFirst"
+    [inputFormatter]="formatter"
+    [ngbTypeahead]="search"
+    [required]="this.isRequired"
+    [resultFormatter]="formatter"
+    [value]="this.dataType==='String' ? selectedValue : formatter"
+    class="form-select form-select-sm custom-select"
+    id="{{name}}"
+    name="{{name}}"
+    placeholder="{{this.placeHolder}}"
+    placement="bottom-left"
+    type="text"
+    [ngStyle]="{'width': this.width}"/>
+  @if (floatingLabel) {
+    <label for="{{name}}">{{this.placeHolder}}</label>
+  }
+  <div class="invalid-tooltip">{{tagLine}} is missing.</div>
+</div>
+

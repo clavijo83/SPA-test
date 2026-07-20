@@ -1,0 +1,236 @@
+.label {
+  color: #999999;
+  text-align: left;
+  width: 25%;
+  height: 24px;
+}
+
+.blue {
+  color: #007bff;
+}
+
+.card-size {
+  min-height: 1px;
+}
+
+.max-height {
+  max-height: 350px;
+  border-left: 6px solid #007bff;
+  margin-bottom: 20px;
+}
+
+.card-stop {
+  border-left: 6px solid #007bff;
+}
+
+.text-size {
+  font-size: 14px;
+}
+
+.btn-sm {
+  width: 100%;
+}
+
+.carrier-info-card {
+  background: #f8f9fa;
+}
+
+.center {
+  display: flex;
+  min-width: 1080px;
+  max-width: 1080px;
+  padding-right: 6rem;
+  overflow: hidden;
+  justify-content: center;
+}
+
+.label-no-edit {
+  color: #999999;
+  font-size: .8rem;
+  padding: .15rem 0 0 0;
+}
+
+.label-edit {
+  font-weight: bold;
+  color: black;
+  font-size: .8rem;
+  padding: 0 .4rem 0 0;
+}
+
+
+.icon-size {
+  font-size: 18px;
+  color: #007bff;
+}
+
+.check-box {
+  width: 10px;
+}
+
+.label-font-size {
+  font-size: .6rem;
+}
+
+.form-check-input {
+  margin-left: -.7rem !important;
+}
+
+.form-check {
+  padding-left: .9rem !important;
+}
+
+.pickup-delivery-label {
+  max-width: 75px;
+}
+
+.mabd-label {
+  max-width: 75px;
+}
+
+.actual-dates {
+  /*width: 115px;*/
+  min-width: 115px;
+  /*height: 20px !important;*/
+  font-size: .7rem
+}
+
+.pro-pu {
+  max-width: 180px;
+  height: 26px !important;
+}
+
+.w-80 {
+  width: 80px;
+  min-width: 80px !important;
+}
+
+.w-70 {
+  width: 70px;
+  min-width: 70px;
+  max-width: 70px;
+}
+
+.date-margin-bottom {
+  margin-bottom: .1rem !important;
+}
+
+.icon-padding {
+  padding-left: 3.5rem !important;
+}
+
+@media only screen and (max-width: 600px) {
+  .icon-padding {
+    padding-left: 7.5rem !important
+  }
+}
+
+@media only screen and (min-width: 1920px) {
+  .icon-padding {
+    padding-left: 10.5rem !important;
+  }
+}
+
+@media only screen and (min-width: 2560px) {
+  .icon-padding {
+    padding-left: 19.5rem !important;
+  }
+}
+
+.modal-header-font {
+  font-size: 18px
+}
+
+.clipboard-icon {
+  font-size: 16px;
+  color: dodgerblue;
+  padding-top: .20rem !important;
+}
+
+.shipper-email {
+  height: 18px;
+}
+
+.shippingDetailsText span[id=emailText] {
+  text-transform: none;
+}
+
+.bold {
+  font-weight: bolder;
+  color: black;
+}
+
+@media (min-width: 576px) {
+  .card-deck .card {
+    margin-right: 5px;
+    margin-left: 5px;
+  }
+}
+
+.rounded-col {
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+}
+
+.round-btn {
+  height: 50px;
+  width: 50px;
+  border-radius: 100%;
+  display: inline-block;
+}
+
+.align-right {
+  text-align: right;
+}
+
+.rotate-90 {
+  transform: rotate(90deg);
+}
+
+.greyLine {
+  width: 100%;
+  height: 1px;
+  background-color: #dfdfdf;
+  margin-bottom: 5px;
+}
+
+.scheduledContainer {
+  border: 2px solid #ebebeb;
+  border-radius: 5px;
+  padding: 6px;
+}
+
+::ng-deep .swal2-input-label {
+  font-style: italic;
+  font-weight: 500;
+}
+
+.error-message {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 5;
+  max-width: 100%;
+  padding: 0.25rem 0.5rem;
+  margin-top: 0.1rem;
+  font-size: .875rem;
+  line-height: 1.5;
+  color: #fff;
+  background-color: rgba(220, 53, 69, .9);
+  border-radius: 0.25rem;
+}
+
+.form-label-group input:not(:placeholder-shown) ~ label {
+  top: -12px;
+}
+
+.divider {
+  border-top: 1px solid rgba(0, 0, 0, .1);
+  margin-top: 10px
+}
+
+.vl {
+  border-left: 6px solid #007bff;
+  height: 80%;
+  border-radius: 0.25rem;
+}

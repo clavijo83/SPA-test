@@ -1,0 +1,71 @@
+<div *ngIf="this.truck.state != 'PENDING' && this.truck.state != 'PREBOOKED' && this.truck.state != 'BOOKED' &&
+this.truck.state != 'REQUEST FOR QUOTE'">
+  <ul class="steps">
+    <li class="step m-0 ps-4">
+      <span><i class="material-icons location"></i></span>
+      <div class="step-content step-active">
+        <span class="step-circle"></span>
+        <span class="step-text">Origin</span>
+        <span *ngIf="this.firstShipment?.shipper?.city && this.firstShipment?.shipper?.state"
+              class="step-text step-font text-uppercase">{{this.firstShipment?.shipper?.city}}
+          , {{this.firstShipment?.shipper?.state}}</span>
+      </div>
+    </li>
+    <li *ngFor="let stop of this.otherStops; index as i" class="step" id="stop">
+
+        <span>
+          <i class="material-icons location" id="test1">
+          <span *ngIf="getCurrentStatus(stop)=='IN TRANSIT'">local_shipping</span>
+          </i>
+        </span>
+
+      <div *ngIf="getCurrentStatus(stop) === 'DELIVERED'" class="step-content step-active">
+        <span class="step-circle"></span>
+        <span class="step-text">Stop {{i + 1}}</span>
+        <span *ngIf="stop.consignee?.city && stop.consignee?.state"
+              class="step-text step-font text-uppercase destination-padding">{{stop.consignee?.city}}
+          , {{stop.consignee?.state}}</span>
+      </div>
+
+      <div *ngIf="getCurrentStatus(stop) !== 'DELIVERED'" class="step-content">
+        <span class="step-circle"></span>
+        <span class="step-text">Stop {{i + 1}}</span>
+        <span *ngIf="stop.consignee?.city && stop.consignee?.state"
+              class="step-text step-font text-uppercase destination-padding">{{stop.consignee?.city}}
+          , {{stop.consignee?.state}}</span>
+      </div>
+
+    </li>
+    <li class="step" id="delivery">
+
+      <span *ngIf="getCurrentStatus(lastShipment) === 'IN TRANSIT' || getCurrentStatus(lastShipment) === 'NEXT STOP'">
+        <i class="material-icons location float-start" id="destIcon">local_shipping</i>
+      </span>
+
+      <span>
+        <i *ngIf="getCurrentStatus(lastShipment) !== 'IN TRANSIT' && getCurrentStatus(lastShipment) !== 'NEXT STOP'"
+           class="material-icons location"></i>
+      </span>
+
+      <div
+        *ngIf="getCurrentStatus(lastShipment) === 'DELIVERED' || getCurrentStatus(lastShipment) === 'RECEIVED POD' || this.truck.state == 'COMPLETE'"
+        class="step-content step-success">
+        <span class="step-circle"></span>
+        <span class="step-text destination">Destination</span>
+        <span *ngIf="this.lastShipment?.consignee?.city && this.lastShipment?.consignee?.state"
+              class="step-text step-font text-uppercase destination-padding">{{this.lastShipment?.consignee?.city}}
+          , {{this.lastShipment?.consignee?.state}}</span>
+      </div>
+      <div *ngIf="getCurrentStatus(lastShipment) !== 'DELIVERED' && getCurrentStatus(lastShipment) !== 'RECEIVED POD'"
+           class="step-content">
+        <span class="step-circle"></span>
+        <span class="step-text destination">Destination</span>
+        <span *ngIf="this.lastShipment?.consignee?.city && this.lastShipment?.consignee?.state"
+              class="step-text step-font text-uppercase destination-padding">{{this.lastShipment?.consignee?.city}}
+          , {{this.lastShipment?.consignee?.state}}</span>
+      </div>
+    </li>
+  </ul>
+</div>
+
+

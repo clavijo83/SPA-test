@@ -1,0 +1,132 @@
+<!-- if there is a list of stops, build the progress bar -->
+<div *ngIf="this.shipmentHistory.stops && this.shipmentHistory.stops.length > 0 &&
+currentStatus !='PROBLEM' && currentStatus!='CANCELED'; else manualTrackBar">
+  <ul class="steps">
+    <li class="step m-0 ps-4">
+      <span><i class="material-icons location"></i></span>
+      <div *ngIf="this.originStop[0].statusCode ==='ARRIVED' || this.originStop[0].statusCode === 'DEPARTED'"
+           class="step-content step-active">
+        <span class="step-circle"></span>
+        <span class="step-text">Origin</span>
+        <span *ngIf="this.originStop[0].stopCity && this.originStop[0].stopState"
+              class="step-text step-font text-uppercase">{{this.originStop[0].stopCity}}
+          , {{this.originStop[0].stopState}}</span>
+      </div>
+      <div
+        *ngIf="this.originStop[0].statusCode ==='' || this.originStop[0].statusCode ==='EN_ROUTE' || this.originStop[0].statusCode ==='UNKNOWN'"
+        class="step-content">
+        <span class="step-circle"></span>
+        <span class="step-text pu">Origin</span>
+        <span *ngIf="this.originStop[0].stopCity && this.originStop[0].stopState"
+              class="step-text step-font text-uppercase">{{this.originStop[0].stopCity}}
+          , {{this.originStop[0].stopState}}</span>
+      </div>
+    </li>
+    <li *ngFor="let stop of this.stops; index as i" class="step" id="stop">
+      <!--show icon only on current stop
+      THERE ARE SOME WEIRD CASES WHERE TERMINAL STOP DOES NOT GET UPDATED TO DEPARTED
+      SO WE HAVE THE INDEX TO CHECK FOR CURRENT STOP AND THEN WE CHECK STATUS CODE OF DESTINATION AS WELL TO MAKE SURE IT HASN'T ARRIVED, DEPARTED OR IS EN_ROUTE
+      -->
+      <span
+        *ngIf="(stop.statusCode==='ARRIVED'&& (i===this.currentStopIndex)) && (this.destinationStop[0]?.statusCode==='UNKNOWN')"><i
+        class="material-icons location" id="test1">local_shipping</i></span>
+      <span
+        *ngIf="((stop.statusCode!='ARRIVED' || (i!=this.currentStopIndex)) && (this.destinationStop[0]?.statusCode!='UNKNOWN' || this.destinationStop[0]?.statusCode==='UNKNOWN' )) || ((stop.statusCode==='ARRIVED'&& (i===this.currentStopIndex)) && this.destinationStop[0]?.statusCode!='UNKNOWN') "><i
+        class="material-icons location" id="test3"></i></span>
+      <div *ngIf="stop.statusCode ==='ARRIVED' || stop.statusCode ==='DEPARTED'"
+           class="step-content step-active">
+        <span class="step-circle"></span>
+        <!--show stop info only on current stop-->
+        <!--   <span *ngIf="this.stop.stopArrival !='' && this.stop.stopDeparted===''" class="step-text">Terminal</span>-->
+        <span
+          *ngIf="(stop.statusCode==='ARRIVED' && (i===this.currentStopIndex)) && (this.destinationStop[0]?.statusCode==='UNKNOWN' || this.destinationStop[0]?.statusCode==='')"
+          class="step-text step-font text-uppercase">{{stop.stopCity}}, {{stop.stopState}}</span>
+      </div>
+      <div *ngIf="stop.statusCode ==='EN_ROUTE' || stop.statusCode ==='UNKNOWN'" class="step-content">
+        <span class="step-circle"></span>
+        <!--<span *ngIf="this.stop.stopArrival !='' && this.stop.stopDeparted===''" class="step-text">Terminal</span>-->
+        <!--  <span *ngIf="this.stop.stopArrival !='' && this.stop.stopDeparted===''" class="step-text step-font text-uppercase">{{stop.stopCity}}, {{stop.stopState}}</span>-->
+      </div>
+    </li>
+    <li class="step" id="delivery">
+      <span *ngIf="this.destinationStop[0]?.statusCode ==='EN_ROUTE'"><i class="material-icons location float-start"
+                                                                         id="destIcon">local_shipping</i></span>
+      <span><i *ngIf="this.destinationStop[0]?.statusCode !='EN_ROUTE'" class="material-icons location"></i></span>
+      <div *ngIf="this.destinationStop[0]?.statusCode ==='ARRIVED' || this.destinationStop[0]?.statusCode ==='DEPARTED'"
+           class="step-content step-success">
+        <span class="step-circle"></span>
+        <span class="step-text destination">Destination</span>
+        <span *ngIf="this.destinationStop[0]?.stopCity && this.destinationStop[0]?.stopState"
+              class="step-text step-font text-uppercase destination-padding">{{this.destinationStop[0].stopCity}}
+          , {{this.destinationStop[0].stopState}}</span>
+      </div>
+      <div *ngIf="this.destinationStop[0]?.statusCode ==='EN_ROUTE' || this.destinationStop[0]?.statusCode ==='UNKNOWN'"
+           class="step-content">
+        <span class="step-circle"></span>
+        <span class="step-text destination">Destination</span>
+        <span *ngIf="this.destinationStop[0]?.stopCity && this.destinationStop[0]?.stopState"
+              class="step-text step-font text-uppercase destination-padding">{{this.destinationStop[0].stopCity}}
+          , {{this.destinationStop[0].stopState}}</span>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<ng-template #manualTrackBar>
+  <ul class="steps">
+    <li class="step m-0 ps-4">
+      <span><i class="material-icons location"></i></span>
+      <div *ngIf="this.currentStatus != 'PENDING' && this.currentStatus != 'PREBOOKED' && this.currentStatus != 'QUOTE_SENT_TO_CLIENT'
+      && this.currentStatus != 'FINDING_QUOTES' && this.currentStatus != 'BOOKED' && this.currentStatus != ''"
+           class="step-content step-active">
+        <span class="step-circle"></span>
+        <span class="step-text">In Transit</span>
+        <span *ngIf="this.origin"
+              class="step-text step-font text-uppercase">{{this.origin}}
+        </span>
+      </div>
+      <div *ngIf="this.currentStatus == 'PENDING' || this.currentStatus == 'PREBOOKED' || this.currentStatus == 'QUOTE_SENT_TO_CLIENT'
+      || this.currentStatus == 'FINDING_QUOTES' || this.currentStatus == 'BOOKED';"
+           class="step-content">
+        <span class="step-circle"></span>
+        <span class="step-text pu">In Transit</span>
+        <span *ngIf="this.origin"
+              class="step-text step-font text-uppercase">{{this.origin}}</span>
+      </div>
+    </li>
+    <li class="step m-0">
+      <span><i class="material-icons location"></i></span>
+      <div *ngIf="this.currentStatus == 'DELIVERED' || this.currentStatus == 'OUT_FOR_DELIVERY'"
+           class="step-content step-active">
+        <span class="step-circle"></span>
+        <span class="step-text">Out for Delivery</span>
+      </div>
+      <div *ngIf="this.currentStatus != 'DELIVERED' && this.currentStatus != 'OUT_FOR_DELIVERY'"
+           class="step-content">
+        <span class="step-circle"></span>
+        <span class="step-text pu">Out for Delivery</span>
+      </div>
+    </li>
+
+    <li class="step m-0">
+      <span><i class="material-icons location"></i></span>
+      <div *ngIf="this.currentStatus == 'DELIVERED'"
+           class="step-content step-active">
+        <span class="step-circle"></span>
+        <span class="step-text">Deliver</span>
+        <span *ngIf="this.origin"
+              class="step-text step-font text-uppercase">{{this.destination}}
+        </span>
+      </div>
+      <div *ngIf="this.currentStatus != 'DELIVERED'"
+           class="step-content">
+        <span class="step-circle"></span>
+        <span class="step-text pu">Deliver</span>
+        <span *ngIf="this.origin"
+              class="step-text step-font text-uppercase">{{this.destination}}</span>
+      </div>
+    </li>
+  </ul>
+</ng-template>
+
+

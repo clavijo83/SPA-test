@@ -1,0 +1,107 @@
+<div class="font-smaller pb-1 disable-h-scroll disable-v-scroll" id="trackingGrid">
+  <ngx-spinner name="trackingGridSpinner"></ngx-spinner>
+  <div class="row">
+    <div class="container-fluid">
+      <div class="row m-3">
+        @if (this.trackingGridName() == 'trackingWhiteboard') {
+          <div class="px-2" [ngClass]="{'col-sm-10 offset-sm-2': !this.global.isCollapsed(), 'col': this.global.isCollapsed()}">
+            <div class="row pb-2 font-small">
+              <div class="col">
+                <div class="form-label-group m-0">
+                  <app-client-dropdown
+                    (clientChangeEvent)="onClientChange()" (groupEvent)="groupEventHandler($event)"
+                    [clientRequired]="false" [currentClient]="this.currentClient"
+                    [currentGroupName]="this.currentGroupName" [currentGroup]="this.groupID" [plantEditable]="true"
+                    [plantRequired]="false"
+                    [setPlantWhenSelectClient]="false">
+                  </app-client-dropdown>
+                </div>
+              </div>
+              <div class="col-2">
+                <div class="form-label-group m-0">
+                  <app-type-ahead-drop-down
+                    (modelValueOnChange)="setControlValue($event, 'mode');"
+                    [editable]="false"
+                    [name]="'mode'"
+                    [tagLine]="'Mode'"
+                    [data]="this.modeDropdown"
+                    [selectedValue]="this.mode"
+                    [placeHolder]="'Mode'">
+                  </app-type-ahead-drop-down>
+                </div>
+              </div>
+              <div class="col-2">
+                <div class="form-label-group m-0">
+                  <app-type-ahead-drop-down
+                    (modelValueOnChange)="setControlValue($event, 'priority');"
+                    [editable]="false"
+                    [name]="'priority'"
+                    [tagLine]="'Priority'"
+                    [data]="getPriority"
+                    [selectedValue]="this.priority"
+                    [placeHolder]="'Priority'">
+                  </app-type-ahead-drop-down>
+                </div>
+              </div>
+              <div class="col-2">
+                <button (click)="sendSearchParams()" class="btn btn-sm btn-primary w-100" type="button">
+                  Pull Whiteboard
+                </button>
+              </div>
+              <div class="col-1">
+                <button (click)="resetForm();" class="btn btn-sm btn-danger w-100" type="button">
+                  Reset
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+        <div class="px-1" [ngClass]="{'col-sm-10 offset-sm-2': !this.global.isCollapsed(), 'col': this.global.isCollapsed()}">
+          @if (this.trackingData().length > 0) {
+            <app-data-table
+              (advancedFormFilters)="advancedFormFilters($event)"
+              (refreshTableEvent)="this.refreshGrids(true)"
+              (resetTable)="this.resetTrackingTable($event)"
+              [advancedSearch]="true"
+              [autoWidth]="false"
+              [columns]="this.trackingTableColumns"
+              [customFixedHeight]="true"
+              [customSort]="this.sortOrder"
+              [data]="this.trackingData()"
+              [footerFixed]="true"
+              [gridName]="this.trackingGridName()"
+              [hover]="true"
+              [info]="true"
+              [lengthChange]="false"
+              [ordering]="true"
+              [paging]="true"
+              [searching]="true"
+              [setAdvancedFilterData]="this.advancedFilterData"
+              [setCarrierFilterData]="this.global.carrierFilterData()"
+              [setClientsFilterData]="this.global.clientFilterData()"
+              [setStatusesFilterData]="this.global.statusFilterData()">
+            </app-data-table>
+          } @else {
+            <app-data-table
+              (refreshTableEvent)="this.refreshGrids(true)"
+              [advancedSearch]="true"
+              [autoWidth]="false"
+              [columns]="this.trackingTableColumns"
+              [customFixedHeight]="true"
+              [customSort]="this.sortOrder"
+              [data]="[]"
+              [footerFixed]="true"
+              [gridName]="this.trackingGridName()"
+              [hover]="true"
+              [info]="true"
+              [lengthChange]="false"
+              [ordering]="true"
+              [paging]="true"
+              [searching]="true">
+            </app-data-table>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

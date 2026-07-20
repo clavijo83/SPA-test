@@ -1,0 +1,25 @@
+.location {
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+  float: right;
+}
+
+.step-text {
+  font-size: .8rem;
+  text-align: center;
+}
+
+.step-font {
+  font-size: .55rem;
+  width: 120px;
+}
+
+.destination {
+  width: 100px !important;
+  padding-left: 15px;
+}
+
+.destination-padding {
+  padding-left: 15px;
+}

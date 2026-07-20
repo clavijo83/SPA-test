@@ -1,0 +1,589 @@
+<form [formGroup]="historyItem" class="needs-validation" id="trackingDetailsForm" name="form" novalidate>
+  <div class="container-fluid">
+    <div class="row p-3">
+      <div [ngClass]="{'col-sm-10 offset-sm-2': !global.isCollapsed(), 'col': global.isCollapsed() }" id="newShipmentFormContainer">
+
+        <div class="pb-2">
+          <ngx-spinner name="trackingDetailsSpinner"></ngx-spinner>
+
+          <ngx-spinner name="trackingDetails">
+            <h1 style="color: white;">Loading Shipment Information</h1>
+          </ngx-spinner>
+
+          <ngx-spinner name="savingTrackingDetails">
+            <h1 style="color: white;">Saving Tracking Information...</h1>
+          </ngx-spinner>
+
+          @if (showTrackingDetailsInfo()) {
+            <div class="row align-items-center blueHeaderContainer mx-0">
+              <div class="col-5">
+                @if (shipmentDetail() && shipmentDetail()?.shipmentStatus !== 'DELETED') {
+                  <button (click)="onBtnEditShipmentClick()" class="btn btn-sm btn-success mx-1 float-start">
+                    <i class="material-icons pl-1 assignment-return-size float-start">edit</i>
+                    Edit Shipment
+                  </button>
+
+                  <button (click)="duplicateLoadOnClick()" class="btn btn-sm btn-success float-start mx-1">
+                    <i class="material-icons pl-1 assignment-return-size float-start">save_as</i>
+                    Duplicate Shipment
+                  </button>
+                }
+
+                @if (shipmentDetail() && shipmentDetail()?.shipmentStatus == 'PREBOOKED' || shipmentDetail()?.shipmentStatus == 'BOOKED' ||
+                shipmentDetail()?.shipmentStatus == 'PENDING' || shipmentDetail()?.shipmentStatus == 'FINDING_QUOTES') {
+                  <button (click)="onBtnCreateAsTruckload()" class="btn btn-sm btn-primary float-start mx-1">
+                    <i class="material-icons pl-1 assignment-return-size float-start">local_shipping</i>
+                    Create as Truckload
+                    <button [hidden]="true" data-bs-target="#createAsTruckModal" data-bs-toggle="modal"
+                            id="createAsTruckModalButton" style="display: none;"></button>
+                  </button>
+                }
+              </div>
+
+              <div class="col align-content-center">
+                <div class="text-white d-inline-block fs-6">
+                  Created: {{ shipmentHistoryCreatedOn() }} By: {{ shipmentHistoryCreatedByEmail() }}
+                  <app-email-modal [BOLNumber]="shipmentID() ?? ''"
+                                   [btnClassType]="''"
+                                   [btnLabel]="''"
+                                   [disableBtn]="false"
+                                   [emailBody]="statusEmailBody()"
+                                   [emailIconLight]="true"
+                                   [emailIcon]="true" [emailModalLabel]="'New Message - Status Alert'"
+                                   [emailModalName]="'ShipmentInfoCreatedByEmailModal'"
+                                   [emailSubject]="'Status Alert: '+ (clientCode() ?? '') + (shipmentID() ?? '')"
+                                   [fromEmailAddress]="shipmentHistory()?.client?.lpTeamEmail ?? 'redteam@il2000.com'"
+                                   [htmlEmailBody]="''"
+                                   [isHtml]="false"
+                                   [toEmailAddress]="shipmentHistoryCreatedByEmail().toLowerCase() ?? ''"
+                                   class="d-inline-block shipper-email text-center text-dark">
+                  </app-email-modal>
+                </div>
+              </div>
+
+              <div class="col-1">
+                <span class="float-end fw-bold">
+                  {{ currentStatus().toUpperCase() }}
+                </span>
+              </div>
+            </div>
+
+            <!--
+            <div class="center" style="margin:0 auto;">
+              <div *ngIf="shipmentHistory">`
+                <app-tracking-progress-bar
+                  [shipmentHistory]="shipmentHistory">
+                </app-tracking-progress-bar>
+              </div>
+            </div>-->
+
+            <!--Carrier and Shipment Info Cards-->
+            <app-shipment-info-cards
+              (changeNote)="notes.addNoteService(shipmentID(),true,false, $event, false)"
+              (deliveryDateChange)="deliveryDateChangeCheck($event)"
+              (getShipmentHist)="getShipmentHist($event)"
+              (mabdDateChange)="mabdDateChangeCheck($event)"
+              [lastClientNote]="lastClientNote()"
+              [poMoniker]="poMoniker()"
+              [shipmentID]="shipmentID()"
+              [shipmentPriority]="shipmentPriority()"
+              [showEdit]="showEdit()">
+            </app-shipment-info-cards>
+
+            <!--Purchase Order Section-->
+            <div class="row pb-3">
+              @if (shipmentDetail()?.shipmentStatus !== 'DELETED') {
+                <div class="col-sm-1 pr-2 mt-2 d-flex justify-content-around">
+                  @if (showEdit()) {
+                    <div class="px-1" ngbTooltip="Edit Details" placement="top">
+                      <div class="rounded-col p-0 mb-2">
+                        <button (click)="onEditClick()" class="btn btn-sm w-100 fw-bold btn-primary round-btn p-2" type="button">
+                          <i class="material-icons p-1">edit</i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="px-1" ngbTooltip="Copy To New Shipment" placement="top">
+                      <div class="rounded-col p-0 mb-2">
+                        <button (click)="onShowCloneFeature()" class="btn btn-sm w-100 fw-bold btn-primary round-btn p-2" type="button">
+                          <i class="material-icons p-1">copy_all</i>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+
+              <div class="col-sm">
+                <div class="card-body mx-1">
+                  <div class="table-responsive">
+                    <table class="table table-borderless">
+                      <thead>
+                      <tr>
+                        <th class="fw-bold" scope="col">HU</th>
+                        <th class="fw-bold" scope="col">Pieces</th>
+                        <th class="fw-bold" scope="col">Weight</th>
+                        <th class="fw-bold" scope="col">Dimensions</th>
+                        <th class="fw-bold" scope="col">HM</th>
+                        <th class="fw-bold" scope="col">Commodity Description</th>
+                        <th class="fw-bold" scope="col">NMFC#</th>
+                        <th class="fw-bold" scope="col">Class</th>
+                      </tr>
+                      </thead>
+
+                      <tbody>
+                        @for (lineItem of shipmentHistory()?.lineItems; track lineItem) {
+                          <tr class="text-center">
+                            <td>
+                              <span>{{ lineItem?.handlingUnits }}</span>
+                            </td>
+                            <td>
+                              <span>{{ lineItem?.pieces }}</span>
+                            </td>
+                            <td>
+                              <span>{{ lineItem?.totalWeight ? lineItem?.totalWeight : lineItem?.unitWeight }}</span>
+                            </td>
+                            <td>
+                              <span>{{ lineItem?.length ? (lineItem?.length + '" x ') : '' }}{{ lineItem?.width ? (lineItem?.width + '" x ') : '' }}{{ lineItem?.height ? (lineItem?.height + '"') : '' }}</span>
+                            </td>
+                            <td>
+                              <span>{{ lineItem?.hazmat ? 'Yes' : 'No' }}</span>
+                            </td>
+                            <td>
+                              <span>{{ lineItem?.productDescription }}</span>
+                            </td>
+                            <td>
+                              <span>{{ lineItem?.nmfc }}</span>
+                            </td>
+                            <td>
+                              <span>{{ lineItem?.freightClass }}</span>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+
+                      <tfoot class="text-center">
+                      <tr>
+                        <td class="fw-bold">{{ getPurchaseOrderTotals('hu') }}</td>
+                        <td class="fw-bold">{{ getPurchaseOrderTotals('pieces') }}</td>
+                        <td class="fw-bold">{{ getPurchaseOrderTotals('weight') }}</td>
+                        <td class="fw-bold"></td>
+                        <td class="fw-bold"></td>
+                        <td class="fw-bold">TOTALS</td>
+                        <td class="fw-bold">-</td>
+                        <td class="fw-bold">-</td>
+                      </tr>
+                      </tfoot>
+
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- HISTORY SECTION  -->
+            <div class="row pb-3">
+              <div class="col-sm-12">
+                <div class="accordion">
+                  <div class="icon-pointer card">
+                    <div (click)="headerClicked('#history-grid')" aria-expanded="false"
+                         class="card-header" data-bs-target="#history-grid" data-bs-toggle="collapse">
+                      <div class="text-center fw-bold text-dark pt-1">
+                        <b>HISTORY</b>
+                        <i class="material-icons float-end pointer-event-none" id="historyExpandMore" [ngStyle]="{'display': (headerExpanded) ? 'none' : ''}">expand_more</i>
+                        <i class="material-icons float-end pointer-event-none" id="historyExpandLess" [ngStyle]="{'display': (!headerExpanded) ? 'none' : ''}" >expand_less</i>
+                      </div>
+                    </div>
+                    <div aria-labelledby="history-grid" class="collapse" data-parent="#accordion" id="history-grid">
+                      @if (!showEdit()) {
+                        <div class="font-smaller">
+                          <div class="row p-3 justify-content-center align-items-end">
+                            <div class="col-sm-2 pe-1">
+                              <label class="fw-bold m-0" for="date">Date</label>
+                              <input [formControlName]="'date'" [required]="isRequired" aria-label="date"
+                                     class="form-control form-control-sm" id="date"
+                                     max="{{global.formattedMaxDate()}}" name="date"
+                                     type="date">
+                              <div class="invalid-tooltip">Date is missing.</div>
+                            </div>
+                            <div class="col-sm-2 px-1">
+                              <label class="fw-bold m-0" for="time">Time</label>
+                              <input [formControlName]="'time'" [required]="isTimeRequired"
+                                     class="form-control form-control-sm" id="time"
+                                     name="time"
+                                     type="time">
+                              <div class="invalid-tooltip">Invalid Time</div>
+                            </div>
+                            <div class="col-sm-2 px-1">
+                              <label class="fw-bold m-0" for="status">Status</label><br>
+                              <select (change)="setStatus()"
+                                      [attr.disabled]="shipmentHistory()?.shipmentDetail?.shipmentStatus == 'PARCEL_SHIPPED' ? 'disabled' : null"
+                                      [disabled]="shipmentHistory()?.shipmentDetail?.shipmentStatus == 'PARCEL_SHIPPED'"
+                                      class="custom-select form-select form-select-sm"
+                                      id="status">
+                                <option disabled selected>Select Status</option>
+                                @for (status of availableStatuses; track status) {
+                                  <option
+                                    [attr.selected]="shipmentHistory()?.shipmentDetail?.shipmentStatus == 'PARCEL_SHIPPED' && status.status == 'PARCEL_SHIPPED' ? 'selected' : null"
+                                    [selected]="shipmentHistory()?.shipmentDetail?.shipmentStatus == 'PARCEL_SHIPPED' && status.status == 'PARCEL_SHIPPED'"
+                                    value="{{status.status}}">{{ status.description }}
+                                  </option>
+                                }
+                              </select>
+                            </div>
+                            <div class="col-sm px-1">
+                              <label class="fw-bold m-0" for="city">Location</label>
+                              <input [formControlName]="'city'" class="form-control form-control-sm d-inline-fle city-ctrl"
+                                     id="city" name="city" placeholder="City"
+                                     type="text">
+                            </div>
+                            <div class="col-sm-2 px-1">
+                              <app-type-ahead-drop-down
+                                (modelValueOnChange)="setState($event)"
+                                [data]="states"
+                                [editable]="false"
+                                [floatingLabel]="false"
+                                [isRequired]="false"
+                                [name]="'state'"
+                                [placeHolder]="'State'"
+                                [selectedValue]="selectedState"
+                                [tagLine]="'states'"
+                                id="state">
+                              </app-type-ahead-drop-down>
+                            </div>
+                            <div class="col-sm ps-1">
+                              <label class="fw-bold m-0" for="info">Status Info</label>
+                              <textarea [formControlName]="'info'"
+                                        class="form-control form-control-sm"
+                                        id="info"
+                                        name="info"
+                                        placeholder="Status Info"
+                                        rows="1"
+                                        type="textarea">
+                              </textarea>
+                              <div class="invalid-tooltip">Info is missing.</div>
+                            </div>
+                          </div>
+                        </div>
+                      }
+
+                      @if (shipmentHistory()) {
+                        <div class="font-smaller p-3">
+                          @if (showEdit()) {
+                            <app-data-table
+                              [advancedSearch]="false"
+                              [columns]="histTableColumns"
+                              [customFixedHeight]="false"
+                              [customSort]="sortOrder"
+                              [data]="shipmentHistory()?.historicalEvents"
+                              [footerFixed]="false"
+                              [gridName]="'shipmentHistoryGrid'"
+                              [hover]="false"
+                              [info]="false"
+                              [ordering]="true"
+                              [paging]="false"
+                              [searching]="false">
+                            </app-data-table>
+                          } @else {
+                            <!--HIDE HEADERS-->
+                            <app-data-table
+                              [advancedSearch]="false"
+                              [columns]="histTableColumnsNoHeader"
+                              [customFixedHeight]="false"
+                              [customSort]="sortOrder"
+                              [data]="shipmentHistory()?.historicalEvents"
+                              [footerFixed]="false"
+                              [gridName]="'shipmentHistoryGrid'"
+                              [hover]="false"
+                              [info]="false"
+                              [ordering]="false"
+                              [paging]="false"
+                              [searching]="false">
+                            </app-data-table>
+                          }
+                        </div>
+                      }
+
+                      @if (!showEdit()) {
+                        <div class="col px-3 pt-1">
+                          <p class="text-danger">Statuses are ranked by the date and time entered above. If you would like
+                            this status to be reflected on the shipment make sure it has a date and time that exceed those
+                            if the latest entered status (under History → Date)</p>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- NOTES SECTION  -->
+            @if (shipmentHistory()?.shipmentDetail?.priority) {
+              <app-note-form-grid
+                (isTextAreaFocused)="noteTextAreaFocused($event)"
+                (lastClientNote)="setLastClientNote($event)"
+                (setPriority)="setPriority($event)"
+                [expand]="true"
+                [priority]="shipmentHistory()?.shipmentDetail?.priority ?? ''"
+                [shipmentId]="shipmentID()" class="pb-5">
+              </app-note-form-grid>
+            }
+          }
+
+          <!-- clone shipment feature -->
+          @if (showCloneFeature) {
+            <app-shipments-new [disabledEditAsClone]="currentState"></app-shipments-new>
+          }
+
+          <div class="row pb-3">
+            <div class="col-sm-12">
+              <div class="accordion pb-3">
+                <div class="icon-pointer card">
+                  <div (click)="headerClicked('#bookingDetails')" aria-expanded="false" class="card-header"
+                       data-bs-target="#bookingDetails" data-bs-toggle="collapse" id="bookingHeader">
+                    <div class="text-center fw-bold text-dark pt-1">
+                      <b>DETAILS</b>
+                      <i class="material-icons float-end pointer-event-none" id="bookingExpandMore" [ngStyle]="{'display': (bookingExpanded) ? 'none' : ''}">expand_more</i>
+                      <i class="material-icons float-end pointer-event-none" id="bookingExpandLess" [ngStyle]="{'display': (!bookingExpanded) ? 'none' : ''}" >expand_less</i>
+                    </div>
+                  </div>
+                  <div class="collapse" data-parent="#accordion" id="bookingDetails">
+                    <div class="row p-3">
+
+                      <div class="col-3">
+                        <address class="text-uppercase px-2 mb-0">
+                          <span>{{ shipmentHistory()?.shipmentDetail?.terms }}</span><br>
+                          <span>{{ shipmentHistory()?.billTo?.name | uppercase }}</span><br>
+                          <span>{{ shipmentHistory()?.billTo?.address | uppercase }}</span><br>
+                          <span>{{ shipmentHistory()?.billTo?.city && shipmentHistory()?.billTo?.state ? shipmentHistory()?.billTo?.city?.toUpperCase() + ', ' + shipmentHistory()?.billTo?.state?.toUpperCase() + ' ' : '' }}{{ shipmentHistory()?.billTo?.zip ? shipmentHistory()?.billTo?.zip : '' }}</span><br>
+                        </address>
+                      </div>
+
+                      <div class="col-2">
+                        @if (isInternalGroupMgmt()) {
+                          <button (click)="showHideDetailsBuy()" class="btn btn-primary btn-sm float-start" type="button">
+                            Show IL2k cost
+                          </button>
+                        }
+                      </div>
+
+                      <div class="col-7">
+                        <!-- Accessorial Charge Section -->
+                        <div class="row px-2">
+                          <table class="table table-sm table-borderless border-bottom-0" id="charge">
+                            <thead id="detailsHeader">
+                            <tr>
+                              <th class="fw-bold text-center hideDetailsBuy" scope="col">IL2K Cost</th>
+                              <th class="fw-bold text-center" scope="col">Client Cost</th>
+                              <th class="fw-bold text-center" scope="col">Customer Cost</th>
+                            </tr>
+                            </thead>
+                            <tbody class="text-center">
+                            <tr>
+                              <td class="text-center hideDetailsBuy">
+                                @if (showEdit()) {
+                                  {{ shipmentHistory()?.shipmentDetail?.ilCost ?? 0 | currency }}
+                                } @else {
+                                  <input (change)="updateCosts = true" [(ngModel)]="shipmentHistory()!.shipmentDetail!.ilCost"
+                                         class="form-control form-control-sm" id="ilCost" type="number">
+                                }
+                                {{ shipmentHistory()?.carrierDetail?.carcutAbbreviation ?? 'USD' }}
+                              </td>
+                              <td class="text-center">
+                                @if (showEdit()) {
+                                  {{ shipmentHistory()?.shipmentDetail?.clientCost ?? 0 | currency }}
+                                } @else {
+                                  <input (change)="updateCosts = true" [(ngModel)]="shipmentHistory()!.shipmentDetail!.clientCost"
+                                         class="form-control form-control-sm" id="clientCost" type="number">
+                                }
+                                {{ shipmentHistory()?.client?.cutAbbreviation ?? 'USD' }}
+                              </td>
+                              <td class="text-center">
+                                @if (showEdit()) {
+                                  {{ shipmentHistory()?.shipmentDetail?.customerCost ?? 0 | currency }}
+                                } @else {
+                                  <input (change)="updateCosts = true" [(ngModel)]="shipmentHistory()!.shipmentDetail!.customerCost"
+                                         class="form-control form-control-sm" id="customerCost" type="number">
+                                }
+                                {{ shipmentHistory()?.client?.cutAbbreviation ?? 'USD' }}
+                              </td>
+                            </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                    </div>
+
+                    <!--Purchase Order Section-->
+                    <div class="card-body">
+                      <div>
+                        <!--BILLED TO & REFERENCE SECTIONS-->
+                        <div class="row">
+
+                          <!--ACCESSORIALS-->
+                          <div class="col-6 px-2">
+                            <div class="card">
+                              <div class="card-body">
+                                <h6 class="card-title fw-bold">COST BREAKDOWN</h6>
+                                <table>
+                                  <tr>
+                                    <th class="col-sm-2">Charge</th>
+                                    @if (!hidePriceDetails) {
+                                      <th class="col-sm-2">IL2K Cost</th>
+                                    }
+                                    <th class="col-sm-2">Client Cost</th>
+                                  </tr>
+                                  @for (accessorial of shipmentHistory()?.accessorials; track accessorial) {
+                                    <tr>
+                                      <td class="col-sm-2">{{ accessorial.accessorialName }}</td>
+                                      @if (!hidePriceDetails) {
+                                        <td class="col-sm-2">
+                                          @if (accessorial.accessorialName == 'Discount') {
+                                            <ng-container>-</ng-container>
+                                          }
+                                          {{ accessorial.Buy ?? 0 | currency }} {{ shipmentHistory()?.carrierDetail?.carcutAbbreviation ?? 'USD' }}
+                                        </td>
+                                      }
+                                      <td class="col-sm-2">
+                                        @if (accessorial.accessorialName == 'Discount') {
+                                          <ng-container>-</ng-container>
+                                        }
+                                        {{ accessorial.Sell ?? 0 | currency }} {{ shipmentHistory()?.client?.cutAbbreviation ?? 'USD' }}
+                                      </td>
+                                    </tr>
+                                  }
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- white glove -->
+                          @if (whiteGlove()) {
+                            <div class="col-6 px-2">
+                              <div class="card">
+                                <div class="card-body">
+                                  <h6 class="card-title fw-bold"> White glove</h6>
+                                  <ul class="whiteglove">
+                                    <li>Recipient Name: <span class="whiteglovecolor">{{ whiteGlove().recipientname }}</span>
+                                    </li>
+                                    <li>Email: <span class="whiteglovecolor">{{ whiteGlove().email }}</span></li>
+                                    <li>Telephone: <span class="whiteglovecolor">{{ whiteGlove().telephone }}</span></li>
+                                    <li>Delivery Window Start:
+                                      @if (whiteGlove().deliveryFrom !== '0000-00-00 00:00:00') {
+                                        <span class="whiteglovecolor">
+                                      {{ whiteGlove().deliveryFrom !== '0000-00-00 00:00:00' ? (whiteGlove().deliveryFrom | date: 'MM/dd/yyyy hh:mm a') : '' }}
+                                    </span>
+                                      }
+                                    </li>
+                                    <li>Delivery Window End:
+                                      @if (whiteGlove().deliveryUpto !== '0000-00-00 00:00:00') {
+                                        <span class="whiteglovecolor">
+                                      {{ whiteGlove().deliveryUpto !== '0000-00-00 00:00:00' ? (whiteGlove().deliveryFrom | date: 'MM/dd/yyyy hh:mm a') : '' }}
+                                    </span>
+                                      }
+                                    </li>
+                                    <li>Tier: <span class="whiteglovecolor">{{ whiteGlove().tier }}</span></li>
+                                    <li>Floor: <span class="whiteglovecolor">{{ whiteGlove().floor }}</span></li>
+                                    <li>Elevator: <span class="whiteglovecolor">{{ whiteGlove().elevator }}</span></li>
+                                    <li>Delivery Instructions:
+                                      <span class="whiteglovecolor"> {{ whiteGlove().deliveryinstructions }} </span>
+                                    </li>
+                                  </ul>
+
+                                </div>
+                              </div>
+                            </div>
+                          }
+
+                          <!--SPECIAL INSTRUCTIONS-->
+                          <div class="px-2" [ngClass]="{'col-6': !whiteGlove(), 'col-12': whiteGlove() }">
+                            <div class="card">
+                              <div class="card-body">
+                                <h6 class="card-title fw-bold">SPECIAL INSTRUCTIONS</h6>
+                                <address class="card-text">
+                                  <span>{{ shipmentHistory()?.shipmentDetail?.specialInstructions }}</span><br>
+                                </address>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          @if (shipmentHistory()) {
+            <div class="row pb-3">
+              <div class="col-sm-12">
+                <app-rate-info
+                  [selectedRate]="shipmentHistory()?.selectedRate ?? null">
+                </app-rate-info>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<div aria-hidden="true" class="modal fade" id="createAsTruckModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <span class="fw-bold pl-1 modal-title" style="font-size: large">Convert LTL Shipment to TL</span>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center px-4 pt-0">
+        <p class="swal2-title">
+          Are you sure you want to convert this LTL shipment to a TL shipment?<br>
+          <br><br>
+        </p>
+        <b>Please note</b><br>
+        <p style="color:red">The shipment's status will be set to PREBOOKED.<br>
+          You will need to quote the Shipment as a Truckload, Equipment type will also need to be set.</p>
+        <br><br>
+        <h2>This action cannot be undone.</h2>
+
+        <div class="form-group">
+          <select (change)="onStatusChange($event)" [(ngModel)]="selectedStatus" class="form-select form-select-sm" id="statusSelect">
+            <option disabled selected value="">Select Status</option>
+            <option value="PREBOOKED">PREBOOKED</option>
+            <option value="PENDING">PENDING</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer text-center justify-content-center px-4 pt-0">
+        <button (click)="confirmCreateAsTruckload()" [disabled]="!selectedStatus" class="btn btn-danger">Yes, Convert to
+          Truckload
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (!showEdit()) {
+  <footer class="py-2 fixed-bottom text-black-50 overflow-hidden main-footer-bkg" style="bottom: 1.75rem;">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-5 offset-sm-2">
+            <button (click)="setSubmit()"
+                    [disabled]="!historyItem.valid"
+                    class="btn btn-success btn-sm w-100"
+                    ngbTooltip="Save Changes"
+                    placement="right"
+                    type="button">Save Changes
+            </button>
+        </div>
+        <div class="col-sm-5">
+          <button (click)="onCancelClick()" class="btn btn-danger btn-sm w-100" type="button">
+            Revert Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  </footer>
+}
